@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1>Fritter</h1>
+    <h1>URL Shortener</h1>
     <!-- Children Components -->
     <CreateShortForm/>
     <ShortList/>
