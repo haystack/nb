@@ -1,5 +1,5 @@
 <template>
-  <div class="short-list-item">
+  <div class="short-list-item component">
     <p>Name: {{ short.name }}</p>
     <p>URL: {{ short.url }}</p>
     <p>Created by: {{ creatorIdentity }}</p>
@@ -47,10 +47,3 @@ export default {
   }
 };
 </script>
-
-<style>
-  .short-list-item {
-    border: thin solid black;
-  }
-</style>
-

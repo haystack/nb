@@ -1,14 +1,14 @@
 <template>
 <!-- the submit event will no longer reload the page -->
-  <form id='create-short' v-on:submit.prevent='createShort' method='post'>
+  <form class='component' v-on:submit.prevent='createShort'>
     <h3>Create Short URL</h3>
 
-    <div>
+    <div class='form-group'>
       <label for='name'>Short Name:</label>
       <input id='name' v-model.trim='name' type='text' name='name'>
     </div>
 
-    <div>
+    <div class='form-group'>
       <label for='url'>URL:</label>
       <input id='url' v-model.trim='url' type='url' name='url'>
     </div>
@@ -93,3 +93,27 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+  .form-group {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  label {
+    margin-right: 0.5rem;
+  }
+
+  form {
+    width: fit-content;
+  }
+
+  input[type='text'], input[type='url'] {
+    width: 15rem;
+  }
+
+  form > * {
+    margin-bottom: 1rem;
+  }
+</style>

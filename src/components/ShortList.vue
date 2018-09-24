@@ -1,5 +1,5 @@
 <template>
-  <div id="short-list">
+  <div>
     <h3>All Shorts</h3>
     <div v-if='success' class="success-message">
       {{ success }}
@@ -9,7 +9,9 @@
     </div>
 
     <!-- TODO: Step 3: View All Shorts -->
-
+    <div class="short-list">
+      <ShortListItem v-for="short in shorts" v-bind:short="short"/>
+    </div>
   </div>
 </template>
 
@@ -26,7 +28,7 @@ export default {
     return {
       error: "",
       success: "",
-      shorts: []
+      shorts: [],
     };
   },
 
@@ -54,3 +56,14 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+  .short-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .short-list > * {
+    margin: 0.5rem;
+  }
+</style>

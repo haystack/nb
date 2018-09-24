@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div class='horiz-center'>
     <h1>URL Shortener</h1>
     <!-- Children Components -->
     <CreateShortForm/>
@@ -20,13 +20,17 @@ export default {
 };
 </script>
 
+<!-- global styles -->
 <style>
-#app {
+* {
+  box-sizing: border-box;
+}
+
+body {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  margin-top: 60px;
+  background-color: lightblue;
 }
 
 .success-message {
@@ -36,4 +40,17 @@ export default {
 .error-message {
   color: red;
 }
+
+.component {
+  background-color: whitesmoke;
+  padding: 1rem;
+}
+</style>
+
+<style scoped>
+  .horiz-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 </style>
