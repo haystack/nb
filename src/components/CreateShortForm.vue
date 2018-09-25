@@ -1,6 +1,6 @@
 <template>
 <!-- the submit event will no longer reload the page -->
-  <form class='component' v-on:submit.prevent='createShort'>
+  <form class='component' v-on:submit.prevent='createShort' method="post">
     <h3>Create Short URL</h3>
 
     <div class='form-group'>
@@ -30,6 +30,7 @@
 
 <script>
 import axios from "axios";
+// eslint-disable-next-line
 import { eventBus } from "../main";
 
 export default {

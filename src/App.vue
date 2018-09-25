@@ -1,5 +1,5 @@
 <template>
-  <div class='horiz-center'>
+  <div id="app" class='horiz-center'>
     <h1>URL Shortener</h1>
     <!-- Children Components -->
     <CreateShortForm/>

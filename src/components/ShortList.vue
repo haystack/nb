@@ -8,9 +8,9 @@
       {{ error }}
     </div>
 
-    <!-- TODO: Step 3: View All Shorts -->
     <div class="short-list">
-      <ShortListItem v-for="short in shorts" v-bind:short="short"/>
+      <!-- TODO: Step 3: View All Shorts -->
+
     </div>
   </div>
 </template>
@@ -28,7 +28,7 @@ export default {
     return {
       error: "",
       success: "",
-      shorts: [],
+      shorts: []
     };
   },
 
@@ -44,7 +44,7 @@ export default {
   methods: {
     loadShorts: function() {
       // TODO: Step 3 - View All Shorts
-
+      
     },
 
     clearMessages: function() {
@@ -58,12 +58,12 @@ export default {
 </script>
 
 <style scoped>
-  .short-list {
-    display: flex;
-    flex-wrap: wrap;
-  }
+.short-list {
+  display: flex;
+  flex-wrap: wrap;
+}
 
-  .short-list > * {
-    margin: 0.5rem;
-  }
+.short-list > * {
+  margin: 0.5rem;
+}
 </style>
