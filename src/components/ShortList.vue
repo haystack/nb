@@ -33,7 +33,7 @@ export default {
   },
 
   created: function() {
-    // TODO: Step 4 - Refresh Shorts, Step 5: Propagate Messages
+    // TODO: Step 4 - Refresh Shorts
 
   },
 
