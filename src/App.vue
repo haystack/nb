@@ -1,21 +1,41 @@
 <template>
   <div id="app" class='horiz-center'>
-    <h1>URL Shortener</h1>
-    <!-- Children Components -->
-    <CreateShortForm/>
-    <ShortList/>
+    <div v-if="user">
+      <Logout/>
+    </div>
+    <div v-else>
+      <Register/>
+      <Login/>
+    </div>
   </div>
 </template>
 
 <script>
-import CreateShortForm from "./components/CreateShortForm.vue";
-import ShortList from "./components/ShortList.vue";
+import Register from "./components/Register.vue";
+import Login from "./components/Login.vue";
+import Logout from "./components/Logout.vue";
+import { eventBus } from './main';
 
 export default {
   name: "app",
+  data(){
+    return {
+      user: null
+    }
+  },
   components: {
-    CreateShortForm,
-    ShortList
+    Register,
+    Login,
+    Logout
+  },
+
+  created:function(){
+    eventBus.$on("login", (res) =>{
+      this.user = res
+    });
+    eventBus.$on("logout", () =>{
+      this.user = null
+    })
   }
 };
 </script>

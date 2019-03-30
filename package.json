@@ -1,5 +1,5 @@
 {
-  "name": "url-shortener-vue",
+  "name": "nb-backend-test-vue",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,17 +10,22 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "bcrypt": "^3.0.5",
     "cookie-parser": "^1.4.3",
     "debug": "^4.0.1",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "morgan": "^1.9.1",
+    "passport": "^0.4.0",
+    "passport-http": "^0.3.0",
+    "pg": "^7.9.0",
+    "sequelize": "^5.2.7",
     "vue": "^2.5.17"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.0.3",
+    "@vue/cli-plugin-babel": "^3.5.3",
     "@vue/cli-plugin-eslint": "^3.0.3",
-    "@vue/cli-service": "^3.0.3",
+    "@vue/cli-service": "^3.5.3",
     "vue-template-compiler": "^2.5.17"
   },
   "eslintConfig": {
