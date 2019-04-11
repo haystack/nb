@@ -3,6 +3,19 @@ const User = require('../models').User;
 const router = express.Router();
 
 /**
+ * Get username of active user.
+ * @name POST/api/users/signin
+ */
+router.get('/current', (req, res) => {
+  if (!req.session.userId){
+    return null;
+  }
+  User.findByPk(req.session.userId).then((user) => {
+    res.status(200).json(user);
+  })
+});
+
+/**
  * Set username of active user.
  * @name POST/api/users/signin
  */
@@ -16,9 +29,9 @@ router.post('/login', (req, res) => {
       res.status(401).json({msg: "Incorrect password"});
     } else {
       req.session.userId = user.id;
-      res.status(200).json({msg: "logged in"});
+      res.status(200).json(user);
     }
-});
+  });
 });
 
 router.post('/register', (req, res) => {
@@ -26,7 +39,7 @@ router.post('/register', (req, res) => {
     username: req.body.username,
     email: req.body.email,
     password: req.body.password
-  }).then((user) => {
+  }).then(() => {
     res.status(200).json({msg: "registered"});
   }).catch((err)=>{
     console.log("error:" + err);
@@ -34,10 +47,6 @@ router.post('/register', (req, res) => {
 
 })
 
-/**
- * Set username of active user.
- * @name POST/api/users/signin
- */
 router.post('/logout', (req, res) => {
   req.session.userId = "";
   res.status(200).json({ msg: "signed out" }).end();

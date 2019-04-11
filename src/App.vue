@@ -1,6 +1,9 @@
 <template>
   <div id="app" class='horiz-center'>
     <div v-if="user">
+      <p> Welcome {{user.username}} </p>
+      <ClassCreate/>
+      <ClassList/>
       <Logout/>
     </div>
     <div v-else>
@@ -11,9 +14,13 @@
 </template>
 
 <script>
-import Register from "./components/Register.vue";
-import Login from "./components/Login.vue";
-import Logout from "./components/Logout.vue";
+import axios from "axios";
+
+import Register from "./components/UserSettings/Register.vue";
+import Login from "./components/UserSettings/Login.vue";
+import Logout from "./components/UserSettings/Logout.vue";
+import ClassCreate from "./components/ClassSettings/ClassCreate.vue";
+import ClassList from "./components/ClassSettings/ClassList.vue";
 import { eventBus } from './main';
 
 export default {
@@ -26,15 +33,23 @@ export default {
   components: {
     Register,
     Login,
-    Logout
+    Logout,
+    ClassCreate,
+    ClassList
   },
 
   created:function(){
     eventBus.$on("login", (res) =>{
-      this.user = res
+      this.user = res.data
     });
     eventBus.$on("logout", () =>{
       this.user = null
+    })
+  },
+
+  mounted:function(){
+    axios.get('/api/users/current').then((res)=>{
+      this.user =res.data
     })
   }
 };
