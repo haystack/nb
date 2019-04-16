@@ -15,6 +15,15 @@ const thread = (sequelize, DataTypes) => {
       defaultValue: false,
       allowNull: false
     }
+  },
+  {
+    classMethods:{
+      associate: (models) =>{
+        Thread.belongsTo(models.Location, {as: 'Location'});
+        Thread.belongsTo(models.Annotation, {as: 'HeadAnnotation', foreignKey:{allowNull: false}, constraints: false,});
+        
+      }
+    }
   });
   return Thread;
 };

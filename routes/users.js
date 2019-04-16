@@ -12,7 +12,7 @@ router.get('/current', (req, res) => {
   }
   User.findByPk(req.session.userId).then((user) => {
     res.status(200).json(user);
-  })
+  });
 });
 
 /**

@@ -15,6 +15,19 @@ const nb_class = (sequelize, DataTypes) => {
       defaultValue: false,
       allowNull: false
     }
+  },
+  {
+    classMethods:{
+      associate: (models) =>{
+        Class.belongsTo(models.Institution, {as: 'Institution', foreignKey: 'institution'});
+        Class.belongsTo(models.User, {as: 'Creator', foreignKey: 'creator'});
+        Class.belongsToMany(models.User, {as: 'Instructors', through: 'instructors'});
+        Class.belongsToMany(models.User, {as: 'ClassTAs', through: 'class_tas'});
+        Class.hasMany(models.Section, {as: 'Sections', foreignKey: {name: 'class_id'}, onDelete: 'CASCADE'});
+        Class.belongsTo(models.Section, {as: 'GlobalSection', foreignKey: {name: 'global_section_id'}, constraints: false});
+        Class.hasOne(models.FileSystemObject, {as: 'Root', foreignKey: {name: 'class_id'}, onDelete: 'CASCADE'}); 
+      }
+    }
   });
   return Class;
 };

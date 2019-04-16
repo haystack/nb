@@ -6,6 +6,8 @@
     <div class='form-group'>
       <label for='name'>Class name:</label>
       <input id='name' v-model.trim='name' type='text' name='name'>
+      <label for='name'>Institution name:</label>
+      <input id='institution' v-model.trim='institution' type='text' name='institution'>
     </div>
 
     <input type='submit' value='Create'>
@@ -22,14 +24,16 @@ export default {
   data() {
     return {
       name: "",
+      institution: "",
     };
   },
 
   methods: {
     create: function() {
-        const bodyContent = { name: this.name};
+        const bodyContent = { name: this.name, institution: this.institution};
         axios.post("/api/classes/create", bodyContent).then((res) => {
             this.name = "";
+            this.institution = "";
             console.log("Class has been created")
             console.log(res.data)
             eventBus.$emit("status-change");

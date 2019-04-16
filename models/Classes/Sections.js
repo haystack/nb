@@ -14,6 +14,16 @@ const section = (sequelize, DataTypes) => {
       defaultValue: false,
       allowNull: false
     }
+  },
+  {
+    classMethods:{
+      associate: (models) =>{
+        Section.belongsTo(models.Class, {as: 'Class', foreignKey: {name: 'class_id'}, onDelete: 'CASCADE'});
+        Section.belongsToMany(models.User, {as: 'SectionTAs', through: 'section_tas'});
+        Section.belongsToMany(models.User, {as: 'MemberStudents', through: 'student'});
+        Section.belongsToMany(models.User, {as: 'InvitedStudents', through: 'invited_students'});
+      }
+    }
   });
   return Section;
 };

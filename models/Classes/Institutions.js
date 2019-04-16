@@ -14,4 +14,4 @@ const institution = (sequelize, DataTypes) => {
   return Institution;
 };
 
-module.exports = institution
+module.exports = institution;

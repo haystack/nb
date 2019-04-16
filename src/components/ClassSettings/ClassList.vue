@@ -52,6 +52,7 @@ export default {
         });
       axios.get('/api/classes/student').then(res => {
         console.log("Loaded student classes");
+        console.log(res.data)
         this.s_classes = res.data;
         });
     },

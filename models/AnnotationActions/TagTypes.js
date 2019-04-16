@@ -1,5 +1,5 @@
 const tagTypes = (sequelize, DataTypes) => {
-  const TagTypes = sequelize.define('tagTypes', {
+  const TagType = sequelize.define('tagType', {
     id:{
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -13,8 +13,15 @@ const tagTypes = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+  },
+  {
+    classMethods:{
+      associate: (models) => {
+        TagType.hasMany(models.Tag, {as:'Tags', foreignKey:{allowNull: false}, onDelete: 'CASCADE'});
+      }
+    }
   });
-  return TagTypes;
+  return TagType;
 };
 
 module.exports = tagTypes;

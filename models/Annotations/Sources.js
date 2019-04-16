@@ -18,6 +18,13 @@ const source = (sequelize, DataTypes) => {
       type: DataTypes.ENUM,
       values: ['html', 'pdf', 'image', 'video']
     }
+  },
+  {
+    classMethods:{
+      associate: (models) =>{
+        Source.hasMany(models.Location, {as: 'Locations', foreignKey: {name: 'source_id', allowNull: false}, onDelete: 'CASCADE'});
+      }
+    }
   });
   return Source;
 };
