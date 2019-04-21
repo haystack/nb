@@ -15,6 +15,7 @@ const location = (sequelize, DataTypes) => {
     classMethods:{
       associate: (models) => {
         Location.belongsTo(models.Source, {as: 'Source', foreignKey: {name: 'source_id', allowNull: false}, onDelete: 'CASCADE'});
+        Location.hasOne(models.Thread, {as: 'Thread', foreignKey:{name: 'location_id', allowNull: false}});
       }
     }
   });

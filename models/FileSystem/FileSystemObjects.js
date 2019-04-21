@@ -5,7 +5,7 @@ const file_system_object = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV1,
       primaryKey: true
     },
-    file_name:{
+    filename:{
       type: DataTypes.STRING,
       allowNull: false
     },

@@ -1,8 +1,8 @@
 const express = require('express');
-const User = require('../models').User;
-const Class = require('../models').Class;
-const Section = require('../models').Section;
-const FileSystemObject = require('../models').FileSystemObject;
+const User = require('../models').user;
+const Class = require('../models').class;
+const Section = require('../models').section;
+const FileSystemObject = require('../models').file_system_object;
 const router = express.Router();
 
 /**
@@ -33,7 +33,7 @@ router.post('/create', (req, res) => {
         )
       ])
     )
-    .then(() => FileSystemObject.create({file_name: name, is_directory: true})
+    .then(() => FileSystemObject.create({filename: name, is_directory: true})
       .then((dir) => dir.setClass(nb_class)))
     )
   .then(() => nb_class))
@@ -69,6 +69,34 @@ router.get('/student', (req,res) =>{
       return self.indexOf(value) === index;
     }));
   });
+});
+
+/**
+ * Get all students for a given class
+ * @name GET/api/classes/studentList/:id
+ * @param id: id of the class
+ */
+router.get('/studentList/:id', (req,res) =>{
+  Class.findOne({where:{id: req.params.id}, include:[{association: 'GlobalSection', 
+    include: [{association:'MemberStudents', attributes:['id','username','email']}]}]})
+    .then((nb_class) => 
+      res.status(200).json(nb_class.GlobalSection.MemberStudents)
+    );
+});
+
+/**
+ * Add a student to a given class
+ * @name POST/api/classes/student/:id
+ * @param id: id of the class
+ */
+router.post('/student/:id', (req, res) => {
+  Class.findOne({where:{id: req.params.id}, include:[{association: 'GlobalSection'}]})
+    .then((nb_class) => 
+      User.findByPk(req.body.id).then((user) => 
+        nb_class.GlobalSection.addMemberStudent(user)
+          .then(() => res.status(200))
+    )
+  );
 });
 
 module.exports = router;

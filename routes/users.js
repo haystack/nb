@@ -1,9 +1,9 @@
 const express = require('express');
-const User = require('../models').User;
+const User = require('../models').user;
 const router = express.Router();
 
 /**
- * Get username of active user.
+ * Get active user.
  * @name POST/api/users/signin
  */
 router.get('/current', (req, res) => {
@@ -12,6 +12,16 @@ router.get('/current', (req, res) => {
   }
   User.findByPk(req.session.userId).then((user) => {
     res.status(200).json(user);
+  });
+});
+
+/**
+ * Get all users.
+ * @name POST/api/users/all
+ */
+router.get('/all', (req, res) => {
+  User.findAll({attributes:['id','username','email']}).then((users) => {
+    res.status(200).json(users);
   });
 });
 

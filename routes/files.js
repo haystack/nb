@@ -1,5 +1,6 @@
 const express = require('express');
-const FileSystemObject = require('../models').FileSystemObject;
+const FileSystemObject = require('../models').file_system_object;
+const Source = require('../models').source;
 const router = express.Router();
 
 /**
@@ -14,7 +15,7 @@ router.get('/class/:id', (req, res) => {
 });
 
 /**
- * Gets child file of directory 
+ * Gets child files of directory 
  * @name GET/api/files/folder/:id
  * @param id: id of directory
  */
@@ -27,6 +28,19 @@ router.get('/folder/:id', (req, res) => {
 });
 
 /**
+ * Gets parent of current folder
+ * @name GET/api/files/parent/:id
+ * @param id: id of folder
+ */
+router.get('/parent/:id', (req, res) => {
+  FileSystemObject.findByPk(req.params.id)
+  .then((file) => file.getParent())
+  .then((file) => {
+    res.status(200).json(file);
+  });
+});
+
+/**
  * Creates child directory of current directory
  * @name POST/api/files/folder/:id
  * @param id: id of parent directory
@@ -35,7 +49,31 @@ router.get('/folder/:id', (req, res) => {
 router.post('/folder/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id)
   .then((folder) => 
-    FileSystemObject.create({file_name: req.body.name}).then((child) => child.setParent(folder))
+    FileSystemObject.create({filename: req.body.name}).then((child) => child.setParent(folder))
+  )
+  .then((child) => {
+    res.status(200).json(child);
+  });
+});
+
+/**
+ * Creates child file of current directory
+ * @name POST/api/files/file/:id
+ * @param id: id of parent directory
+ * @param name: name of child file
+ */
+router.post('/file/:id', (req, res) => {
+  FileSystemObject.findByPk(req.params.id)
+  .then((folder) => 
+    FileSystemObject.create({filename: req.body.name, is_directory: false})
+      .then((child) => 
+        Promise.all([
+          child.setParent(folder),
+          Source.create({filepath: req.body.url, filename: req.body.name}).then((source) => {
+            child.setSource(source);
+          })
+        ])
+      )
   )
   .then((child) => {
     res.status(200).json(child);

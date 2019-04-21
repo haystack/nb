@@ -1,5 +1,5 @@
 const tagTypes = (sequelize, DataTypes) => {
-  const TagType = sequelize.define('tagType', {
+  const TagType = sequelize.define('tag_type', {
     id:{
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,

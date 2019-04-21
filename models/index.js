@@ -31,7 +31,12 @@ const models = {
   TagType: sequelize.import('./AnnotationActions/TagTypes'),
   Tag: sequelize.import('./AnnotationActions/Tags'),
 
-  FileSystemObject: sequelize.import('./FileSystem/FileSystemObjects')
+  FileSystemObject: sequelize.import('./FileSystem/FileSystemObjects'),
+
+  GradingSystem: sequelize.import('./Grading/GradingSystems'),
+  GradingThreshold: sequelize.import('./Grading/GradingThresholds'),
+  CriteriaCount: sequelize.import('./Grading/CriteriaCounts'),
+  Criteria: sequelize.import('./Grading/Criteria'),
 };
 
 Object.keys(models).forEach(function (modelName) {
@@ -43,16 +48,25 @@ Object.keys(models).forEach(function (modelName) {
 });
 
 sequelize.drop({}).then(() =>{
-sequelize.sync({force: true})
+sequelize.sync()
   .then(() => {
-    models.User.create({
-      username: "adrian",
-      email: "adriansy@mit.edu",
-      password: "t"
-    });
+    models.User.create(
+      {
+        username: "adrian",
+        email: "adriansy@mit.edu",
+        password: "t"
+      }
+    );
+    models.User.create(
+      {
+        username: "adrian2",
+        email: "adriansy@mit.edu",
+        password: "t"
+      }
+    );
 
   })
   .catch(error => console.log('This error occured', error));
 });
 
-module.exports = models;
+module.exports = sequelize.models;

@@ -1,19 +1,33 @@
 <template>
   <div class="file-table" v-if="parent">
-    <h3>{{parent.file_name}}</h3>
+    <h3><i v-if='!parent.class_id' v-on:click='back'>&#x2190;</i>{{parent.filename}}</h3>
     <ul v-if='files.length'>
       <li v-for='file in files' v-bind:key='file.id'>
-        <p v-on:click='changeParent(file)'><i class="fa" v-html='icon(file)'></i> {{file.file_name}}</p>
+        <p v-on:click='changeParent(file)'><i v-html='icon(file)'></i> {{file.filename}}</p>
       </li>
     </ul>
-    <form class='component' v-on:submit.prevent='addFolder' method="post">
-      <h3>Add Folder</h3>
-      <div class='form-group'>
-        <label for='username'>Folder Name:</label>
-        <input id='username' v-model.trim='folderName' type='text' name='folderName'>
-      </div>
-      <input type='submit' value='Create'>
-    </form>
+    <div v-if='isInstructor' id="edit-files-forms">
+      <form class='component' v-on:submit.prevent='addFolder' method="post">
+        <h3>Add Folder</h3>
+        <div class='form-group'>
+          <label for='folderName'>Folder Name:</label>
+          <input v-model.trim='folderName' type='text' name='folderName'>
+        </div>
+        <input type='submit' value='Create'>
+      </form>
+      <form class='component' v-on:submit.prevent='addFile' method="post">
+        <h3>Add File</h3>
+        <div class='form-group'>
+          <label for='fileName'>File Name:</label>
+          <input v-model.trim='fileName' type='text' name='fileName'>
+        </div>
+        <div class='form-group'>
+          <label for='url'>URL:</label>
+          <input v-model.trim='url' type='text' name='url'>
+        </div>
+        <input type='submit' value='Create'>
+      </form>
+    </div>
   </div>
   
 </template>
@@ -28,8 +42,16 @@ export default {
   data() {
     return {
       files: [],
-      folderName: ""
+      folderName: "",
+      fileName: "",
+      url: ""
     };
+  },
+
+  computed:{
+    isInstructor(){
+      return this.type == "instructor";
+    }
   },
 
   watch:{
@@ -39,7 +61,9 @@ export default {
   },
 
   props:{
-    parent: Object
+    parent: Object,
+    listener: Object,
+    type: String
   },
 
   mounted: function(){
@@ -53,12 +77,20 @@ export default {
         return `&#x1F4C1;`
       }
       else{
-        return `&#128462;`
+        return `&#x1f5ce;`
       }
     },
     addFolder: function(){
       const bodyContent = { name: this.folderName,};
       axios.post(`/api/files/folder/${this.parent.id}`, bodyContent).then(() =>{
+        this.folderName = "";
+        this.loadFiles();
+      });
+    },
+    addFile: function(){
+      const bodyContent = { name: this.fileName, url: this.url};
+      axios.post(`/api/files/file/${this.parent.id}`, bodyContent).then(() =>{
+        this.fileName = "";
         this.loadFiles();
       });
     },
@@ -71,7 +103,15 @@ export default {
         });
     },
     changeParent: function(file){
-      eventBus.$emit('changeParent', (file));
+      if(file.is_directory){
+        this.listener.$emit('changeParent', (file));
+      }
+    },
+    back: function(){
+      axios.get(`/api/files/parent/${this.parent.id}`)
+        .then(res => {
+          this.changeParent(res.data);
+        })
     }
 
   }

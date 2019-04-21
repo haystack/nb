@@ -8,7 +8,7 @@ const source = (sequelize, DataTypes) => {
     filepath:{
       type: DataTypes.STRING,
       unique: true,
-      allowNull: false
+      allowNull: true
     },
     filename:{
       type: DataTypes.STRING,
@@ -16,7 +16,8 @@ const source = (sequelize, DataTypes) => {
     },
     filetype:{
       type: DataTypes.ENUM,
-      values: ['html', 'pdf', 'image', 'video']
+      values: ['html', 'pdf', 'image', 'video'],
+      defaultValue: 'html'
     }
   },
   {

@@ -2,11 +2,11 @@
   <div id="class-list">
     <h2>Instructor Classes</h2>
     <div v-if='i_classes.length'>
-      <ClassListItem v-for='nb_class in i_classes' v-bind:key='nb_class.id' v-bind:nb_class='nb_class'/>
+      <ClassListItem type='instructor' v-for='nb_class in i_classes' v-bind:key='nb_class.id' v-bind:nb_class='nb_class'/>
     </div>
     <h2>Student Classes</h2>
     <div v-if='s_classes.length'>
-      <ClassListItem v-for='nb_class in s_classes' v-bind:key='nb_class.id' v-bind:nb_class='nb_class'/>
+      <ClassListItem type='student' v-for='nb_class in s_classes' v-bind:key='nb_class.id' v-bind:nb_class='nb_class'/>
     </div>
     
     <div v-if='!i_classes.length && !s_classes.length'>
@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       i_classes: [],
-      s_classes: []
+      s_classes: [],
     };
   },
 

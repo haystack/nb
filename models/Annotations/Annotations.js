@@ -16,7 +16,11 @@ const annotation = (sequelize, DataTypes) => {
     },
     visibility:{
       type: DataTypes.ENUM,
-      values: ['anonymous', 'public', 'private', 'author-only']
+      values: ['public', 'private', 'author-only']
+    },
+    anonymity:{
+      type: DataTypes.ENUM,
+      values: ['anonymous', 'public']
     }
   },
   {
