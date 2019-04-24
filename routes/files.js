@@ -2,6 +2,7 @@ const express = require('express');
 const FileSystemObject = require('../models').file_system_object;
 const Source = require('../models').source;
 const router = express.Router();
+const utils = require('../models/utils')(require('../models'));
 
 /**
  * Gets root level file of class 
@@ -21,7 +22,7 @@ router.get('/class/:id', (req, res) => {
  */
 router.get('/folder/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id)
-  .then((file) => file.getChildren())
+  .then((file) => file.getChildren({include:[{association:'Source'}]}))
   .then((files) => {
     res.status(200).json(files);
   });
@@ -63,18 +64,8 @@ router.post('/folder/:id', (req, res) => {
  * @param name: name of child file
  */
 router.post('/file/:id', (req, res) => {
+  utils.createFile(req.params.id, req.body.name, req.body.name)
   FileSystemObject.findByPk(req.params.id)
-  .then((folder) => 
-    FileSystemObject.create({filename: req.body.name, is_directory: false})
-      .then((child) => 
-        Promise.all([
-          child.setParent(folder),
-          Source.create({filepath: req.body.url, filename: req.body.name}).then((source) => {
-            child.setSource(source);
-          })
-        ])
-      )
-  )
   .then((child) => {
     res.status(200).json(child);
   });

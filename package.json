@@ -13,18 +13,20 @@
     "axios": "^0.18.0",
     "bcrypt": "^3.0.5",
     "cookie-parser": "^1.4.3",
+    "cors": "^2.8.5",
     "debug": "^4.0.1",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "morgan": "^1.9.1",
     "pg": "^7.9.0",
-    "sequelize": "^5.2.11",
-    "vue": "^2.5.17"
+    "sequelize": "^5.7.1",
+    "vue": "^2.5.17",
+    "vue-router": "^3.0.6"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.3",
     "@vue/cli-plugin-eslint": "^3.0.3",
-    "@vue/cli-service": "^3.5.3",
+    "@vue/cli-service": "^3.6.0",
     "install-peers": "^1.0.3",
     "jest": "^24.7.0",
     "supertest-session": "^4.0.0",

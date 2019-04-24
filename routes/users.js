@@ -4,13 +4,14 @@ const router = express.Router();
 
 /**
  * Get active user.
- * @name POST/api/users/signin
+ * @name POST/api/users/current
  */
 router.get('/current', (req, res) => {
   if (!req.session.userId){
+    res.status(200).json(null);
     return null;
   }
-  User.findByPk(req.session.userId).then((user) => {
+  User.findByPk(req.session.userId,{attributes: ['username', 'name']}).then((user) => {
     res.status(200).json(user);
   });
 });
@@ -20,7 +21,7 @@ router.get('/current', (req, res) => {
  * @name POST/api/users/all
  */
 router.get('/all', (req, res) => {
-  User.findAll({attributes:['id','username','email']}).then((users) => {
+  User.findAll({attributes:['id','username','name','email']}).then((users) => {
     res.status(200).json(users);
   });
 });
@@ -32,14 +33,14 @@ router.get('/all', (req, res) => {
 router.post('/login', (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  User.findOne({ where: { username: username } }).then(function (user) {
+  User.findOne({ where: { username: username }}).then(function (user) {
     if (!user) {
       res.status(401).json({msg: "No user with username " + username});
     } else if (!user.validPassword(password)) {
       res.status(401).json({msg: "Incorrect password"});
     } else {
       req.session.userId = user.id;
-      res.status(200).json(user);
+      res.status(200).json({username: user.username, id: user.id, name: user.name});
     }
   });
 });

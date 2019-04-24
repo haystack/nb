@@ -21,6 +21,8 @@ const thread = (sequelize, DataTypes) => {
       associate: (models) =>{
         Thread.belongsTo(models.Location, {as: 'Location', foreignKey:{name: 'location_id', allowNull: false}});
         Thread.belongsTo(models.Annotation, {as: 'HeadAnnotation', foreignKey:{allowNull: false}, constraints: false});
+        Thread.belongsToMany(models.User, {as: 'SeenUsers', through: 'user_seen'});
+        Thread.belongsToMany(models.User, {as: 'RepliedUsers', through: 'user_replied'});
       }
     }
   });

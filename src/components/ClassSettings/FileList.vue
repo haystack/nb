@@ -3,7 +3,8 @@
     <h3><i v-if='!parent.class_id' v-on:click='back'>&#x2190;</i>{{parent.filename}}</h3>
     <ul v-if='files.length'>
       <li v-for='file in files' v-bind:key='file.id'>
-        <p v-on:click='changeParent(file)'><i v-html='icon(file)'></i> {{file.filename}}</p>
+        <p v-if='file.is_directory' v-on:click='changeParent(file)'><i>&#x1F4C1;</i> {{file.filename}}</p>
+        <p v-else v-on:click='redirect(file)'><i>&#x1f5ce;</i> {{file.filename}}</p>
       </li>
     </ul>
     <div v-if='isInstructor' id="edit-files-forms">
@@ -106,6 +107,10 @@ export default {
       if(file.is_directory){
         this.listener.$emit('changeParent', (file));
       }
+    },
+    redirect: function(file){
+      console.log(file);
+      location.href = file.Source.filepath;
     },
     back: function(){
       axios.get(`/api/files/parent/${this.parent.id}`)

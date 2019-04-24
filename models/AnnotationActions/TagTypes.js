@@ -17,6 +17,7 @@ const tagTypes = (sequelize, DataTypes) => {
   {
     classMethods:{
       associate: (models) => {
+        TagType.belongsToMany(models.Class, {as: 'Classes', through: 'class_tags'});
         TagType.hasMany(models.Tag, {as:'Tags', foreignKey:{allowNull: false}, onDelete: 'CASCADE'});
       }
     }

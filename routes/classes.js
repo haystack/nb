@@ -3,6 +3,7 @@ const User = require('../models').user;
 const Class = require('../models').class;
 const Section = require('../models').section;
 const FileSystemObject = require('../models').file_system_object;
+const utils = require('../models/utils')(require('../models'));
 const router = express.Router();
 
 /**
@@ -15,28 +16,7 @@ router.post('/create', (req, res) => {
   if (!name){
     res.status(400).json({msg: "bad name"});
   }
-  Class.create({
-    class_name: name
-  })
-  .then((nb_class) => 
-    Section.create({section_name: 'global', is_global: true})
-      .then((section) => nb_class.setGlobalSection(section)
-      .then((updated_nb_class) =>{
-        return section.setClass(updated_nb_class);
-    }))
-    .then(() => User.findByPk(req.session.userId).then((user) => 
-      Promise.all([
-        nb_class.setCreator(user),
-        nb_class.setInstructors(user),
-        nb_class.getGlobalSection().then((section) => 
-          section.setMemberStudents(user)
-        )
-      ])
-    )
-    .then(() => FileSystemObject.create({filename: name, is_directory: true})
-      .then((dir) => dir.setClass(nb_class)))
-    )
-  .then(() => nb_class))
+  utils.createClass(name, req.session.userId)
   .then((nb_class) =>{
     res.status(200).json(nb_class);
   });
@@ -89,14 +69,8 @@ router.get('/studentList/:id', (req,res) =>{
  * @name POST/api/classes/student/:id
  * @param id: id of the class
  */
-router.post('/student/:id', (req, res) => {
-  Class.findOne({where:{id: req.params.id}, include:[{association: 'GlobalSection'}]})
-    .then((nb_class) => 
-      User.findByPk(req.body.id).then((user) => 
-        nb_class.GlobalSection.addMemberStudent(user)
-          .then(() => res.status(200))
-    )
-  );
+router.post('/student/:id', (req, res) => {  
+  utils.addStudent(req.params.id, req.body.id).then(() => res.status(200));
 });
 
 module.exports = router;

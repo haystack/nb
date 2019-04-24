@@ -1,5 +1,6 @@
 // import Sequelize from 'sequelize';
 const Sequelize = require("sequelize");
+const utils = require("./utils");
 
 const sequelize = new Sequelize('new_nb_test', 'adriansy', '', {
   host: 'localhost',
@@ -54,16 +55,33 @@ sequelize.sync()
       {
         username: "adrian",
         email: "adriansy@mit.edu",
+        first_name: "Adrian",
+        last_name: "Sy",
         password: "t"
       }
-    );
-    models.User.create(
-      {
-        username: "adrian2",
-        email: "adriansy@mit.edu",
-        password: "t"
-      }
-    );
+    ).then(user_1 => {
+      models.User.create(
+        {
+          username: "alisa",
+          email: "alisao@mit.edu",
+          first_name: "Alisa",
+          last_name: "Ono",
+          password: "t"
+        }
+      ).then((user_2) => 
+        utils(sequelize.models).createClass("Test Class", user_2.id)
+        
+      ).then(nb_class => 
+        utils(sequelize.models).addStudent(nb_class.id, user_1.id)
+        .then(() => {
+          nb_class.getRoot().then((root) => utils(sequelize.models)
+          .createFile(root.id, 
+            "test_link", 
+            "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/nbdemo/index.html"));
+        })
+      );
+    });
+    
 
   })
   .catch(error => console.log('This error occured', error));

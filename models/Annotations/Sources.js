@@ -6,18 +6,21 @@ const source = (sequelize, DataTypes) => {
       primaryKey: true
     },
     filepath:{
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, //url if html
       unique: true,
       allowNull: true
     },
     filename:{
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, 
       allowNull: false
     },
     filetype:{
       type: DataTypes.ENUM,
       values: ['html', 'pdf', 'image', 'video'],
       defaultValue: 'html'
+    },
+    origin:{
+      type: DataTypes.STRING,
     }
   },
   {
@@ -25,9 +28,19 @@ const source = (sequelize, DataTypes) => {
       associate: (models) =>{
         Source.hasMany(models.Location, {as: 'Locations', foreignKey: {name: 'source_id', allowNull: false}, onDelete: 'CASCADE'});
       }
+    },
+    hooks:{
+      beforeCreate: setOrigin,
+      beforeUpdate: setOrigin
     }
   });
   return Source;
 };
+
+function setOrigin(source){
+  if(source.filetype == 'html'){
+    source.origin = new URL(source.filepath).origin;
+  }
+}
 
 module.exports = source;

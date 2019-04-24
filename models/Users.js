@@ -12,6 +12,18 @@ const user = (sequelize, DataTypes) => {
       unique: true,
       allowNull: false
     },
+    first_name:{
+      type: DataTypes.STRING,
+    },
+    last_name:{
+      type: DataTypes.STRING
+    },
+    name:{
+      type: DataTypes.VIRTUAL(DataTypes.JSONTYPE, ['first_name', 'last_name']),
+      get: function(){
+        return {first: this.getDataValue('first_name'), last: this.getDataValue('last_name')};
+      }
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false
@@ -38,8 +50,15 @@ const user = (sequelize, DataTypes) => {
         User.belongsToMany(models.Annotation, {as:'TaggedAnnotations', through:'user_tags'});
         User.belongsToMany(models.Annotation, {as:'BookmarkedAnnotations', through:'bookmarks'});
         User.belongsToMany(models.Annotation, {as:'StarredAnnotations', through:'stars'});
+        User.belongsToMany(models.Thread, {as: 'SeenThreads', through: 'user_seen'});
+        User.belongsToMany(models.Thread, {as: 'RepliedThreads', through: 'user_replied'});
       }
     },
+    // getterMethods: {
+    //   name() {
+    //     return {first: this.first_name, last: this.last_name};
+    //   }
+    // },
     hooks:{
       beforeCreate: (user) => {
         const salt = bcrypt.genSaltSync();
