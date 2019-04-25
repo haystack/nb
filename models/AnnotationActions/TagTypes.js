@@ -5,11 +5,11 @@ const tagTypes = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV1,
       primaryKey: true
     },
-    tag_name:{
+    value:{
       type: DataTypes.STRING,
       allowNull: false
     },
-    icon:{
+    emoji:{
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -18,7 +18,7 @@ const tagTypes = (sequelize, DataTypes) => {
     classMethods:{
       associate: (models) => {
         TagType.belongsToMany(models.Class, {as: 'Classes', through: 'class_tags'});
-        TagType.hasMany(models.Tag, {as:'Tags', foreignKey:{allowNull: false}, onDelete: 'CASCADE'});
+        TagType.hasMany(models.Tag, {as:'Tags', foreignKey:{name: 'tag_type_id', allowNull: false}, onDelete: 'CASCADE'});
       }
     }
   });

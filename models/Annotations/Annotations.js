@@ -6,7 +6,7 @@ const annotation = (sequelize, DataTypes) => {
       primaryKey: true
     },
     content:{
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     is_section_marker:{
@@ -16,20 +16,21 @@ const annotation = (sequelize, DataTypes) => {
     },
     visibility:{
       type: DataTypes.ENUM,
-      values: ['public', 'private', 'author-only']
+      values: ['EVERYONE', 'INSTRUCTORS', 'MYSELF']
     },
     anonymity:{
       type: DataTypes.ENUM,
-      values: ['anonymous', 'public']
+      values: ['IDENTIFIED', 'ANONYMOUS']
     }
   },
   {
     classMethods:{
       associate: (models) => {
-        Annotation.belongsTo(models.Thread, {as: 'Thread', foreignKey:{allowNull: false}, onDelete:'CASCADE'});
-        Annotation.hasOne(models.Annotation, {as: 'Parent', onDelete: 'CASCADE'});
+        Annotation.belongsTo(models.Thread, {as: 'Thread', foreignKey:{name: 'thread_id'}, onDelete:'CASCADE'});
+        Annotation.belongsTo(models.Annotation, {as: 'Parent', foreignKey:{name: 'parent_id'}, onDelete: 'CASCADE'});
+        Annotation.hasMany(models.Annotation, {as: 'Children', foreignKey:{name: 'parent_id'}});
         Annotation.belongsTo(models.User, {as: 'Author', foreignKey:{name: 'author_id', allowNull: false}, onDelete:'CASCADE'});
-        Annotation.hasMany(models.Tag, {as:'Tags', foreignKey:{allowNull: false}, onDelete: 'CASCADE'});
+        Annotation.hasMany(models.Tag, {as:'Tags', foreignKey:{name: 'annotation_id', allowNull: false}, onDelete: 'CASCADE'});
         Annotation.belongsToMany(models.User, {as:'ReplyRequesters', through:'reply_requests' , onDelete: 'CASCADE'});
         Annotation.belongsToMany(models.User, {as:'TaggedUsers', through:'user_tags' , onDelete: 'CASCADE'});
         Annotation.belongsToMany(models.User, {as:'Bookmarkers', through:'bookmarks' , onDelete: 'CASCADE'});

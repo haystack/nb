@@ -20,9 +20,6 @@ module.exports = function(models){
           Promise.all([
             nb_class.setCreator(user),
             nb_class.setInstructors(user),
-            nb_class.getGlobalSection().then((section) => 
-              section.setMemberStudents(user)
-            )
           ])
         )
         .then(() => FileSystemObject.create({filename: name, is_directory: true})
@@ -41,17 +38,21 @@ module.exports = function(models){
     },
 
     createFile: function(parentId, filename, filepath){
-      return FileSystemObject.findByPk(parentId)
+      return FileSystemObject.findByPk(parentId, {include:[{association: 'Class'}]})
       .then((folder) => 
-        FileSystemObject.create({filename: filename, is_directory: false})
-          .then((child) => 
-            Promise.all([
-              child.setParent(folder),
-              Source.create({filepath: filepath, filename: filename}).then((source) => {
-                child.setSource(source);
-              })
-            ])
-          )
+        FileSystemObject.create({
+          filename: filename, 
+          is_directory: false,
+          parent_id: folder.id, 
+          Source:{filepath: filepath, filename: filename, class_id: folder.Class.id}
+        },
+          {include: {model: Source, as: 'Source'}
+        })
+          // .then((child) => 
+          //   Promise.all([
+          //     child.setParent(folder),
+          //   ])
+          // )
       );
     }
   };

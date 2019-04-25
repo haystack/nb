@@ -64,6 +64,7 @@ router.get('/studentList/:id', (req,res) =>{
     );
 });
 
+
 /**
  * Add a student to a given class
  * @name POST/api/classes/student/:id

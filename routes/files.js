@@ -35,7 +35,7 @@ router.get('/folder/:id', (req, res) => {
  */
 router.get('/parent/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id)
-  .then((file) => file.getParent())
+  .then((file) => file.getParent({include:[{association:'Parent'}]}))
   .then((file) => {
     res.status(200).json(file);
   });
@@ -50,7 +50,9 @@ router.get('/parent/:id', (req, res) => {
 router.post('/folder/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id)
   .then((folder) => 
-    FileSystemObject.create({filename: req.body.name}).then((child) => child.setParent(folder))
+    FileSystemObject.create({filename: req.body.name})
+      .then((child) => child.setParent(folder))
+      .then((child) => folder.getClass().then(nb_class => child.setParent(nb_class)))
   )
   .then((child) => {
     res.status(200).json(child);

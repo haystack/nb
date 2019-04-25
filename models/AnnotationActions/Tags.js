@@ -9,7 +9,7 @@ const tags = (sequelize, DataTypes) => {
   {
     classMethods:{
       associate: (models) => {
-        Tag.belongsTo(models.TagType, {as:'TagType', foreignKey:{allowNull: false}, onDelete: 'CASCADE'});
+        Tag.belongsTo(models.TagType, {as:'TagType', foreignKey:{name: 'tag_type_id', allowNull: false}, onDelete: 'CASCADE'});
       }
     }
   });

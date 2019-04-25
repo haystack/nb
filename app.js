@@ -10,6 +10,7 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const classesRouter = require('./routes/classes');
 const filesRouter = require('./routes/files');
+const annotationsRouter = require('./routes/annotations');
 
 const app = express();
 
@@ -21,13 +22,20 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/dist')));
 app.use(cors({
   origin: function(origin, callback){
-    Source.findOne({where: {origin: origin}}).then((source) => {
-      if (source){
-        callback(null, true);
-      } else {
-        callback( new Error('Not allowed by CORS'));
-      }
-    });
+    if(!origin || origin == 'http://localhost:8080'){
+      callback(null, true);
+    }
+    else{
+      Source.findOne({where: {origin: origin}}).then((source) => {
+        if (source){
+          callback(null, true);
+        } else {
+          console.log(origin);
+          callback( new Error('Not allowed by CORS'));
+        }
+      });
+    }
+    
   }, 
   credentials: true}));
 
@@ -43,5 +51,6 @@ app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/classes', classesRouter);
 app.use('/api/files', filesRouter);
+app.use('/api/annotations', annotationsRouter);
 
 module.exports = app;

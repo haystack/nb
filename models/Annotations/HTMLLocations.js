@@ -14,11 +14,11 @@ const htmlLocation = (sequelize, DataTypes) => {
       allowNull: false
     },
     start_offset:{
-      type: DataTypes.INT,
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     end_offset:{
-      type: DataTypes.INT,
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   },

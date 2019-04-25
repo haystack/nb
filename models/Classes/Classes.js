@@ -27,7 +27,8 @@ const nb_class = (sequelize, DataTypes) => {
         Class.belongsTo(models.Section, {as: 'GlobalSection', foreignKey: {name: 'global_section_id'}, constraints: false});
         Class.hasOne(models.FileSystemObject, {as: 'Root', foreignKey: {name: 'class_id'}, onDelete: 'CASCADE'}); 
         Class.hasMany(models.GradingSystem, {as: 'GradingSystems', foreignKey: {name: 'class_id'}, onDelete: 'CASCADE'});
-        Class.belongsToMany(models.TagType, {as: 'TagType', through: 'class_tags'});
+        Class.belongsToMany(models.TagType, {as: 'TagTypes', through: 'class_tags'});
+        Class.hasMany(models.Source, {as: 'Sources', foreignKey:{ name: 'class_id', allowNull: false}, onDelete:'CASCADE'});
       }
     }
   });
