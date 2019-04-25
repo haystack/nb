@@ -265,14 +265,45 @@ router.post('/reply/:id', (req, res)=>{
       User.findByPk(req.body.author).then(user => {
         if (req.body.replyRequest) child.addReplyRequester(user);
         if (req.body.star) child.addStarrer(user);
-        parent.Thread.addSeenUser(user);
-        parent.Thread.addRepliedUser(user);
+        parent.Thread.setSeenUser(user);
+        parent.Thread.setRepliedUser(user);
       });
       parent.addChild(child);
       res.status(200).json(child);
     })
   );
 });
+
+/**
+ * Toggles a star for a given annotation
+ * @name POST/api/annotations/star/:id
+ * @param id: id of annotation
+ */
+router.post('/star/:id', (req, res) => {
+  Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation => 
+    User.findByPk(req.session.userId).then(user => {
+      if (req.body.star) {annotation.addStarrer(user);}
+      else {annotation.removeStarrer(user);}
+      annotation.Thread.setSeenUser(user);
+    }).then(() => res.status(200))
+  );
+});
+
+/**
+ * Toggles a replyRequest for a given annotation
+ * @name POST/api/annotations/replyRequest/:id
+ * @param id: id of annotation
+ */
+router.post('/replyRequest/:id', (req, res) => {
+  Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation => 
+    User.findByPk(req.session.userId).then(user => {
+      if (req.body.replyRequest) {annotation.addReplyRequester(user);}
+      else {annotation.removeReplyRequester(user);}
+      annotation.Thread.setSeenUser(user);
+    }).then(() => res.status(200))
+  );
+});
+
 
 function simplifyUser(user, role){
   const id = user.id;
