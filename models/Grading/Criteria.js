@@ -9,11 +9,23 @@ const criteria = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    is_default:{
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    num_comments:{
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
     num_words:{
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
     num_tags:{
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+    num_chars:{
       type: DataTypes.INTEGER,
       defaultValue: 0
     }

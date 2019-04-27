@@ -98,7 +98,7 @@ router.get('/annotation', (req, res)=> {
             endOffset: range.end_offset
           };
           annotation.parent = null;
-          annotation.timestamp = head.created_at;
+          annotation.timestamp = head.dataValues.created_at;
           annotation.author = head.Author.id;
           annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
           annotation.html = head.content;
@@ -155,7 +155,7 @@ router.post('/annotation', (req, res)=> {
           content: req.body.content,
           visibility: req.body.visibility,
           anonymity: req.body.anonymity,
-          author_id: req.body.author
+          author_id: req.session.userId
         }},
         {
           include: [{association: 'HeadAnnotation'}]
@@ -166,7 +166,7 @@ router.post('/annotation', (req, res)=> {
         annotation.setThread(thread);
         req.body.tags.forEach((tag) => Tag.create({annotation_id: annotation.id, tag_type_id: tag}));
         req.body.userTags.forEach((user_id) => User.findByPk(user_id).then(user => annotation.addTaggedUser(user)));
-        User.findByPk(req.body.author).then(user => {
+        User.findByPk(req.session.userId).then(user => {
           if (req.body.replyRequest) annotation.addReplyRequester(user);
           if (req.body.star) annotation.addStarrer(user);
           thread.addSeenUser(user);
@@ -256,13 +256,14 @@ router.post('/reply/:id', (req, res)=>{
       visibility: req.body.visibility, 
       anonymity: req.body.anonymity,
       thread_id: parent.Thread.id,
-      author_id: req.body.author,
+      author_id: req.session.userId,
       Tags: req.body.tags.map(tag_type => {return {tag_type_id: tag_type};}),
-      TaggedUsers: req.body.userTags.map(user_id => {return {user_id: user_id};})
     },{
-      include: [{association: 'Tags'},{association:'TaggedUsers'}]
+      include: [{association: 'Tags'}]
     }).then((child) => {
-      User.findByPk(req.body.author).then(user => {
+      req.body.userTags.forEach(user_id => 
+        User.findByPk(user_id).then(user => child.addTaggedUser(user)));
+      User.findByPk(req.session.userId).then(user => {
         if (req.body.replyRequest) child.addReplyRequester(user);
         if (req.body.star) child.addStarrer(user);
         parent.Thread.setSeenUser(user);
