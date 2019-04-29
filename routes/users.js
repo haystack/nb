@@ -11,7 +11,7 @@ router.get('/current', (req, res) => {
     res.status(200).json(null);
     return null;
   }
-  User.findByPk(req.session.userId,{attributes: ['username', 'name']}).then((user) => {
+  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name']}).then((user) => {
     res.status(200).json(user);
   });
 });
