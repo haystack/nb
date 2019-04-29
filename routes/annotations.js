@@ -65,7 +65,8 @@ router.get('/allTagTypes', (req,res) => {
  * }]
  */
 router.get('/annotation', (req, res)=> {
-  Source.findOne({where:{filepath: req.query.url}})
+  Source.findOne({where:{filepath: req.query.url}, 
+    include:[{association: 'Class', include:[{association: 'Instructors', attributes: ['id']}]}]})
   .then(source =>
     source.getLocations({include:
       [
@@ -84,6 +85,7 @@ router.get('/annotation', (req, res)=> {
         ]}
       ]})
       .then(locations => {
+        let instructors = source.Class.Instructors.map(user => user.id);
         let annotations = locations.map((location) => {
           let annotation = {};
 
@@ -101,6 +103,7 @@ router.get('/annotation', (req, res)=> {
           annotation.timestamp = head.dataValues.created_at;
           annotation.author = head.Author.id;
           annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
+          annotation.instructor = instructors.indexOf(head.Author.id) >= 0;
           annotation.html = head.content;
           annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
           annotation.people = head.TaggedUsers.map(userTag => userTag.id);
@@ -169,8 +172,8 @@ router.post('/annotation', (req, res)=> {
         User.findByPk(req.session.userId).then(user => {
           if (req.body.replyRequest) annotation.addReplyRequester(user);
           if (req.body.star) annotation.addStarrer(user);
-          thread.addSeenUser(user);
-          thread.addRepliedUser(user);
+          thread.setSeenUsers([user]);
+          thread.setRepliedUsers([user]);
         });
         res.status(200).json(annotation);
       })
@@ -197,41 +200,58 @@ router.post('/annotation', (req, res)=> {
  * }]
  */
 router.get('/reply/:id', (req, res)=> {
-  Annotation.findAll({where: {parent_id: req.params.id},
-    attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
-    include:[
-      {association: 'Thread', include:[{association: 'SeenUsers'}]},
-      {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
-      {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
-      {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
-      {association: 'TaggedUsers', attributes: ['id']},
-      {association: 'Tags', attributes: ['tag_type_id']}
-    ]
-  }).then(annotations => {
-    return annotations.map(annotation => {
-      let reply = {};
-      reply.id = annotation.id;
-      reply.range = null;
-      reply.parent = req.param.id;
-      reply.timestamp = annotation.created_at;
-      reply.author = annotation.Author.id;
-      reply.authorName = annotation.Author.first_name + " " + annotation.Author.last_name;
-      reply.html = annotation.content;
-      reply.hashtags = annotation.Tags.map(tag => tag.tag_type_id);
-      reply.people = annotation.TaggedUsers.map(userTag => userTag.id);
-      reply.visibility = annotation.visibility;
-      reply.anonymity = annotation.anonymity;
-      reply.replyRequestedByMe = annotation.ReplyRequesters
-        .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-      reply.replyRequestCount = annotation.ReplyRequesters.length;
-      reply.starredByMe = annotation.Starrers
-        .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-      reply.starCount = annotation.Starrers.length;
-      reply.seenByMe = annotation.Thread.SeenUsers
-        .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-      return reply;
-    });
-  }).then(annotations => res.status(200).json(annotations));
+  Annotation.findByPk(req.params.id, {
+    include: [{association:'Thread', attributes:['id'], 
+      include: [{association: 'Location', attributes:['id'], 
+        include: [{association: 'Source', attributes:['id'],
+          include: [{association: 'Class', attributes:['id'], 
+            include: [{association: 'Instructors', attributes:['id']}]
+          }]
+        }]
+      }]
+    }]
+  }).then(parent => 
+    parent.Thread.Location.Source.Class.Instructors.map(user => user.id)
+  ).then(instructors => {
+    Annotation.findAll({where: {parent_id: req.params.id},
+      attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
+      include:[
+        {association: 'Thread', include:[{association: 'SeenUsers'}]},
+        {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
+        {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
+        {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
+        {association: 'TaggedUsers', attributes: ['id']},
+        {association: 'Tags', attributes: ['tag_type_id']}
+      ]
+    }).then(annotations => {
+      return annotations.map(annotation => {
+        let reply = {};
+        reply.id = annotation.id;
+        reply.range = null;
+        reply.parent = req.param.id;
+        reply.timestamp = annotation.dataValues.created_at;
+        reply.author = annotation.Author.id;
+        reply.authorName = annotation.Author.first_name + " " + annotation.Author.last_name;
+        reply.instructor = instructors.indexOf(annotation.Author.id) >= 0;
+        reply.html = annotation.content;
+        reply.hashtags = annotation.Tags.map(tag => tag.tag_type_id);
+        reply.people = annotation.TaggedUsers.map(userTag => userTag.id);
+        reply.visibility = annotation.visibility;
+        reply.anonymity = annotation.anonymity;
+        reply.replyRequestedByMe = annotation.ReplyRequesters
+          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+        reply.replyRequestCount = annotation.ReplyRequesters.length;
+        reply.starredByMe = annotation.Starrers
+          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+        reply.starCount = annotation.Starrers.length;
+        reply.seenByMe = annotation.Thread.SeenUsers
+          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+        return reply;
+      });
+    }).then(annotations => res.status(200).json(annotations));
+  });
+
+  
 });
 
 
@@ -266,12 +286,25 @@ router.post('/reply/:id', (req, res)=>{
       User.findByPk(req.session.userId).then(user => {
         if (req.body.replyRequest) child.addReplyRequester(user);
         if (req.body.star) child.addStarrer(user);
-        parent.Thread.setSeenUser(user);
-        parent.Thread.setRepliedUser(user);
+        parent.Thread.setSeenUsers([user]);
+        parent.Thread.setRepliedUsers([user]);
       });
       parent.addChild(child);
       res.status(200).json(child);
     })
+  );
+});
+
+/**
+ * Sets seen for a given annotation and user
+ * @name POST/api/annotations/star/:id
+ * @param id: id of annotation
+ */
+router.post('/seen/:id', (req, res) => {
+  Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation =>
+    User.findByPk(req.session.userId).then(user => {
+      annotation.Thread.addSeenUser(user);
+    }).then(() => res.status(200))
   );
 });
 
@@ -285,7 +318,8 @@ router.post('/star/:id', (req, res) => {
     User.findByPk(req.session.userId).then(user => {
       if (req.body.star) {annotation.addStarrer(user);}
       else {annotation.removeStarrer(user);}
-      annotation.Thread.setSeenUser(user);
+      annotation.Thread.addSeenUser(user);
+      annotation.Thread.addRepliedUser(user);
     }).then(() => res.status(200))
   );
 });
@@ -300,7 +334,8 @@ router.post('/replyRequest/:id', (req, res) => {
     User.findByPk(req.session.userId).then(user => {
       if (req.body.replyRequest) {annotation.addReplyRequester(user);}
       else {annotation.removeReplyRequester(user);}
-      annotation.Thread.setSeenUser(user);
+      annotation.Thread.addSeenUser(user);
+      annotation.Thread.addRepliedUser(user);
     }).then(() => res.status(200))
   );
 });
