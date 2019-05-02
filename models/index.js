@@ -81,6 +81,12 @@ sequelize.sync()
             "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/nbdemo/index.html"));
         })
         .then(() => {
+          nb_class.getRoot().then((root) => utils(sequelize.models)
+          .createFile(root.id, 
+            "libre_text test", 
+            "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/W2017_Lecture_01_Reading%20-%20Biology%20LibreTexts.htm"));
+        })
+        .then(() => {
           models.TagType.bulkCreate(
             [{
               value: "curious",

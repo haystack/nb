@@ -78,7 +78,8 @@ router.get('/annotation', (req, res)=> {
             {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
             {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
             {association: 'TaggedUsers', attributes: ['id']},
-            {association: 'Tags', attributes: ['tag_type_id']}
+            {association: 'Tags', attributes: ['tag_type_id']},
+            {association: 'Bookmarkers', attributes: ['id']}
           ]},
           {association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
           {association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
@@ -117,6 +118,8 @@ router.get('/annotation', (req, res)=> {
           annotation.starCount = head.Starrers.length;
           annotation.seenByMe = location.Thread.SeenUsers
             .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+          annotation.bookmarked = head.Bookmarkers
+            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
           return annotation;
         });
         res.status(200).json(annotations);
@@ -139,6 +142,7 @@ router.get('/annotation', (req, res)=> {
  * @param anonymity: string enum
  * @param replyRequest: boolean
  * @param star: boolean
+ * @param bookmark: boolean
  */
 router.post('/annotation', (req, res)=> {
   let range = req.body.range;
@@ -166,16 +170,17 @@ router.post('/annotation', (req, res)=> {
       )
       .then(thread => {
         let annotation = thread.HeadAnnotation;
-        annotation.setThread(thread);
+        
         req.body.tags.forEach((tag) => Tag.create({annotation_id: annotation.id, tag_type_id: tag}));
         req.body.userTags.forEach((user_id) => User.findByPk(user_id).then(user => annotation.addTaggedUser(user)));
         User.findByPk(req.session.userId).then(user => {
           if (req.body.replyRequest) annotation.addReplyRequester(user);
           if (req.body.star) annotation.addStarrer(user);
+          if (req.body.bookmark) annotation.addBookmarker(user);
           thread.setSeenUsers([user]);
           thread.setRepliedUsers([user]);
         });
-        res.status(200).json(annotation);
+        annotation.setThread(thread).then(() => res.status(200).json(annotation));
       })
       ])
     )
@@ -210,9 +215,9 @@ router.get('/reply/:id', (req, res)=> {
         }]
       }]
     }]
-  }).then(parent => 
-    parent.Thread.Location.Source.Class.Instructors.map(user => user.id)
-  ).then(instructors => {
+  })
+  .then(parent => parent.Thread.Location.Source.Class.Instructors.map(user => user.id))
+  .then(instructors => {
     Annotation.findAll({where: {parent_id: req.params.id},
       attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
       include:[
@@ -221,9 +226,11 @@ router.get('/reply/:id', (req, res)=> {
         {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
         {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
         {association: 'TaggedUsers', attributes: ['id']},
-        {association: 'Tags', attributes: ['tag_type_id']}
+        {association: 'Tags', attributes: ['tag_type_id']},
+        {association: 'Bookmarkers', attributes: ['id']}
       ]
-    }).then(annotations => {
+    })
+    .then(annotations => {
       return annotations.map(annotation => {
         let reply = {};
         reply.id = annotation.id;
@@ -246,9 +253,12 @@ router.get('/reply/:id', (req, res)=> {
         reply.starCount = annotation.Starrers.length;
         reply.seenByMe = annotation.Thread.SeenUsers
           .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+        reply.bookmarked = annotation.Bookmarkers
+          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
         return reply;
       });
-    }).then(annotations => res.status(200).json(annotations));
+    })
+    .then(annotations => res.status(200).json(annotations));
   });
 
   
@@ -258,7 +268,7 @@ router.get('/reply/:id', (req, res)=> {
 
 /**
  * Make new reply for a given annotation
- * @name GET/api/annotations/source/:id
+ * @name GET/api/annotations/reply/:id
  * @param id: id of parent annotation
  * @param content: text content of annotation
  * @param author: id of author
@@ -286,6 +296,7 @@ router.post('/reply/:id', (req, res)=>{
       User.findByPk(req.session.userId).then(user => {
         if (req.body.replyRequest) child.addReplyRequester(user);
         if (req.body.star) child.addStarrer(user);
+        if (req.body.bookmark) child.addBookmarker(user);
         parent.Thread.setSeenUsers([user]);
         parent.Thread.setRepliedUsers([user]);
       });
@@ -293,6 +304,67 @@ router.post('/reply/:id', (req, res)=>{
       res.status(200).json(child);
     })
   );
+});
+
+/**
+ * Edit a given annotation
+ * @name GET/api/annotations/reply/:id
+ * @param id: id of parent annotation
+ * @param content: text content of annotation
+ * @param tags: list of ids of tag types
+ * @param userTags: list of ids of users tagged
+ * @param visibility: string enum
+ * @param anonymity: string enum
+ * @param replyRequest: boolean
+ */
+router.put('/annotation/:id', (req, res) => {
+  Annotation.findByPk(req.params.id)
+    .then(annotation => 
+      annotation.update({
+        content: req.body.content, 
+        visibility: req.body.visibility,
+        anonymity: req.body.anonymity
+      })
+      .then(() => Tag.destroy({where:{annotation_id: annotation.id}}))
+      .then(() => {
+        console.log(req.body);
+        console.log(annotation.content);
+        if(req.body.userTags && req.body.userTags.length){
+          Promise.all(req.body.userTags.map(user_id => User.findByPk(user_id)))
+            .then(users => annotation.setTaggedUsers(users));
+        }
+        if (req.body.tags && req.body.tags.length){
+          Promise.all(req.body.tags.map(tag => Tag.create({annotation_id: annotation.id, tag_type_id: tag})))
+            .then(tags => annotation.setTags(tags));
+        }
+        return User.findByPk(req.session.userId).then(user => {
+          if (req.body.replyRequest) annotation.addReplyRequester(user);
+          else annotation.removeReplyRequester(user);
+        });
+      })
+      .then(() => res.status(200))
+    );
+});
+
+/**
+ * Deletes a given annotation 
+ * @name DELETE/api/annotations/annotation/:id
+ * @param id: id of annotation
+ */
+router.delete('/annotation/:id', (req, res) => {
+  Annotation.findByPk(req.params.id, {include: [
+      {association: 'Thread', include:[{association: 'Location'}]}, 
+      {association: 'Parent'}
+    ]})
+    .then(annotation => {
+      annotation.destroy();
+      if(!annotation.Parent){
+        annotation.Thread.destroy();
+        annotation.Thread.Location.destroy();
+      }
+
+    })
+    .then(() => res.status(200));
 });
 
 /**
@@ -334,6 +406,22 @@ router.post('/replyRequest/:id', (req, res) => {
     User.findByPk(req.session.userId).then(user => {
       if (req.body.replyRequest) {annotation.addReplyRequester(user);}
       else {annotation.removeReplyRequester(user);}
+      annotation.Thread.addSeenUser(user);
+      annotation.Thread.addRepliedUser(user);
+    }).then(() => res.status(200))
+  );
+});
+
+/**
+ * Toggles a bookmark for a given annotation
+ * @name POST/api/annotations/bookmark/:id
+ * @param id: id of annotation
+ */
+router.post('/bookmark/:id', (req, res) => {
+  Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation =>
+    User.findByPk(req.session.userId).then(user => {
+      if (req.body.bookmark) {annotation.addBookmarker(user);}
+      else {annotation.removeBookmarker(user);}
       annotation.Thread.addSeenUser(user);
       annotation.Thread.addRepliedUser(user);
     }).then(() => res.status(200))
