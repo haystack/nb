@@ -1,6 +1,6 @@
 <template>
   <div id="class">
-    <h3>{{nb_class.class_name}} <i class= "material-icons" v-on:click="openGrading">settings</i></h3>
+    <h3>{{nb_class.class_name}} <i v-if='isInstructor' class= "material-icons" v-on:click="openGrading">settings</i></h3>
     <div class='split'>
       <div v-if='isInstructor'>
         <form  class='component' v-on:submit.prevent='addStudent' method="post">
