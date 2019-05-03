@@ -43,26 +43,25 @@
 </template>
 
 <script>
-  import { DefaultCriterion, CustomCriterion } from '../../models/grade-schema.js'
+  import { DefaultCriterion, CustomCriterion, Grade } from '../../models/grade-schema.js'
   import TableHead from './TableHead.vue'
   import TableRow from './TableRow.vue'
   import TableFoot from './TableFoot.vue'
   import CustomForm from './CustomForm.vue'
+  import axios from 'axios'
 
   export default {
     name: 'grade-table',
     props: {
-      customCriteria: {
-        type: Array,
-        default: []
-      },
-      grades: {
-        type: Array,
-        default: []
+      gradingSystem: {
+        type: Object,
+        default: null
       }
     },
     data() {
       return {
+        customCriteria: [],
+        grades: [],
         showForm: false,
         edittingGrades: [],
         edittingCriterion: null,
@@ -81,10 +80,25 @@
         })
       }
     },
+    created: function(){
+      this.grades = this.gradingSystem.GradingThresholds
+        .map(threshold => {
+          let grade = Grade.construct(threshold);
+          threshold.CriteriaCounts.forEach(criteriaCount => {
+            grade.setThreshold(criteriaCount.num_annotations, "CUSTOM", criteriaCount.criteria_id);
+          })
+          return grade;
+        });
+      this.customCriteria = this.gradingSystem.Criteria
+        .map(criteria => CustomCriterion.construct(criteria));
+    },
     methods: {
       addGrade: function(grade) {
-        this.grades.push(grade)
-        // TODO: add 'grade' to database
+        axios.post(`/api/grades/threshold/${this.gradingSystem.id}`, grade)
+        .then(res => {
+          grade.id = res.data.id;
+          this.grades.push(grade)
+        });
       },
       editGrade: function(grade) {
         this.edittingGrades.push(grade)
@@ -95,15 +109,18 @@
             (grade.label ? grade.label : "[ no label ]") +
             " (" + grade.points + "pts) ?\n"
         if (confirm(message)) {
-          let idx = this.grades.indexOf(grade)
-          if (idx >= 0) { this.grades.splice(idx, 1) }
-          // TODO: remove 'grade' from database
+          axios.delete(`/api/grades/threshold/${grade.id}`).then(() => {
+            let idx = this.grades.indexOf(grade)
+            if (idx >= 0) { this.grades.splice(idx, 1) }
+          })
         }
       },
       saveGrade: function(grade) {
-        let idx = this.edittingGrades.indexOf(grade)
-        if (idx >= 0) { this.edittingGrades.splice(idx, 1) }
-        // TODO: update 'grade' in database
+        axios.put(`/api/grades/threshold/${grade.id}`, grade)
+        .then(() => {
+          let idx = this.edittingGrades.indexOf(grade)
+          if (idx >= 0) { this.edittingGrades.splice(idx, 1) }
+        })
       },
       createCriterion: function() {
         this.showForm = true
@@ -117,23 +134,26 @@
         this.showForm = false
       },
       saveCriterion: function(criterion) {
-        this.edittingCriterion = null
-        this.showForm = false
-        // TODO: update this criterion in database
+        axios.put(`/api/grades/criteria/${criterion.id}`, criterion).then(() => {
+          this.edittingCriterion = null
+          this.showForm = false
+        })
       },
       newCriterion: function(criterion) {
-        this.customCriteria.push(criterion)
-        this.showForm = false
-        // TODO: add this criterion to database
+        axios.post(`/api/grades/criteria/${this.gradingSystem.id}`, criterion).then(res => {
+          criterion.id = res.data.id;
+          this.customCriteria.push(criterion)
+          this.showForm = false
+        })
       },
       deleteCriterion: function(criterion) {
-        let idx = this.customCriteria.indexOf(criterion)
-        if (idx >= 0) { this.customCriteria.splice(idx, 1) }
-        for (let grade of this.grades) {
-          grade.setThreshold(null, "CUSTOM", criterion.id)
-        }
-        // TODO: remove this criterion from database
-        // TODO: remove corresponding thresholds from database
+        axios.delete(`/api/grades/criteria/${criterion.id}`).then(() => {
+          let idx = this.customCriteria.indexOf(criterion)
+          if (idx >= 0) { this.customCriteria.splice(idx, 1) }
+          for (let grade of this.grades) {
+            grade.setThreshold(null, "CUSTOM", criterion.id)
+          }
+        })
       }
     },
     components: {

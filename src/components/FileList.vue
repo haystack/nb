@@ -69,7 +69,6 @@ export default {
   },
 
   mounted: function(){
-    console.log(this.parent)
     this.loadFiles();
   },
 
@@ -103,13 +102,11 @@ export default {
         });
     },
     changeParent: function(file){
-      console.log(file);
       if(file.is_directory){
         this.listener.$emit('changeParent', (file));
       }
     },
     redirect: function(file){
-      console.log(file);
       location.href = file.Source.filepath;
     },
     back: function(){

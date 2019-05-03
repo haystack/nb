@@ -8,7 +8,7 @@
           <h2>My Classes</h2>
         </div>
         <div>
-          <ClassList mode="instructor" :listener="listener"/>
+          <ClassList mode="instructor" :selected="nb_class" :listener="listener"/>
         </div>
         <ClassCreate/>
         <!-- Classes where user is student -->
@@ -16,7 +16,7 @@
           <h2>Student Classes</h2>
         </div>
         <div>
-          <ClassList mode="student" :listener="listener"/>
+          <ClassList mode="student" :selected="nb_class" :listener="listener"/>
         </div>
       </div>
       <div class="documents">
@@ -54,14 +54,6 @@ export default {
     };
   },
   methods: {
-    redirectToCreateClass: function(){
-      axios.post(`/api/classes/current`, {classId: null}).then(() =>{
-        this.$router.push({
-          name: 'createClass',
-        })
-      })
-    },
-    
     redirect: function(page){
       this.$router.push({name:page, params:{class: null}});
     },
@@ -70,7 +62,7 @@ export default {
       this.nb_class = nb_class;
     }
   },
-  mounted: function(){
+  created: function(){
     this.listener.$on("setClass", (res) => {
       this.nb_class = res.nb_class;
       this.type = res.mode;
@@ -88,6 +80,11 @@ export default {
       .catch(() => {
         this.redirect('user-settings');
       });
+    axios.get("/api/classes/current").then(res => {
+      if(res.data){
+        this.nb_class = res.data
+      }
+    })
   }
 }
 </script>

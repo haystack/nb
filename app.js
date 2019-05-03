@@ -11,6 +11,7 @@ const usersRouter = require('./routes/users');
 const classesRouter = require('./routes/classes');
 const filesRouter = require('./routes/files');
 const annotationsRouter = require('./routes/annotations');
+const gradesRouter = require('./routes/grades');
 
 const app = express();
 
@@ -52,5 +53,6 @@ app.use('/api/users', usersRouter);
 app.use('/api/classes', classesRouter);
 app.use('/api/files', filesRouter);
 app.use('/api/annotations', annotationsRouter);
+app.use('/api/grades', gradesRouter);
 
 module.exports = app;

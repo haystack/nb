@@ -14,7 +14,7 @@ const criteriaCount = (sequelize, DataTypes) => {
     classMethods:{
       associate: (models) =>{
         CriteriaCount.belongsTo(models.GradingThreshold, {as: 'GradingThreshold', foreignKey: {name: 'grading_threshold_id'}, onDelete: 'CASCADE'});
-        CriteriaCount.hasMany(models.Criteria, {as: 'Criteria', foreignKey: {name: 'criteria_count_id'}, onDelete: 'CASCADE'});
+        CriteriaCount.belongsTo(models.Criteria, {as: 'Criteria', foreignKey: {name: 'criteria_id'}, onDelete: 'CASCADE'});
       }
     }
   });

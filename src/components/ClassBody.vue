@@ -1,6 +1,6 @@
 <template>
   <div id="class">
-    <h3>{{nb_class.class_name}}</h3>
+    <h3>{{nb_class.class_name}} <i class= "material-icons" v-on:click="openGrading">settings</i></h3>
     <div class='split'>
       <div v-if='isInstructor'>
         <form  class='component' v-on:submit.prevent='addStudent' method="post">
@@ -67,15 +67,11 @@ export default {
     username: function(){
       const new_user = this.new_user;
       let student_id_list = this.student_list.map(student => student.id)
-      this.possible_users = this.all_users.filter(user =>{ 
-        
-        console.log(new_user)
-        console.log(!this.student_list.includes(user))
-        console.log(this.student_list)
-        console.log(user)
-        return (user.username.includes(new_user.username) || user.email.includes(new_user.username))
-        && !student_id_list.includes(user.id) && user.id != new_user.id && user.username != new_user.username
-      }
+      this.possible_users = this.all_users.filter(user =>
+        (user.username.includes(new_user.username) || user.email.includes(new_user.username))
+        && !student_id_list.includes(user.id) 
+        && user.id != new_user.id 
+        && user.username != new_user.username
       )
     }
   },
@@ -96,7 +92,6 @@ export default {
     this.loadStudents()
     axios.get(`/api/users/all`)
       .then(res => {
-        console.log(res.data)
         this.all_users = res.data;
       })
   },
@@ -121,6 +116,9 @@ export default {
       const bodyContent = this.new_user;
       axios.post(`/api/classes/student/${this.nb_class.id}`, bodyContent)
         .then(function(){this.loadStudents()})
+    },
+    openGrading: function(){
+      this.$router.push("grading")
     }
   }
 };
@@ -137,6 +135,15 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+h3{
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+i{
+  margin-left: 5px;
 }
 
 ul {

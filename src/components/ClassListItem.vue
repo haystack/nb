@@ -1,5 +1,5 @@
 <template>
-  <div class="ClassListItem" v-bind:id='nb_class.id' v-on:click="showDocuments(); selectClass();">
+  <div class="ClassListItem" v-bind:id='nb_class.id' v-on:click="selectClass">
     <div class="class" >
       <div class="class-header" id="content" >
         <h4 id="className">{{nb_class.class_name}}</h4>
@@ -17,13 +17,15 @@ export default {
   props: {
     nb_class: Object,
     listener: Object,
-    mode: String
+    mode: String,
+    selected: Object
+  },
+  mounted: function(){
+    if(this.selected && this.selected.id == this.nb_class.id){
+      this.selectClass();
+    }
   },
   methods: {
-    showDocuments: function(){
-      eventBus.$emit("show-documents", this.nb_class.classId);
-    },
-
     selectClass: function() {
       let allClasses = document.getElementsByClassName('ClassListItem');
       for (let element of allClasses) {
@@ -31,6 +33,9 @@ export default {
       }
       this.$el.classList.add('selected');
       this.listener.$emit('setClass', {nb_class: this.nb_class, mode: this.mode});
+      if(this.nb_class){
+        axios.post("/api/classes/current", {id: this.nb_class.id});
+      }
     }
   }
 };

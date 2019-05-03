@@ -4,17 +4,17 @@
     
     <div class="form-group">
       <label class="setting-label" for='username'>Username:</label>
-      <input id='username' class="setting-input" v-model.trim='username' type='text' name='username'>
+      <input class="setting-input" v-model.trim='username' type='text' name='username'>
     </div>
 
     <div class="form-group">
       <label class="setting-label" for='email'>Email:</label>
-      <input id='email' class="setting-input" v-model.trim='email' type='text' name='email'>
+      <input class="setting-input" v-model.trim='email' type='text' name='email'>
     </div>
 
     <div class="form-group">
       <label class="setting-label" for='password'>Password:</label>
-      <input id='password' class="setting-input" v-model.trim='password' type='password' name='password'>
+      <input class="setting-input" v-model.trim='password' type='password' name='password'>
     </div>
 
     <input class="submit-button" type='submit' value='Create User'>

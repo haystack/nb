@@ -5,17 +5,9 @@ const criteria = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV1,
       primaryKey: true
     },
-    criteria_name:{
+    label:{
       type: DataTypes.STRING,
       allowNull: false
-    },
-    is_default:{
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
-    },
-    num_comments:{
-      type: DataTypes.INTEGER,
-      defaultValue: 0
     },
     num_words:{
       type: DataTypes.INTEGER,
@@ -33,7 +25,8 @@ const criteria = (sequelize, DataTypes) => {
   {
     classMethods:{
       associate: (models) =>{
-        Criteria.belongsTo(models.CriteriaCount, {as: 'CriteriaCount', foreignKey: {name: 'criteria_count_id'}, onDelete: 'CASCADE'});
+        Criteria.belongsTo(models.GradingSystem, {as: 'GradingSystem', foreignKey: {name: 'grading_system_id'}});
+        Criteria.hasMany(models.CriteriaCount, {as: 'CriteriaCounts', foreignKey: {name: 'criteria_id'}, onDelete: 'CASCADE'});
       }
     }
   });

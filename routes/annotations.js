@@ -327,8 +327,6 @@ router.put('/annotation/:id', (req, res) => {
       })
       .then(() => Tag.destroy({where:{annotation_id: annotation.id}}))
       .then(() => {
-        console.log(req.body);
-        console.log(annotation.content);
         if(req.body.userTags && req.body.userTags.length){
           Promise.all(req.body.userTags.map(user_id => User.findByPk(user_id)))
             .then(users => annotation.setTaggedUsers(users));

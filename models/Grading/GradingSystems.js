@@ -15,6 +15,7 @@ const gradingSystem = (sequelize, DataTypes) => {
       associate: (models) =>{
         GradingSystem.belongsTo(models.Class, {as: 'Class', foreignKey: {name: 'class_id'}, onDelete: 'CASCADE'});
         GradingSystem.hasMany(models.GradingThreshold, {as: 'GradingThresholds', foreignKey: {name: 'grading_system_id'}, onDelete: 'CASCADE'});
+        GradingSystem.hasMany(models.Criteria, {as: 'Criteria', foreignKey: {name: 'grading_system_id'}, onDelete: 'CASCADE'});
       }
     }
   });

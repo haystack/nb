@@ -2,7 +2,7 @@
   <div id="class-list">
     <div>
       <div v-if='classes.length' class="class-list">
-        <ClassListItem v-for='nb_class in classes' :mode="mode" :listener="listener" :key='nb_class.classId' :nb_class='nb_class'/>
+        <ClassListItem v-for='nb_class in classes' :selected="selected" :mode="mode" :listener="listener" :key='nb_class.classId' :nb_class='nb_class'/>
       </div>
       <div v-else>
         <p>You don't have any classes</p>
@@ -23,7 +23,8 @@ export default {
 
   props: {
     mode: String,
-    listener: Object
+    listener: Object,
+    selected: Object
   },
 
   components: { 

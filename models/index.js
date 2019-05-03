@@ -49,85 +49,86 @@ Object.keys(models).forEach(function (modelName) {
   }
 });
 
-sequelize.drop({}).then(() =>{
-sequelize.sync()
-  .then(() => {
-    models.User.create(
-      {
-        username: "adrian",
-        email: "adriansy@mit.edu",
-        first_name: "Adrian",
-        last_name: "Sy",
-        password: "t"
-      }
-    ).then(user_1 => {
-      models.User.create(
-        {
-          username: "alisa",
-          email: "alisao@mit.edu",
-          first_name: "Alisa",
-          last_name: "Ono",
-          password: "t"
-        }
-      ).then((user_2) => 
-        utils(sequelize.models).createClass("Test Class", user_2.id)
+sequelize.sync();
+// sequelize.drop({}).then(() =>{
+// sequelize.sync()
+//   .then(() => {
+//     models.User.create(
+//       {
+//         username: "adrian",
+//         email: "adriansy@mit.edu",
+//         first_name: "Adrian",
+//         last_name: "Sy",
+//         password: "t"
+//       }
+//     ).then(user_1 => {
+//       models.User.create(
+//         {
+//           username: "alisa",
+//           email: "alisao@mit.edu",
+//           first_name: "Alisa",
+//           last_name: "Ono",
+//           password: "t"
+//         }
+//       ).then((user_2) => 
+//         utils(sequelize.models).createClass("Test Class", user_2.id)
         
-      ).then(nb_class => 
-        utils(sequelize.models).addStudent(nb_class.id, user_1.id)
-        .then(() => {
-          nb_class.getRoot().then((root) => utils(sequelize.models)
-          .createFile(root.id, 
-            "test_link", 
-            "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/nbdemo/index.html"));
-        })
-        .then(() => {
-          nb_class.getRoot().then((root) => utils(sequelize.models)
-          .createFile(root.id, 
-            "libre_text test", 
-            "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/W2017_Lecture_01_Reading%20-%20Biology%20LibreTexts.htm"));
-        })
-        .then(() => {
-          models.TagType.bulkCreate(
-            [{
-              value: "curious",
-              emoji: "1F914"
-            },
-            {
-              value: "confused",
-              emoji: "1F616"
-            },
-            {
-              value: "useful",
-              emoji: "1F600"
-            },
-            {
-              value: "interested",
-              emoji: "1F9D0"
-            },
-            {
-              value: "frustrated",
-              emoji: "1F621"
-            },
-            {
-              value: "help",
-              emoji: "1F61F"
-            },
-            {
-              value: "question",
-              emoji: "2753"
-            },
-            {
-              value: "idea",
-              emoji: "1F4A1"
-            }
-          ]).then((tag_types) => nb_class.setTagTypes(tag_types));
-        })
-      );
-    });
+//       ).then(nb_class => 
+//         utils(sequelize.models).addStudent(nb_class.id, user_1.id)
+//         .then(() => {
+//           nb_class.getRoot().then((root) => utils(sequelize.models)
+//           .createFile(root.id, 
+//             "test_link", 
+//             "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/nbdemo/index.html"));
+//         })
+//         .then(() => {
+//           nb_class.getRoot().then((root) => utils(sequelize.models)
+//           .createFile(root.id, 
+//             "libre_text test", 
+//             "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/W2017_Lecture_01_Reading%20-%20Biology%20LibreTexts.htm"));
+//         })
+//         .then(() => {
+//           models.TagType.bulkCreate(
+//             [{
+//               value: "curious",
+//               emoji: "1F914"
+//             },
+//             {
+//               value: "confused",
+//               emoji: "1F616"
+//             },
+//             {
+//               value: "useful",
+//               emoji: "1F600"
+//             },
+//             {
+//               value: "interested",
+//               emoji: "1F9D0"
+//             },
+//             {
+//               value: "frustrated",
+//               emoji: "1F621"
+//             },
+//             {
+//               value: "help",
+//               emoji: "1F61F"
+//             },
+//             {
+//               value: "question",
+//               emoji: "2753"
+//             },
+//             {
+//               value: "idea",
+//               emoji: "1F4A1"
+//             }
+//           ]).then((tag_types) => nb_class.setTagTypes(tag_types));
+//         })
+//       );
+//     });
     
 
-  })
-  .catch(error => console.log('This error occured', error));
-});
+//   })
+//   .catch(error => console.log('This error occured', error));
+// });
 
 module.exports = sequelize.models;

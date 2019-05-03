@@ -1,10 +1,35 @@
 const express = require('express');
 const User = require('../models').user;
 const Class = require('../models').class;
-const Section = require('../models').section;
-const FileSystemObject = require('../models').file_system_object;
+const Source = require('../models').source;
 const utils = require('../models/utils')(require('../models'));
 const router = express.Router();
+
+/**
+ * Set current class.
+ * @name POST/api/classes/ccurrent
+ * @param id: id of class
+ */
+router.post('/current', (req, res) => {
+  req.session.classId = req.body.id;
+  res.status(200).json(req.body.id);
+});
+
+/**
+ * Get current class.
+ * @name GET/api/classes/current
+ */
+router.get('/current', (req, res) => {
+  if(!req.session.classId){
+    res.status(200).json(null);
+  }
+  else{
+    Class.findByPk(req.session.classId).then(nb_class => {
+      res.status(200).json(nb_class);
+    });
+  }
+  
+});
 
 /**
  * Create a new class.
@@ -64,7 +89,6 @@ router.get('/studentList/:id', (req,res) =>{
     );
 });
 
-
 /**
  * Add a student to a given class
  * @name POST/api/classes/student/:id
@@ -72,6 +96,15 @@ router.get('/studentList/:id', (req,res) =>{
  */
 router.post('/student/:id', (req, res) => {  
   utils.addStudent(req.params.id, req.body.id).then(() => res.status(200));
+});
+
+/**
+ * Get all sources for current class
+ * @name GET/api/classes/sourceList
+ */
+router.get('/sourceList', (req, res) => {
+  Source.findAll({where:{class_id: req.session.classId}})
+    .then(sources => res.status(200).json(sources));
 });
 
 module.exports = router;

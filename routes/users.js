@@ -4,7 +4,7 @@ const router = express.Router();
 
 /**
  * Get active user.
- * @name POST/api/users/current
+ * @name GET/api/users/current
  */
 router.get('/current', (req, res) => {
   if (!req.session.userId){
@@ -59,7 +59,7 @@ router.post('/register', (req, res) => {
 })
 
 router.post('/logout', (req, res) => {
-  req.session.userId = "";
+  req.session.destroy();
   res.status(200).json({ msg: "signed out" }).end();
 });
 

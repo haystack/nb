@@ -13,6 +13,8 @@
           :disabled="!overflowMenu">
           <span class="tooltip-target" @click="overflowMenu = true">
             <i class="fas fa-edit"></i>
+            <!-- Icon doesn't render -->
+            <i class="material-icons">edit</i> 
           </span>
           <template slot="popover">
             <div class="overflow-btn" @click="editCriterion(criterion)">

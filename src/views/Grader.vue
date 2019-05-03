@@ -1,11 +1,32 @@
 <template>
+<div>
   <grade-table
-      :custom-criteria="customCriteria"
-      :grades="grades">
+      v-for="gradingSystem in gradingSystems" :gradingSystem="gradingSystem">
   </grade-table>
+  <div>
+    <div>
+      Grading System: 
+      <select v-model="selectedGrading">
+        <option v-for="gradingSystem in gradingSystems" :value="gradingSystem.id">
+          {{gradingSystem.grading_system_name}}
+        </option>
+      </select>
+    </div>
+    <div>
+      Document: 
+      <select v-model="selectedSource">
+        <option v-for="source in sources" :value="source.id">
+          {{source.filename}}
+        </option>
+      </select>
+    </div>
+    <button v-on:click="createGrades">Generate</button>
+  </div>
+</div>
 </template>
 
 <script>
+  import axios from 'axios'
   import Vue from 'vue'
   import VTooltip from 'v-tooltip'
   import VModal from 'vue-js-modal'
@@ -13,39 +34,48 @@
   Vue.use(VModal)
 
   import GradeTable from '../components/grader/GradeTable.vue'
-  import { CustomCriterion, Grade } from '../models/grade-schema.js'
 
   export default {
     name: 'grader',
     data() {
       return {
-        customCriteria: [],
-        grades: []
+        gradingSystems: [],
+        sources: [],
+        selectedGrading: null,
+        selectedSource: null
       }
     },
     created: function() {
-      //// For example:
-      let gradeA = new Grade('0', "Very good", 4)
-      let gradeB = new Grade('1', "Good", 3)
-      let gradeC = new Grade('2', "Fair", 2)
+      axios.get("/api/users/current").then(res => {
+        if (!(res.data.username !== undefined && res.data.username !== "")) {
+          this.$router.push('/');
+        }
+      })
+      .catch(() => {
+        this.$router.push('/');
+      });
+    },
+    mounted: function(){
+      axios.get('/api/grades/gradingSystems').then(res => {
+        this.gradingSystems = res.data;
+        console.log(res.data)
+      });
 
-      let criterion = new CustomCriterion('0', "Good Comments")
-      criterion.setFilter(20, "WORDS")
-      this.customCriteria.push(criterion)
-
-      gradeA.setThreshold(3,  "COMMENTS")
-      gradeA.setThreshold(60, "WORDS")
-      gradeA.setThreshold(2, "CUSTOM", '0') // 2 "Good Comments"
-      gradeB.setThreshold(2,  "COMMENTS")
-      gradeB.setThreshold(40, "WORDS")
-      gradeB.setThreshold(1, "CUSTOM", '0') // 1 "Good Comments"
-      gradeC.setThreshold(1,  "COMMENTS")
-      gradeC.setThreshold(15, "WORDS")
-
-      this.grades.push(gradeA)
-      this.grades.push(gradeB)
-      this.grades.push(gradeC)
-      //// ... end example
+      axios.get('/api/classes/sourceList').then(res => {
+        this.sources = res.data;
+        console.log(res.data)
+      });
+    },
+    methods:{
+      createGrades: function(){
+        axios.get("/api/grades/grades",{params:{
+          gradingSystemId: this.selectedGrading, 
+          sourceId: this.selectedSource
+        }})
+        .then(res => {
+          console.log(res.data);
+        })
+      }
     },
     components: {
       GradeTable

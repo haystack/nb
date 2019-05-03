@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from 'vue';
+import Router from 'vue-router';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   routes: [
@@ -22,6 +22,12 @@ export default new Router({
       name: 'homepage',
       props: { default: true },
       component: () => import('./views/Homepage.vue'),
+    },
+    {
+      path: '/grading',
+      name: 'grading',
+      props: { default: true },
+      component: () => import('./views/Grader.vue'),
     },
     // {
     //   path: '*',
