@@ -1,81 +1,94 @@
 <template>
-  <div v-if="user">
-    <p> Welcome {{user.username}} </p>
-    <ClassCreate/>
-    <ClassList/>
-    <Logout/>
-  </div>
-  <div v-else>
-    <Register/>
-    <Login/>
+  <div id="user-settings" class="component" style="display:inline">
+    <NavBar v-bind:hasBackwardArrow="this.hasBackwardArrow" title="NB Lite" v-bind:hasNotification="this.hasNotification" v-bind:isSignedIn="this.isSignedIn" username=""/>
+    <CreateUser/>
+    <SignIn/>
+    <p v-if="messages.length > 0">{{ messages }}</p>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-
-import Register from "../components/UserSettings/Register.vue";
-import Login from "../components/UserSettings/Login.vue";
-import Logout from "../components/UserSettings/Logout.vue";
-import ClassCreate from "../components/ClassSettings/ClassCreate.vue";
-import ClassList from "../components/ClassSettings/ClassList.vue";
-import { eventBus } from '../main';
+import { eventBus } from "../main";
+import CreateUser from "../components/CreateUser.vue";
+import SignIn from "../components/SignIn.vue";
+import SignOut from "../components/SignOut.vue";
+import NavBar from '../components/NavBar.vue'
 
 export default {
   name: "UserSettings",
-  data(){
+
+  data() {
     return {
-      user: null
+      signedIn: false,
+      username: "",
+      messages: [],
+      hasBackwardArrow: false,
+      hasNotification: false,
+      isSignedIn: false
     }
   },
+
   components: {
-    Register,
-    Login,
-    Logout,
-    ClassCreate,
-    ClassList
+    CreateUser,
+    SignIn,
+    SignOut,
+    NavBar
   },
 
-  created:function(){
-    eventBus.$on("login", (res) =>{
-      this.user = res.data
+  mounted:  function() {
+    axios.get("/api/users/current/")
+      .then((res) => {
+        if(res.data){
+          this.$router.push('home');
+        }
+        else{
+          this.username = "Not logged in."
+        }     
+      })
+    .catch(() => {
+      this.username = "Not logged in.";
     });
-    eventBus.$on("logout", () =>{
-      this.user = null
-    })
-  },
+    eventBus.$on("createuser-success", () => {
+      this.messages = "Successfully created user.";
+    });
 
-  mounted:function(){
-    axios.get('/api/users/current').then((res)=>{
-      this.user =res.data
-    })
+    eventBus.$on("signin-success", () => {
+      axios.get("/api/users/current/")
+        .then(res => {
+            this.username = res.data.name.first + " " + res.data.name.last;
+            this.$router.push('home');
+        })
+      this.signedIn = true;
+    });
+    
+    eventBus.$on("signout-success", () => {
+      this.signedIn = false;
+      this.username = "";
+      this.messages = "Successfully signed out.";
+    });
   }
 };
 </script>
 
-<!-- global styles -->
-<style scoped>
-* {
-  box-sizing: border-box;
+<style>
+#user-settings {
+  text-align: center;
 }
-
-body {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: lightblue;
+.form-group {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
-
-.success-message {
-  color: green;
+.setting-input {
+    margin-top: 20px;
+    width: 15rem;
 }
-
-.error-message {
-  color: red;
+.setting-label {
+    margin-right: 0.5rem;
+    margin-top: 20px;
 }
-
-.component {
-  background-color: whitesmoke;
-  padding: 1rem;
+.user-settings-form {
+    width: fit-content;
 }
 </style>

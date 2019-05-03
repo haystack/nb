@@ -1,16 +1,17 @@
 <template>
   <div class="file-table" v-if="parent">
-    <h3><i v-if='parent.Parent' v-on:click='back'>&#x2190;</i>{{parent.filename}}</h3>
+    <h3><i v-if='parent.parent_id' v-on:click='back'>&#x2190;</i>{{parent.filename}}</h3>
     <ul v-if='files.length'>
       <li v-for='file in files' v-bind:key='file.id'>
-        <p v-if='file.is_directory' v-on:click='changeParent(file)'><i>&#x1F4C1;</i> {{file.filename}}</p>
-        <p v-else v-on:click='redirect(file)'><i>&#x1f5ce;</i> {{file.filename}}</p>
+        <p v-if='file.is_directory' v-on:click='changeParent(file)'><i class="material-icons">folder</i> {{file.filename}}</p>
+        <p v-else v-on:click='redirect(file)'><i class="material-icons">insert_drive_file</i> {{file.filename}}</p>
       </li>
     </ul>
+    <p v-else> No files in this folder </p>
     <div v-if='isInstructor' id="edit-files-forms">
       <form class='component' v-on:submit.prevent='addFolder' method="post">
         <h3>Add Folder</h3>
-        <div class='form-group'>
+        <div class='form-class'>
           <label for='folderName'>Folder Name:</label>
           <input v-model.trim='folderName' type='text' name='folderName'>
         </div>
@@ -18,11 +19,11 @@
       </form>
       <form class='component' v-on:submit.prevent='addFile' method="post">
         <h3>Add File</h3>
-        <div class='form-group'>
+        <div class='form-class'>
           <label for='fileName'>File Name:</label>
           <input v-model.trim='fileName' type='text' name='fileName'>
         </div>
-        <div class='form-group'>
+        <div class='form-class'>
           <label for='url'>URL:</label>
           <input v-model.trim='url' type='text' name='url'>
         </div>
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-import { eventBus } from "../../main";
+import { eventBus } from "../main";
 import axios from 'axios';
 
 export default {
@@ -98,12 +99,11 @@ export default {
     loadFiles: function(){
       axios.get(`/api/files/folder/${this.parent.id}`)
         .then(res => {
-          console.log("Loaded files")
-          console.log(res.data)
           this.files = res.data
         });
     },
     changeParent: function(file){
+      console.log(file);
       if(file.is_directory){
         this.listener.$emit('changeParent', (file));
       }
@@ -125,6 +125,22 @@ export default {
 
 <style>
 .file-table{
-  border: 1px solid black
+  border: 1px solid black;
+  padding: 20px;
+}
+
+ul {
+  list-style: none;
+  width: 100%;
+  text-align: left;
+}
+
+p{
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+i{
+  margin-right: 5px;
 }
 </style>
