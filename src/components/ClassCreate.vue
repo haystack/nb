@@ -28,7 +28,7 @@ export default {
   methods: {
     create: function() {
       const bodyContent = {name: this.name};
-      axios.post("/api/classes/create", bodyContent).then((res) => {
+      axios.post("/api/classes/create", bodyContent).then(() => {
           this.name = "";
           eventBus.$emit("class-changes");
       })
