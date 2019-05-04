@@ -59,7 +59,7 @@
       axios.get('/api/grades/gradingSystems').then(res => {
         this.gradingSystems = res.data;
         console.log(res.data)
-      });
+      })
 
       axios.get('/api/classes/sourceList').then(res => {
         this.sources = res.data;
@@ -74,6 +74,22 @@
         }})
         .then(res => {
           console.log(res.data);
+          var csv = 'Name,Email,Username,Total Comments,Total Words,Total Characters,Total Tags\n';
+          res.data.forEach(function(row) {
+            csv += row.name+",";
+            csv += row.email+",";
+            csv += row.username+",";
+            csv += row.total_comments+",";
+            csv += row.total_words+",";
+            csv += row.total_chars+",";
+            csv += row.total_tags+"\n";
+          });
+          console.log(csv);
+          var hiddenElement = document.createElement('a');
+          hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+          hiddenElement.target = '_blank';
+          hiddenElement.download = 'grades.csv';
+          hiddenElement.click();
         })
       }
     },

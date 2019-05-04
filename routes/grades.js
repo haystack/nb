@@ -7,6 +7,7 @@ const GradingThreshold = require('../models').grading_threshold;
 const CriteriaCount = require('../models').criteria_count;
 const Criteria = require('../models').criteria;
 const router = express.Router();
+const h2p = require('html2plaintext');
 
 /**
  * Get grading systems of a class.
@@ -171,34 +172,93 @@ router.delete('/criteria/:id', (req, res) => {
  */
 router.get('/grades', (req, res) => {
   Class.findByPk(req.session.classId, {include: 
-    [
-      {
-        association: 'GlobalSection',
+    [{
+      association: 'GlobalSection',
+      include:[{
+        association: 'MemberStudents',
         include:[{
-          association: 'MemberStudents',
+          association: 'Annotations',
           include:[{
-            association: 'Annotations',
-            include:[{
-              association: 'Thread',
+            association: 'Thread',
+            required: true,
+            include: [{
+              association: 'Location',
+              required: true,
               include: [{
-                association: 'Location',
-                include: [{
-                  association: 'Source',
-                  where:{
-                    id: req.query.sourceId
-                  },
-                  required: true
-                }],
+                association: 'Source',
+                where:{id: req.query.sourceId},
                 required: true
               }],
-            required: true
             }]
-          }]
+          },
+          {association: 'Tags'}
+          ]
         }]
-      }
-    ]
+      }]
+    }]
 }).then(nb_class => {
-  res.status(200).json(nb_class.GlobalSection.MemberStudents);
+  // res.status(200).json(nb_class.GlobalSection.MemberStudents);
+  GradingSystem.findByPk(req.query.gradingSystemId, {include:
+    [
+      {association: 'Criteria'},
+      {association: 'GradingThresholds',
+        include:[{association: 'CriteriaCounts'}]
+      }
+    ]})
+    .then(gradingSystem => {
+      let grades = [];
+      let annotations = {};
+      let filters = {};
+      let students = nb_class.GlobalSection.MemberStudents.map(student => {
+        annotations[student.id] = student.Annotations;
+        return student.get({plain: true});
+      });
+      nb_class.GlobalSection.MemberStudents.forEach(student => {
+        annotations[student.id] = annotations[student.id].map(annotation => {
+          let text = h2p(annotation.content);
+          return {
+            words : text.split(" ").length,
+            chars : text.length,
+            tags : annotation.Tags.length
+          };
+        }); 
+      });
+
+      gradingSystem.Criteria.forEach(criteria => {
+        filters[criteria.id] = function(annotation){
+          return annotation.words >= criteria.num_words &&
+            annotation.chars >= criteria.num_chars &&
+            annotation.tags >= criteria.num_tags;
+        };
+      });
+      students.forEach(student => {
+        let gradeLine = {
+          username: student.username,
+          email: student.email,
+          name: `${student.first_name} ${student.last_name}`,
+          total_words: annotations[student.id].reduce((sum, annotation) => (sum + annotation.words), 0),
+          total_chars: annotations[student.id].reduce((sum, annotation) => (sum + annotation.chars), 0),
+          total_tags: annotations[student.id].reduce((sum, annotation) => (sum + annotation.tags), 0),
+          total_comments: annotations[student.id].length,
+        };
+        let possibleGrades = gradingSystem.GradingThresholds.filter(threshold => 
+            gradeLine.total_words > threshold.total_words &&
+            gradeLine.total_chars > threshold.total_chars &&
+            gradeLine.total_tags > threshold.total_tags &&
+            gradeLine.total_comments > threshold.total_comments &&
+            //Go through all the criteria counts and see if satisfying annotations are enough
+            (threshold.CriteriaCount.reduce((bool, criteriaCount) =>
+              (bool && 
+                (criteriaCount.num_annotations == 0 || 
+                  annotations[student.id]
+                  .filter(filters[criteriaCount.criteria_id]).length >= criteriaCount.num_annotations)), 
+              true))
+        );
+        gradeLine.grade = possibleGrades.reduce((max, t) => t.score > max ? t.score : max, 0);
+        grades.push(gradeLine);
+      });
+      res.status(200).json(grades);
+    });
 });
 
 });
