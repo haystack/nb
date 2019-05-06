@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
 const cors = require('cors');
-const Source = require('./models').source;
+const Source = require('./models').Source;
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/dist')));
 app.use(cors({
   origin: function(origin, callback){
-    if(!origin || origin == 'http://localhost:8080'){
+    if(!origin || origin == 'http://localhost:8080' || origin == 'https://nb-demo.herokuapp.com'){
       callback(null, true);
     }
     else{
@@ -36,13 +36,13 @@ app.use(cors({
         }
       });
     }
-    
-  }, 
+
+  },
   credentials: true}));
 
 //Need to make dynamic function that reads from url sources and checks origin.
 
-app.use(session({ secret: 'super-secret-password', 
+app.use(session({ secret: 'super-secret-password',
     cookie:{
       secure: false,
       httpOnly: false},

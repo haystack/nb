@@ -1,7 +1,7 @@
 const express = require('express');
-const User = require('../models').user;
-const Class = require('../models').class;
-const Source = require('../models').source;
+const User = require('../models').User;
+const Class = require('../models').Class;
+const Source = require('../models').Source;
 const utils = require('../models/utils')(require('../models'));
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.get('/current', (req, res) => {
       res.status(200).json(nb_class);
     });
   }
-  
+
 });
 
 /**
@@ -52,7 +52,7 @@ router.post('/create', (req, res) => {
  * @name GET/api/classes/create
  */
 router.get('/instructor',(req,res) =>{
-  User.findByPk(req.session.userId).then((user) => 
+  User.findByPk(req.session.userId).then((user) =>
     user.getInstructorClasses()
   ).then((classes) => {
     res.status(200).json(classes);
@@ -64,13 +64,13 @@ router.get('/instructor',(req,res) =>{
  * @name GET/api/classes/student
  */
 router.get('/student', (req,res) =>{
-  User.findByPk(req.session.userId).then((user) => 
+  User.findByPk(req.session.userId).then((user) =>
     user.getMemberSections({raw: true})
   ).then((sections) => {
     return Promise.all(sections.map((section) => Class.findByPk(section.class_id)));
   }
   ).then(classes => {
-    res.status(200).json(classes.filter((value, index, self) => { 
+    res.status(200).json(classes.filter((value, index, self) => {
       return self.indexOf(value) === index;
     }));
   });
@@ -82,9 +82,9 @@ router.get('/student', (req,res) =>{
  * @param id: id of the class
  */
 router.get('/studentList/:id', (req,res) =>{
-  Class.findOne({where:{id: req.params.id}, include:[{association: 'GlobalSection', 
+  Class.findOne({where:{id: req.params.id}, include:[{association: 'GlobalSection',
     include: [{association:'MemberStudents', attributes:['id','username','email']}]}]})
-    .then((nb_class) => 
+    .then((nb_class) =>
       res.status(200).json(nb_class.GlobalSection.MemberStudents)
     );
 });
@@ -94,7 +94,7 @@ router.get('/studentList/:id', (req,res) =>{
  * @name POST/api/classes/student/:id
  * @param id: id of the class
  */
-router.post('/student/:id', (req, res) => {  
+router.post('/student/:id', (req, res) => {
   utils.addStudent(req.params.id, req.body.id).then(() => res.status(200));
 });
 

@@ -1,10 +1,10 @@
 const express = require('express');
-const FileSystemObject = require('../models').file_system_object;
+const FileSystemObject = require('../models').FileSystemObject;
 const router = express.Router();
 const utils = require('../models/utils')(require('../models'));
 
 /**
- * Gets root level file of class 
+ * Gets root level file of class
  * @name GET/api/files/class/:id
  * @param id: id of class
  */
@@ -15,7 +15,7 @@ router.get('/class/:id', (req, res) => {
 });
 
 /**
- * Gets child files of directory 
+ * Gets child files of directory
  * @name GET/api/files/folder/:id
  * @param id: id of directory
  */
@@ -48,7 +48,7 @@ router.get('/parent/:id', (req, res) => {
  */
 router.post('/folder/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id, {include: [{association: "Class"}]})
-  .then((folder) => 
+  .then((folder) =>
     FileSystemObject.create({filename: req.body.name})
       .then((child) => child.setParent(folder))
       .then((child) => child.setClass(folder.Class))
