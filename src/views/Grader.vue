@@ -74,7 +74,7 @@
         }})
         .then(res => {
           console.log(res.data);
-          var csv = 'Name,Email,Username,Total Comments,Total Words,Total Characters,Total Tags\n';
+          var csv = 'Name,Email,Username,Total Comments,Total Words,Total Characters,Total Tags,Grade\n';
           res.data.forEach(function(row) {
             csv += row.name+",";
             csv += row.email+",";
@@ -83,6 +83,7 @@
             csv += row.total_words+",";
             csv += row.total_chars+",";
             csv += row.total_tags+"\n";
+            csv += row.grade
           });
           console.log(csv);
           var hiddenElement = document.createElement('a');
