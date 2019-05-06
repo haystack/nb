@@ -43,8 +43,8 @@ const models = {
 
 Object.keys(models).forEach(function (modelName) {
   if ('classMethods' in models[modelName].options) {
-   if ('associate' in models[modelName].options.classMethods) {
-    models[modelName].options.classMethods.associate(models);
+    if ('associate' in models[modelName].options.classMethods) {
+      models[modelName].options.classMethods.associate(models);
     }
   }
 });
