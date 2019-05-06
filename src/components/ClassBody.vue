@@ -77,6 +77,11 @@ export default {
     },
     type: function(){
       this.loadStudents();
+    },
+    nb_class: function(){
+      this.setParent();
+      this.setParent();
+      this.loadStudents();
     }
   },
 
@@ -86,18 +91,12 @@ export default {
   },
 
   mounted: function(){
-    axios.get(`/api/files/class/${this.nb_class.id}`)
-      .then(res => {
-        this.parent_file = res.data
-      });
+    this.setParent();
     this.listener.$on('changeParent',(file) => {
       this.parent_file = file;
     });
-    this.loadStudents()
-    axios.get(`/api/users/all`)
-      .then(res => {
-        this.all_users = res.data;
-      })
+    this.loadStudents();
+    this.setUsers();
   },
 
   methods:{
@@ -123,6 +122,18 @@ export default {
     },
     openGrading: function(){
       this.$router.push("grading")
+    },
+    setUsers: function(){
+      axios.get(`/api/users/all`)
+        .then(res => {
+          this.all_users = res.data;
+        })
+    },
+    setParent: function(){
+      axios.get(`/api/files/class/${this.nb_class.id}`)
+        .then(res => {
+          this.parent_file = res.data
+        });
     }
   }
 };
