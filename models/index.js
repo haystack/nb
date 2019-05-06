@@ -120,6 +120,41 @@ if (!global.hasOwnProperty('db')) {
       }
     }
   });
+
+  // global.db.TagType.bulkCreate(
+  //   [{
+  //     value: "curious",
+  //     emoji: "1F914"
+  //   },
+  //   {
+  //     value: "confused",
+  //     emoji: "1F616"
+  //   },
+  //   {
+  //     value: "useful",
+  //     emoji: "1F600"
+  //   },
+  //   {
+  //     value: "interested",
+  //     emoji: "1F9D0"
+  //   },
+  //   {
+  //     value: "frustrated",
+  //     emoji: "1F621"
+  //   },
+  //   {
+  //     value: "help",
+  //     emoji: "1F61F"
+  //   },
+  //   {
+  //     value: "question",
+  //     emoji: "2753"
+  //   },
+  //   {
+  //     value: "idea",
+  //     emoji: "1F4A1"
+  //   }
+  // ])
 }
 
 sequelize.sync();

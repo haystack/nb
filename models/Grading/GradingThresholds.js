@@ -7,6 +7,7 @@ const gradingThreshold = (sequelize, DataTypes) => {
     },
     label:{
       type: DataTypes.STRING,
+      defaultValue: ""
     },
     score:{
       type: DataTypes.FLOAT,
