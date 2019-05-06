@@ -66,13 +66,17 @@ export default {
   watch:{
     username: function(){
       const new_user = this.new_user;
+      let regex = new RegExp(new_user.username, "i")
       let student_id_list = this.student_list.map(student => student.id)
       this.possible_users = this.all_users.filter(user =>
-        (user.username.includes(new_user.username) || user.email.includes(new_user.username))
+        (regex.test(user.username) || regex.test(user.email))
         && !student_id_list.includes(user.id) 
         && user.id != new_user.id 
         && user.username != new_user.username
       )
+    },
+    type: function(){
+      this.loadStudents();
     }
   },
 
@@ -115,7 +119,7 @@ export default {
     addStudent: function(user){
       const bodyContent = this.new_user;
       axios.post(`/api/classes/student/${this.nb_class.id}`, bodyContent)
-        .then(function(){this.loadStudents()})
+        .then(function(){this.loadStudents(); this.new_user = {username:""};})
     },
     openGrading: function(){
       this.$router.push("grading")
