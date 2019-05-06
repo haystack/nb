@@ -48,6 +48,8 @@ router.post('/login', (req, res) => {
 router.post('/register', (req, res) => {
   User.create({
     username: req.body.username,
+    first_name: req.body.first,
+    last_name: req.body.last,
     email: req.body.email,
     password: req.body.password
   }).then(() => {

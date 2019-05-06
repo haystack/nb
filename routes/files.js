@@ -63,9 +63,10 @@ router.post('/folder/:id', (req, res) => {
  * @name POST/api/files/file/:id
  * @param id: id of parent directory
  * @param name: name of child file
+ * @param url: url of child file, if html
  */
 router.post('/file/:id', (req, res) => {
-  utils.createFile(req.params.id, req.body.name, req.body.name)
+  utils.createFile(req.params.id, req.body.name, req.body.url)
   FileSystemObject.findByPk(req.params.id)
   .then((child) => {
     res.status(200).json(child);

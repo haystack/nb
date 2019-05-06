@@ -8,6 +8,16 @@
     </div>
 
     <div class="form-group">
+      <label class="setting-label" for='first'>First name:</label>
+      <input class="setting-input" v-model.trim='first' type='text' name='first'>
+    </div>
+
+    <div class="form-group">
+      <label class="setting-label" for='last'>Last name:</label>
+      <input class="setting-input" v-model.trim='last' type='text' name='last'>
+    </div>
+
+    <div class="form-group">
       <label class="setting-label" for='email'>Email:</label>
       <input class="setting-input" v-model.trim='email' type='text' name='email'>
     </div>
@@ -31,6 +41,8 @@ export default {
   data() {
     return {
       username: "",
+      first: "",
+      last: "",
       email: "",
       password: ""
     }
@@ -42,7 +54,13 @@ export default {
         alert('Missing fields required for creating user.');
         return;
       }
-      const bodyContent = { username: this.username, email: this.email, password: this.password};
+      const bodyContent = {
+        username: this.username,
+        first: this.first,
+        last: this.last,
+        email: this.email,
+        password: this.password
+      }
         axios.post("api/users/register", bodyContent)
           .then((res) => {
             // handle success
@@ -60,10 +78,11 @@ export default {
 
     resetForm: function() {
       this.username = ""
+      this.first = ""
+      this.last = ""
       this.email = ""
       this.password = ""
     }
   }
 }
 </script>
-
