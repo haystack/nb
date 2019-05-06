@@ -1,11 +1,11 @@
 const express = require('express');
-const User = require('../models').user;
-const Annotation = require('../models').annotation;
-const Thread = require('../models').thread;
-const Source = require('../models').source;
-const Location = require('../models').location;
-const HtmlLocation = require('../models').html_location;
-const Tag = require('../models').tag;
+const User = require('../models').User;
+const Annotation = require('../models').Annotation;
+const Thread = require('../models').Thread;
+const Source = require('../models').Source;
+const Location = require('../models').Location;
+const HtmlLocation = require('../models').HtmlLocation;
+const Tag = require('../models').Tag;
 const router = express.Router();
 
 /**
@@ -65,7 +65,7 @@ router.get('/allTagTypes', (req,res) => {
  * }]
  */
 router.get('/annotation', (req, res)=> {
-  Source.findOne({where:{filepath: req.query.url}, 
+  Source.findOne({where:{filepath: req.query.url},
     include:[{association: 'Class', include:[{association: 'Instructors', attributes: ['id']}]}]})
   .then(source =>
     source.getLocations({include:
@@ -170,7 +170,7 @@ router.post('/annotation', (req, res)=> {
       )
       .then(thread => {
         let annotation = thread.HeadAnnotation;
-        
+
         req.body.tags.forEach((tag) => Tag.create({annotation_id: annotation.id, tag_type_id: tag}));
         req.body.userTags.forEach((user_id) => User.findByPk(user_id).then(user => annotation.addTaggedUser(user)));
         User.findByPk(req.session.userId).then(user => {
@@ -206,10 +206,10 @@ router.post('/annotation', (req, res)=> {
  */
 router.get('/reply/:id', (req, res)=> {
   Annotation.findByPk(req.params.id, {
-    include: [{association:'Thread', attributes:['id'], 
-      include: [{association: 'Location', attributes:['id'], 
+    include: [{association:'Thread', attributes:['id'],
+      include: [{association: 'Location', attributes:['id'],
         include: [{association: 'Source', attributes:['id'],
-          include: [{association: 'Class', attributes:['id'], 
+          include: [{association: 'Class', attributes:['id'],
             include: [{association: 'Instructors', attributes:['id']}]
           }]
         }]
@@ -261,7 +261,7 @@ router.get('/reply/:id', (req, res)=> {
     .then(annotations => res.status(200).json(annotations));
   });
 
-  
+
 });
 
 
@@ -319,9 +319,9 @@ router.post('/reply/:id', (req, res)=>{
  */
 router.put('/annotation/:id', (req, res) => {
   Annotation.findByPk(req.params.id)
-    .then(annotation => 
+    .then(annotation =>
       annotation.update({
-        content: req.body.content, 
+        content: req.body.content,
         visibility: req.body.visibility,
         anonymity: req.body.anonymity
       })
@@ -345,13 +345,13 @@ router.put('/annotation/:id', (req, res) => {
 });
 
 /**
- * Deletes a given annotation 
+ * Deletes a given annotation
  * @name DELETE/api/annotations/annotation/:id
  * @param id: id of annotation
  */
 router.delete('/annotation/:id', (req, res) => {
   Annotation.findByPk(req.params.id, {include: [
-      {association: 'Thread', include:[{association: 'Location'}]}, 
+      {association: 'Thread', include:[{association: 'Location'}]},
       {association: 'Parent'}
     ]})
     .then(annotation => {
