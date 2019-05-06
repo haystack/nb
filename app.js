@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/dist')));
 app.use(cors({
   origin: function(origin, callback){
-    if(!origin || origin == 'https://nb-demo.herokuapp.com'){
+    if(!origin || origin == 'http://localhost:8080' || origin == 'https://nb-demo.herokuapp.com'){
       callback(null, true);
     }
     else{
