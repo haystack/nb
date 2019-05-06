@@ -12,11 +12,11 @@
                 <li v-for='possible_user in possible_users' :key="possible_user.id" class="text-button" v-on:click="new_user = possible_user">{{ possible_user.username }} ({{ possible_user.email}})</li>
               </ul>
               <p v-else-if="new_user.username.length > 0">No users found</p>
-            </div>  
+            </div>
           </div>
           <input type='submit' value='Add'>
         </form>
-      
+
         <div v-if='student_list.length' class='component'>
           <h4>Students</h4>
           <ul class="user-item">
@@ -28,7 +28,7 @@
       <FileList v-bind:type='type' v-if='parent_file' v-bind:parent='parent_file' v-bind:listener='listener'/>
     </div>
   </div>
-  
+
 </template>
 
 <script>
@@ -69,10 +69,13 @@ export default {
       let student_id_list = this.student_list.map(student => student.id)
       this.possible_users = this.all_users.filter(user =>
         (user.username.includes(new_user.username) || user.email.includes(new_user.username))
-        && !student_id_list.includes(user.id) 
-        && user.id != new_user.id 
+        && !student_id_list.includes(user.id)
+        && user.id != new_user.id
         && user.username != new_user.username
       )
+    },
+    type: function() {
+      this.loadStudents()
     }
   },
 
