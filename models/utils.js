@@ -35,39 +35,22 @@ module.exports = function(models){
             {value: "question", emoji: "2753"},
             {value: "idea",emoji: "1F4A1"}
           ];
-          tagDefaults.forEach(tagDefault => models.TagType.findOrCreate(tagDefault)
-            .then((tag_type) => nb_class.addTagType(tag_type))
-          );
+          
+          Promise.all(tagDefaults.map(tagDefault => 
+            models.TagType.findOrCreate({where: tagDefault}).then(res => res[0])
+          )).then(tag_types => nb_class.setTagTypes(tag_types));
         })       
         .then(() =>
           GradingSystems.create({
             grading_system_name: "default",
             class_id: nb_class.id,
             GradingThresholds: [
-              {
-                label: "Very good",
-                score: 4.0,
-                total_comments: 3,
-                total_words: 60
-              },
-              {
-                label: "Good",
-                score: 3.0,
-                total_comments: 2,
-                total_words: 40
-              },
-              {
-                label: "Fair",
-                score: 2.0,
-                total_comments: 1,
-                total_words: 15
-              },
+              {label: "Very good", score: 4.0, total_comments: 3, total_words: 60},
+              {label: "Good", score: 3.0, total_comments: 2, total_words: 40},
+              {label: "Fair", score: 2.0, total_comments: 1, total_words: 15},
             ],
             Criteria: [
-              {
-                label: "Good comment",
-                num_words: 20,
-              }
+              {label: "Good comment", num_words: 20,}
             ]
           }, {include: [{association: 'GradingThresholds'}, {association: 'Criteria'}]})
 
@@ -95,11 +78,6 @@ module.exports = function(models){
         },
           {include: {model: Source, as: 'Source'}
         })
-          // .then((child) =>
-          //   Promise.all([
-          //     child.setParent(folder),
-          //   ])
-          // )
       );
     }
   };
