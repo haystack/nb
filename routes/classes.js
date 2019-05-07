@@ -7,7 +7,7 @@ const router = express.Router();
 
 /**
  * Set current class.
- * @name POST/api/classes/ccurrent
+ * @name POST/api/classes/current
  * @param id: id of class
  */
 router.post('/current', (req, res) => {
@@ -77,16 +77,42 @@ router.get('/student', (req,res) =>{
 });
 
 /**
+ * Get all instructors for a given class
+ * @name GET/api/classes/studentList/:id
+ * @param id: id of the class
+ */
+router.get('/instructorList/:id', (req,res) =>{
+  Class.findByPk(req.params.id, 
+    {include:[{association: 'Instructors', attributes:['id','username','email']}]})
+    .then((nb_class) =>
+      res.status(200).json(nb_class.Instructors)
+    );
+});
+
+/**
  * Get all students for a given class
  * @name GET/api/classes/studentList/:id
  * @param id: id of the class
  */
 router.get('/studentList/:id', (req,res) =>{
-  Class.findOne({where:{id: req.params.id}, include:[{association: 'GlobalSection',
+  Class.findByPk(req.params.id, {include:[{association: 'GlobalSection',
     include: [{association:'MemberStudents', attributes:['id','username','email']}]}]})
     .then((nb_class) =>
       res.status(200).json(nb_class.GlobalSection.MemberStudents)
     );
+});
+
+/**
+ * Add an instructor to a given class
+ * @name POST/api/classes/instructor/:id
+ * @param id: id of the class
+ */
+router.post('/instructor/:id', (req, res) => {
+  Class.findByPk(req.params.id).then(nb_class => 
+    User.findByPk(req.body.id).then(user => 
+      nb_class.addInstructor(user)
+    )  
+  ).then(() => res.status(200).json(null));
 });
 
 /**
@@ -95,7 +121,8 @@ router.get('/studentList/:id', (req,res) =>{
  * @param id: id of the class
  */
 router.post('/student/:id', (req, res) => {
-  utils.addStudent(req.params.id, req.body.id).then(() => res.status(200));
+  utils.addStudent(req.params.id, req.body.id)
+    .then(() => res.status(200).json(null));
 });
 
 /**

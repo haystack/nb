@@ -64,7 +64,11 @@ export default {
         axios.post("api/users/register", bodyContent)
           .then((res) => {
             // handle success
-            eventBus.$emit('createuser-success', res);
+            axios.post("/api/users/login", bodyContent)
+            .then(() => {
+              // handle success
+              eventBus.$emit('signin-success', this.username);
+            })
           })
           .catch(err => {
             // handle error

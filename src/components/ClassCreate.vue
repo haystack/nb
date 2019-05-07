@@ -25,12 +25,17 @@ export default {
     };
   },
 
+  props:{
+    listener: Object,
+  },
+
   methods: {
     create: function() {
       const bodyContent = {name: this.name};
-      axios.post("/api/classes/create", bodyContent).then(() => {
+      axios.post("/api/classes/create", bodyContent).then((res) => {
           this.name = "";
           eventBus.$emit("class-changes");
+          this.listener.$emit("setClass", {nb_class: res.data, mode: "instructor"});
       })
     },
   }

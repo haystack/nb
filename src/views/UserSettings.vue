@@ -1,6 +1,6 @@
 <template>
   <div id="user-settings" class="component" style="display:inline">
-    <NavBar v-bind:hasBackwardArrow="this.hasBackwardArrow" title="NB Lite" v-bind:hasNotification="this.hasNotification" v-bind:isSignedIn="this.isSignedIn" username=""/>
+    <NavBar v-bind:hasBackwardArrow="this.hasBackwardArrow" title="NB Prototype" v-bind:hasNotification="this.hasNotification" v-bind:isSignedIn="this.isSignedIn" username=""/>
     <CreateUser/>
     <SignIn/>
     <p v-if="messages.length > 0">{{ messages }}</p>

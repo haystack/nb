@@ -20,6 +20,13 @@ export default {
     mode: String,
     selected: Object
   },
+  watch: {
+    selected: function(){
+      if(this.selected && this.selected.id == this.nb_class.id){
+        this.selectClass();
+      }
+    }
+  },
   mounted: function(){
     if(this.selected && this.selected.id == this.nb_class.id){
       this.selectClass();

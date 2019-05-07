@@ -5,15 +5,15 @@
       <div class="classes">
         <!-- Classes where user is instructor -->
         <div id="class-header">
-          <h2>My Classes</h2>
+          <h2>As Instructor</h2>
         </div>
         <div>
           <ClassList mode="instructor" :selected="nb_class" :listener="listener"/>
         </div>
-        <ClassCreate/>
+        <ClassCreate :listener="listener"/>
         <!-- Classes where user is student -->
         <div id="class-header">
-          <h2>Student Classes</h2>
+          <h2>As Student</h2>
         </div>
         <div>
           <ClassList mode="student" :selected="nb_class" :listener="listener"/>
@@ -64,6 +64,7 @@ export default {
   },
   created: function(){
     this.listener.$on("setClass", (res) => {
+      console.log("class is set")
       this.nb_class = res.nb_class;
       this.type = res.mode;
     })
