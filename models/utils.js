@@ -24,6 +24,21 @@ module.exports = function(models){
         .then(() => FileSystemObject.create({filename: name, is_directory: true})
           .then((dir) => dir.setClass(nb_class)))
         )
+        .then(() => {
+          const tagDefaults = [
+            {value: "curious", emoji: "1F914"},
+            {value: "confused", emoji: "1F616"},
+            {value: "useful", emoji: "1F600"},
+            {value: "interested", emoji: "1F9D0"},
+            {value: "frustrated", emoji: "1F621"},
+            {value: "help", emoji: "1F61F"},
+            {value: "question", emoji: "2753"},
+            {value: "idea",emoji: "1F4A1"}
+          ];
+          tagDefaults.forEach(tagDefault => models.TagType.findOrCreate(tagDefault)
+            .then((tag_type) => nb_class.addTagType(tag_type))
+          );
+        })       
         .then(() =>
           GradingSystems.create({
             grading_system_name: "default",
