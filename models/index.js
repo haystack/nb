@@ -64,7 +64,7 @@ if (!global.hasOwnProperty('db')) {
       define: {
         underscored: true
       }
-    })
+    });
   } else {
     // the application is executed on the local machine ... use mysql
     sequelize = new Sequelize('new_nb_test', 'alisa', '', {
@@ -80,7 +80,7 @@ if (!global.hasOwnProperty('db')) {
       define: {
         underscored: true
       }
-    })
+    });
   }
 
   const models = {
@@ -157,11 +157,32 @@ if (!global.hasOwnProperty('db')) {
   // ])
 }
 
-sequelize.sync();
+// sequelize.sync();
+
+sequelize.sync().then(() => {
+  global.db.Class.findAll().then(nb_classes => 
+    nb_classes.forEach(nb_class => {
+      const tagDefaults = [
+        {value: "curious", emoji: "1F914"},
+        {value: "confused", emoji: "1F616"},
+        {value: "useful", emoji: "1F600"},
+        {value: "interested", emoji: "1F9D0"},
+        {value: "frustrated", emoji: "1F621"},
+        {value: "help", emoji: "1F61F"},
+        {value: "question", emoji: "2753"},
+        {value: "idea",emoji: "1F4A1"}
+      ];
+      Promise.all(tagDefaults.map(tagDefault => 
+        global.db.TagType.findOrCreate({where: tagDefault}).then(res => res[0])
+      )).then(tag_types => nb_class.setTagTypes(tag_types));
+    })
+  );
+});
+
 // sequelize.drop({}).then(() =>{
 // sequelize.sync()
 //   .then(() => {
-//     models.User.create(
+//     global.db.User.create(
 //       {
 //         username: "adrian",
 //         email: "adriansy@mit.edu",
@@ -170,7 +191,7 @@ sequelize.sync();
 //         password: "t"
 //       }
 //     ).then(user_1 => {
-//       models.User.create(
+//       global.db.User.create(
 //         {
 //           username: "alisa",
 //           email: "alisao@mit.edu",
@@ -179,57 +200,21 @@ sequelize.sync();
 //           password: "t"
 //         }
 //       ).then((user_2) =>
-//         utils(sequelize.models).createClass("Test Class", user_2.id)
+//         utils(global.db).createClass("Test Class", user_2.id)
 
 //       ).then(nb_class =>
-//         utils(sequelize.models).addStudent(nb_class.id, user_1.id)
+//         utils(global.db).addStudent(nb_class.id, user_1.id)
 //         .then(() => {
-//           nb_class.getRoot().then((root) => utils(sequelize.models)
+//           nb_class.getRoot().then((root) => utils(global.db)
 //           .createFile(root.id,
 //             "test_link",
 //             "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/nbdemo/index.html"));
 //         })
 //         .then(() => {
-//           nb_class.getRoot().then((root) => utils(sequelize.models)
+//           nb_class.getRoot().then((root) => utils(global.db)
 //           .createFile(root.id,
 //             "libre_text test",
 //             "file:///Users/adriansy/Dropbox%20(MIT)/MIT%20Sem%208/SuperUROP/W2017_Lecture_01_Reading%20-%20Biology%20LibreTexts.htm"));
-//         })
-//         .then(() => {
-//           models.TagType.bulkCreate(
-//             [{
-//               value: "curious",
-//               emoji: "1F914"
-//             },
-//             {
-//               value: "confused",
-//               emoji: "1F616"
-//             },
-//             {
-//               value: "useful",
-//               emoji: "1F600"
-//             },
-//             {
-//               value: "interested",
-//               emoji: "1F9D0"
-//             },
-//             {
-//               value: "frustrated",
-//               emoji: "1F621"
-//             },
-//             {
-//               value: "help",
-//               emoji: "1F61F"
-//             },
-//             {
-//               value: "question",
-//               emoji: "2753"
-//             },
-//             {
-//               value: "idea",
-//               emoji: "1F4A1"
-//             }
-//           ]).then((tag_types) => nb_class.setTagTypes(tag_types));
 //         })
 //       );
 //     });
