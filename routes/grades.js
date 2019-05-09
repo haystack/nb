@@ -178,6 +178,9 @@ router.get('/grades', (req, res) => {
         association: 'MemberStudents',
         include:[{
           association: 'Annotations',
+          // TODO: fix in query, temp measure is in filtering below 
+          // where: { createdAt: {$lt : new Date(req.query.date)}},
+          // required: false,
           include:[{
             association: 'Thread',
             required: true,
@@ -209,8 +212,11 @@ router.get('/grades', (req, res) => {
       let grades = [];
       let annotations = {};
       let filters = {};
+      let date = new Date(req.query.date);
       let students = nb_class.GlobalSection.MemberStudents.map(student => {
-        annotations[student.id] = student.Annotations;
+        annotations[student.id] = student.Annotations.filter(annotation => 
+          req.query.date && annotation.get({plain:true}).createdAt < date
+        );
         return student.get({plain: true});
       });
       nb_class.GlobalSection.MemberStudents.forEach(student => {
@@ -247,7 +253,7 @@ router.get('/grades', (req, res) => {
             gradeLine.total_tags > threshold.total_tags &&
             gradeLine.total_comments > threshold.total_comments &&
             //Go through all the criteria counts and see if satisfying annotations are enough
-            (threshold.CriteriaCount.reduce((bool, criteriaCount) =>
+            (threshold.CriteriaCounts.reduce((bool, criteriaCount) =>
               (bool &&
                 (criteriaCount.num_annotations == 0 ||
                   annotations[student.id]
