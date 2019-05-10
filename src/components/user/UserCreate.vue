@@ -35,7 +35,7 @@
 
 <script>
   import axios from "axios"
-  import { eventBus } from "../main"
+  import { eventBus } from "../../main"
 
   export default {
     name: "user-create",

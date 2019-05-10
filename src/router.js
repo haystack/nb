@@ -7,21 +7,21 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'user-settings',
-      component: () => import('./views/UserSettings.vue')
+      name: 'top-page',
+      component: () => import('./views/TopPage.vue')
     },
     // {
     //   path: '/classSettings/:classId',
     //   name: 'classSettings',
     //   props: true,
     //   component: () => import('./views/ClassSettings.vue'),
-      
+
     // },
     {
       path: '/home',
-      name: 'homepage',
+      name: 'home-page',
       props: { default: true },
-      component: () => import('./views/Homepage.vue'),
+      component: () => import('./views/HomePage.vue'),
     },
     {
       path: '/grading',

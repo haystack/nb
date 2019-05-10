@@ -37,7 +37,7 @@
   import CourseDashboard from '../components/course/CourseDashboard.vue'
 
   export default {
-    name: 'app',
+    name: 'home-page',
     components: {
       NavBar,
       CourseCreate,
@@ -100,11 +100,11 @@
             this.user = res.data
           } else {
             this.user = null
-            this.redirect('user-settings')
+            this.redirect('top-page')
           }
         })
         .catch(() => {
-          this.redirect('user-settings')
+          this.redirect('top-page')
         })
       this.loadCourses()
     }

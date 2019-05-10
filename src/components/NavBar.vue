@@ -47,7 +47,7 @@
             console.error(`Logout failed: ${err.response.data.error}`)
           })
           .then(() => {
-            this.$router.push({name: 'user-settings'})
+            this.$router.push({ name: 'top-page' })
           })
       }
     },

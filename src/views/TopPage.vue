@@ -13,11 +13,11 @@
   import axios from "axios"
   import { eventBus } from "../main"
   import NavBar from '../components/NavBar.vue'
-  import UserCreate from "../components/CreateUser.vue"
-  import UserLogin from "../components/SignIn.vue"
+  import UserCreate from "../components/user/UserCreate.vue"
+  import UserLogin from "../components/user/UserLogin.vue"
 
   export default {
-    name: "user-settings",
+    name: "top-page",
     data() {
       return {
         user: null,
