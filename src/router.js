@@ -10,13 +10,6 @@ export default new Router({
       name: 'user-settings',
       component: () => import('./views/UserSettings.vue')
     },
-    // {
-    //   path: '/classSettings/:classId',
-    //   name: 'classSettings',
-    //   props: true,
-    //   component: () => import('./views/ClassSettings.vue'),
-      
-    // },
     {
       path: '/home',
       name: 'homepage',
@@ -29,10 +22,11 @@ export default new Router({
       props: { default: true },
       component: () => import('./views/Grader.vue'),
     },
-    // {
-    //   path: '*',
-    //   name: 'invalidURL',
-    //   component: () => import('./views/InvalidURL.vue')
-    // }
+    {
+      path: '/bookmarklet',
+      name: 'bookmarklet',
+      props: { default: true },
+      component: () => import('./views/Bookmarklet.vue'),
+    }
   ]
 })

@@ -1,20 +1,9 @@
 <template>
   <div id="user-settings" class="component" style="display:inline">
-    <NavBar v-bind:hasBackwardArrow="this.hasBackwardArrow" title="NB Prototype" v-bind:hasNotification="this.hasNotification" v-bind:isSignedIn="this.isSignedIn" username=""/>
+    <NavBar v-bind:hasBackwardArrow="this.hasBackwardArrow" title="NB Prototype" v-bind:isSignedIn="this.isSignedIn" username=""/>
     <CreateUser/>
     <SignIn/>
     <p v-if="messages.length > 0">{{ messages }}</p>
-    <p>To enable the NB sidebar for a class site, either drag (don't click) this <a href = "javascript:(function(){let s = document.createElement('script'); s.src= 'https://alisaono.github.io/nbdemo/dist/bundle.js'; document.body.append(s);})()">NB Bookmarklet</a> link to your bookmarks bar, or make a new bookmark with the code below as the URL.</p>
-    <p>When on the class page, just click on the bookmark and the sidebar should appear.</p>
-    <pre>
-      <code>
-        javascript:(function(){
-          let s = document.createElement('script');
-          s.src= 'https://alisaono.github.io/nbdemo/dist/bundle.js';
-          document.body.append(s);
-        })()
-      </code>
-    </pre>
   </div>
 </template>
 
@@ -35,7 +24,6 @@ export default {
       username: "",
       messages: [],
       hasBackwardArrow: false,
-      hasNotification: false,
       isSignedIn: false
     }
   },
@@ -101,14 +89,5 @@ export default {
 }
 .user-settings-form {
     width: fit-content;
-}
-
-pre code {
-  background-color: #eee;
-  border: 1px solid #999;
-  display: block;
-  padding: 20px;
-  margin: 0 20%;
-  text-align: left;
 }
 </style>

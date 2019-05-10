@@ -3,11 +3,11 @@
     <h3><i v-if='parent.parent_id' v-on:click='back'>&#x2190;</i>{{parent.filename}}</h3>
     <ul v-if='files.length'>
       <li v-for='file in files' v-bind:key='file.id'>
-        <p v-if='file.is_directory' v-on:click='changeParent(file)'><i class="material-icons">folder</i> {{file.filename}}</p>
-        <p v-else v-on:click='redirect(file)'><i class="material-icons">insert_drive_file</i> {{file.filename}}</p>
+        <h5 v-if='file.is_directory' v-on:click='changeParent(file)'><i class="material-icons">folder</i> {{file.filename}}</h5>
+        <h5 v-else v-on:click='redirect(file)'><i class="material-icons">insert_drive_file</i> {{file.filename}}</h5>
       </li>
     </ul>
-    <p v-else> No files in this folder </p>
+    <h5 v-else> No files in this folder </h5>
     <div v-if='isInstructor' id="edit-files-forms">
       <form class='component' v-on:submit.prevent='addFolder' method="post">
         <h3>Add Folder</h3>
@@ -120,7 +120,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .file-table{
   border: 1px solid black;
   padding: 20px;
@@ -132,7 +132,7 @@ ul {
   text-align: left;
 }
 
-p{
+h5{
   display: inline-flex;
   vertical-align: middle;
 }

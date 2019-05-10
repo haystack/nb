@@ -1,11 +1,10 @@
 <template>
   <div>
     <nav class="navbar">
-        <div v-visible="hasBackwardArrow" id="navbar-left">
-            <button class="arrow-button" v-on:click="redirect('homepage')"><i class="material-icons">arrow_back</i>{{this.arrowName}}</button>
+        <div id="navbar-left">
         </div>
         <div id="navbar-center">
-        <h2>{{this.title}}</h2>
+          <h2 v-on:click="redirect('user-settings')">{{this.title}}</h2>
         </div>
         <div id="navbar-right">
           <div v-if="isSignedIn" class="signed-in">
@@ -24,11 +23,8 @@
 
 <script>
 import Vue from 'vue'
-import VueVisible from 'vue-visible';
 import axios from "axios";
 import { eventBus } from "../main";
-
-Vue.use(VueVisible);
 
 export default {
   name: "NavBar",
