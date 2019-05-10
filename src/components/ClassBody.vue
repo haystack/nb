@@ -1,16 +1,28 @@
 <template>
   <div id="class">
     <h3>{{nb_class.class_name}} <i v-if='isInstructor' class= "material-icons" v-on:click="openGrading">check_box</i></h3>
-    <div class='split'>
-      <div v-if='isInstructor'>
-        <user-table
-            :instructors="instructor_list"
-            :students="student_list"
-            :suggestions="all_users"
-            @add-user="addUser">
-        </user-table>
+    <div class="tabs">
+      <div
+          v-for="tab in tabs"
+          class="tab"
+          :style="styleTab(tab.type)"
+          @click="openTab(tab.type)">
+        {{ tab.label }}
       </div>
+    </div>
+    <div v-if="showContentsTab">
       <FileList v-bind:type='type' v-if='parent_file' v-bind:parent='parent_file' v-bind:listener='listener'/>
+    </div>
+    <div v-if="showUsersTab">
+      <user-table
+          :instructors="instructor_list"
+          :students="student_list"
+          :suggestions="all_users"
+          @add-user="addUser">
+      </user-table>
+    </div>
+    <div v-if="showGradesTab">
+      <div style="padding: 20px;">TODO: INSERT GRADING UI HERE</div>
     </div>
   </div>
 
@@ -32,13 +44,15 @@ export default {
     return {
       parent_file: null,
       listener: new Vue(),
-      user_list: [],
-      new_student: {username:""},
-      new_instructor: {username:""},
       instructor_list: [],
       student_list: [],
       all_users:[],
-      possible_users:[]
+      tabs: [
+        { label: "Contents", type: 'contents' },
+        { label: "Users", type: 'users' },
+        { label: "Grades", type: 'grades'},
+      ],
+      currentTab: 'contents'
     };
   },
 
@@ -46,21 +60,18 @@ export default {
     isInstructor(){
       return this.type == "instructor";
     },
-    student_username(){
-      return this.new_student.username;
+    showContentsTab: function() {
+      return this.currentTab === 'contents'
     },
-    instructor_username(){
-      return this.new_instructor.username;
+    showUsersTab: function() {
+      return this.type === 'instructor' && this.currentTab === 'users'
+    },
+    showGradesTab: function() {
+      return this.type === 'instructor' && this.currentTab === 'grades'
     }
   },
 
   watch:{
-    student_username: function(){
-      this.filterUsernames(this.new_student);
-    },
-    instructor_username: function(){
-      this.filterUsernames(this.new_instructor);
-    },
     type: function(){
       this.loadStudents();
       this.loadInstructors();
@@ -89,6 +100,14 @@ export default {
   },
 
   methods:{
+    styleTab: function(type) {
+      if (type === this.currentTab) {
+        return 'color: #000; text-decoration: underline; font-weight: bold;'
+      }
+    },
+    openTab: function(type) {
+      this.currentTab = type
+    },
     icon: (file) => {
       if(file.is_directory){
         return `&#x1F4C1;`
@@ -96,16 +115,6 @@ export default {
       else{
         return `&#128462;`
       }
-    },
-    filterUsernames: function(new_user){
-      let regex = new RegExp(new_user.username, "i")
-      let student_id_list = this.student_list.map(student => student.id)
-      let instructor_id_list = this.instructor_list.map(student => student.id)
-      this.possible_users = this.all_users.filter(user =>
-        (regex.test(user.username) || regex.test(user.email))
-        && !student_id_list.includes(user.id)
-        && user.id != new_user.id
-        && user.username != new_user.username)
     },
     loadInstructors: function(){
       // TODO: this should probably be verified on server and send 401 if user is student
@@ -157,16 +166,18 @@ export default {
   padding: 20px;
 }
 
-/* .split{
+.tabs {
   display: flex;
-  flex-grow: 3;
   justify-content: space-around;
-} */
-
-.user-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 10px 0;
+}
+.tabs .tab {
+  color: #444;
+  cursor: pointer;
+}
+.tabs .tab:hover {
+  color: #000;
+  font-weight: bold;
 }
 
 h3{
