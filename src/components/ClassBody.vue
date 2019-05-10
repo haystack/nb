@@ -5,21 +5,27 @@
       <div
           v-for="tab in tabs"
           class="tab"
+          :key="tab.type"
           :style="styleTab(tab.type)"
           @click="openTab(tab.type)">
         {{ tab.label }}
       </div>
     </div>
     <div v-if="showContentsTab">
-      <FileList v-bind:type='type' v-if='parent_file' v-bind:parent='parent_file' v-bind:listener='listener'/>
+      <course-contents
+          v-if='filePath.length'
+          :userType='type'
+          :path="filePath"
+          @switch-directory="switchDirectory">
+      </course-contents>
     </div>
     <div v-if="showUsersTab">
-      <user-table
+      <course-users
           :instructors="instructor_list"
           :students="student_list"
           :suggestions="all_users"
           @add-user="addUser">
-      </user-table>
+      </course-users>
     </div>
     <div v-if="showGradesTab">
       <div style="padding: 20px;">TODO: INSERT GRADING UI HERE</div>
@@ -29,21 +35,18 @@
 </template>
 
 <script>
-import { eventBus } from "../main";
-import UserTable from "./UserTable.vue"
-import FileList from "./FileList.vue";
-import axios from 'axios';
-import Vue from 'vue'
+import CourseUsers from "./UserTable.vue"
+import CourseContents from "./FileList.vue"
+import axios from 'axios'
 
 export default {
   name: "ClassBody",
 
-  components: { FileList, UserTable },
+  components: { CourseContents, CourseUsers },
 
   data() {
     return {
-      parent_file: null,
-      listener: new Vue(),
+      filePath: [],
       instructor_list: [],
       student_list: [],
       all_users:[],
@@ -78,7 +81,6 @@ export default {
     },
     nb_class: function(){
       this.setParent();
-      this.setParent();
       this.loadStudents();
       this.loadInstructors();
     }
@@ -91,9 +93,6 @@ export default {
 
   mounted: function(){
     this.setParent();
-    this.listener.$on('changeParent',(file) => {
-      this.parent_file = file;
-    });
     this.loadStudents();
     this.loadInstructors();
     this.setUsers();
@@ -154,9 +153,18 @@ export default {
     setParent: function(){
       axios.get(`/api/files/class/${this.nb_class.id}`)
         .then(res => {
-          this.parent_file = res.data
+          this.filePath = [res.data]
         });
-    }
+    },
+    switchDirectory: function(directory) {
+      let idx = this.filePath.indexOf(directory)
+      if (idx < 0) { // file doesn't exist in the path yet
+        this.filePath.push(directory)
+      } else if (idx < this.filePath.length - 1) {
+        // file exists, but not at the end of path
+        this.filePath.splice(idx + 1)
+      }
+    },
   }
 };
 </script>

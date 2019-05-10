@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div class="course-users">
     <div class="add-user">
       <h3>Enroll User:</h3>
       <vue-simple-suggest
         v-model="newUser.query"
         display-attribute="username"
+        placeholder="find by username or email"
         :list="suggestions"
         :filter="filterSuggestion"
         :filter-by-query="true"
@@ -41,7 +42,7 @@
   import { VueGoodTable } from 'vue-good-table'
 
   export default {
-    name: 'user-table',
+    name: 'course-users',
     props: {
       instructors: {
         type: Array,
@@ -158,13 +159,28 @@
 </script>
 
 <style>
+  .course-users {
+    padding-top: 20px;
+  }
+
   .add-user {
     display: flex;
     align-items: center;
+    padding-bottom: 10px;
+  }
+  .add-user h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
   }
   .add-user .vue-simple-suggest {
     margin: 0 10px;
     flex-grow: 1;
+  }
+  .add-user .vue-simple-suggest .input-wrapper input {
+    font-size: 16px;
+    padding: 6px 8px;
+    border-radius: 5px;
   }
   .add-user label {
     margin-right: 5px;
