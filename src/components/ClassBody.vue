@@ -1,5 +1,5 @@
 <template>
-  <div id="class">
+  <div class="dashboard">
     <div class="tabs">
       <div
           v-for="tab in tabs"
@@ -12,23 +12,23 @@
     </div>
     <div v-if="showContentsTab" class="contents-tab">
       <course-contents
-          v-if='filePath.length'
-          :userType='type'
+          v-if="filePath.length"
+          :userType="userType"
           :path="filePath"
           @switch-directory="switchDirectory">
       </course-contents>
     </div>
     <div v-if="showUsersTab" class="users-tab">
-      <h3> {{nb_class.class_name}} </h3>
+      <h3>{{ course.class_name }}</h3>
       <course-users
-          :instructors="instructor_list"
-          :students="student_list"
-          :suggestions="all_users"
+          :instructors="instructors"
+          :students="students"
+          :suggestions="allUsers"
           @add-user="addUser">
       </course-users>
     </div>
     <div v-if="showGradesTab" class="grades-tab">
-      <h3> {{nb_class.class_name}} </h3>
+      <h3>{{ course.class_name }}</h3>
       <div>TODO: INSERT GRADING UI HERE</div>
     </div>
   </div>
@@ -41,23 +41,23 @@ import CourseContents from "./CourseContents.vue"
 import axios from 'axios'
 
 export default {
-  name: "ClassBody",
-
-  components: { CourseContents, CourseUsers },
-
+  name: "course-dashboard",
+  props:{
+    course: Object,
+    userType: String
+  },
   data() {
     return {
       filePath: [],
-      instructor_list: [],
-      student_list: [],
-      all_users:[],
+      instructors: [],
+      students: [],
+      allUsers:[],
       currentTab: 'contents'
     };
   },
-
-  computed:{
+  computed: {
     tabs: function() {
-      if (this.type === "instructor") {
+      if (this.userType === "instructor") {
         return [
           { label: "Contents", type: 'contents' },
           { label: "Users", type: 'users' },
@@ -69,44 +69,34 @@ export default {
         ]
       }
     },
-    isInstructor(){
-      return this.type == "instructor";
-    },
     showContentsTab: function() {
       return this.currentTab === 'contents'
     },
     showUsersTab: function() {
-      return this.type === 'instructor' && this.currentTab === 'users'
+      return this.userType === 'instructor' && this.currentTab === 'users'
     },
     showGradesTab: function() {
-      return this.type === 'instructor' && this.currentTab === 'grades'
+      return this.userType === 'instructor' && this.currentTab === 'grades'
     }
   },
-
-  watch:{
-    type: function(){
-      this.loadStudents();
-      this.loadInstructors();
+  watch: {
+    course: function(){
+      this.currentTab = 'contents'
+      this.loadFiles()
+      this.loadStudents()
+      this.loadInstructors()
     },
-    nb_class: function(){
-      this.setParent();
-      this.loadStudents();
-      this.loadInstructors();
-    }
+    userType: function(){
+      this.loadStudents()
+      this.loadInstructors()
+    },
   },
-
-  props:{
-    nb_class: Object,
-    type: String
-  },
-
   mounted: function(){
-    this.setParent();
-    this.loadStudents();
-    this.loadInstructors();
-    this.setUsers();
+    this.loadFiles()
+    this.loadStudents()
+    this.loadInstructors()
+    this.loadUsers()
   },
-
   methods:{
     styleTab: function(type) {
       if (type === this.currentTab) {
@@ -126,44 +116,46 @@ export default {
     },
     loadInstructors: function(){
       // TODO: this should probably be verified on server and send 401 if user is student
-      if (this.type == "instructor"){
-        axios.get(`/api/classes/instructorList/${this.nb_class.id}`).then((res) => {
-          this.instructor_list = res.data
-        })
+      if (this.userType == "instructor") {
+        axios.get(`/api/classes/instructorList/${this.course.id}`)
+          .then((res) => {
+            this.instructors = res.data
+          })
       }
     },
     loadStudents: function(){
       // TODO: same as above, check on server and send 401 appropriately
-      if (this.type == "instructor"){
-        axios.get(`/api/classes/studentList/${this.nb_class.id}`).then((res) => {
-          this.student_list = res.data
-        })
+      if (this.userType == "instructor") {
+        axios.get(`/api/classes/studentList/${this.course.id}`)
+          .then((res) => {
+            this.students = res.data
+          })
       }
+    },
+    loadUsers: function(){
+      axios.get(`/api/users/all`)
+        .then(res => {
+          this.allUsers = res.data
+        })
     },
     addUser: function(user, role) {
       // TODO: same as above, check on server and send 401 appropriately
       if (role === 'student') {
-        axios.post(`/api/classes/student/${this.nb_class.id}`, user)
+        axios.post(`/api/classes/student/${this.course.id}`, user)
           .then(() => this.loadStudents())
       } else if (role === 'instructor') {
-        axios.post(`/api/classes/instructor/${this.nb_class.id}`, user)
+        axios.post(`/api/classes/instructor/${this.course.id}`, user)
           .then(() => this.loadInstructors())
       }
     },
     openGrading: function(){
       this.$router.push("grading")
     },
-    setUsers: function(){
-      axios.get(`/api/users/all`)
-        .then(res => {
-          this.all_users = res.data;
-        })
-    },
-    setParent: function(){
-      axios.get(`/api/files/class/${this.nb_class.id}`)
+    loadFiles: function(){
+      axios.get(`/api/files/class/${this.course.id}`)
         .then(res => {
           this.filePath = [res.data]
-        });
+        })
     },
     switchDirectory: function(directory) {
       let idx = this.filePath.indexOf(directory)
@@ -174,15 +166,15 @@ export default {
         this.filePath.splice(idx + 1)
       }
     },
-  }
-};
+  },
+  components: {
+    CourseContents,
+    CourseUsers
+  },
+}
 </script>
 
 <style scoped>
-  #class {
-    padding: 20px;
-  }
-
   .tabs {
     display: flex;
     justify-content: space-around;
@@ -200,8 +192,7 @@ export default {
   .users-tab > h3,
   .grades-tab > h3 {
     margin: 0;
-    padding-top: 20px;
-    padding-bottom: 10px;
+    padding: 10px 0;
     color: #000;
     font-size: 18px;
     font-weight: bold;

@@ -1,57 +1,48 @@
 <template>
-  <div id="class-list">
-    <div>
-      <div v-if='classes.length' class="class-list">
-        <ClassListItem v-for='nb_class in classes' :selected="selected" :mode="mode" :listener="listener" :key='nb_class.classId' :nb_class='nb_class'/>
-      </div>
-      <div v-else>
-        <p>You don't have any classes</p>
-      </div>
+  <div class="list">
+    <div
+        v-for="course in courses"
+        class="item"
+        :key="course.id"
+        :style="styleItem(course)"
+        @click="$emit('select-course', course)">
+      {{ course.class_name}}
     </div>
+    <p v-if="courses.length === 0" class="empty"> No classes yet </p>
   </div>
-  
 </template>
 
 <script>
-
-import ClassListItem from "./ClassListItem.vue";
-import axios from "axios";
-import { eventBus } from "../main";
-
-export default {
-  name: "ClassList",
-
-  props: {
-    mode: String,
-    listener: Object,
-    selected: Object
-  },
-
-  components: { 
-    ClassListItem 
-  },
-
-  data() {
-    return {
-      classes: [],
-    };
-  },
-
-  created: function() {
-    eventBus.$on("class-changes", () => {
-      this.loadClasses();
-    });
-  },
-
-  mounted: function() {
-    this.loadClasses();
-  },
-  methods: {
-    loadClasses: function() {
-      axios.get(`/api/classes/${this.mode}`).then((res) => {
-        this.classes = res.data
-      })
+  export default {
+    name: "course-list",
+    props: {
+      courses: {
+        type: Array,
+        default: () => [],
+      },
+      selectedCourse: Object,
+    },
+    methods: {
+      styleItem: function(course) {
+        if (this.selectedCourse && this.selectedCourse.id === course.id) {
+          return 'background-color: #4a2270; color: #fff;'
+        }
+      }
     },
   }
-};
 </script>
+
+<style scoped>
+  .list .item {
+    margin-top: 10px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  .list .item:hover {
+    background-color: #ddd;
+  }
+  p.empty {
+    padding: 10px;
+    color: #444;
+  }
+</style>

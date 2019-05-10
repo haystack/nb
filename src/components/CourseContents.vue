@@ -180,9 +180,9 @@
   }
 </script>
 
-<style>
+<style scoped>
   .course-contents {
-    padding-top: 20px;
+    padding-top: 10px;
   }
 
   .breadcrumb {

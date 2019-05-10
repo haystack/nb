@@ -9,7 +9,7 @@
         </div>
         <div id="navbar-right">
           <div v-if="isSignedIn" class="signed-in">
-            <h4 style="margin: auto">{{ this.username }}</h4>
+            <h4 style="margin: auto">{{ this.user ? this.user.username : "" }}</h4>
             <div class="dropdown dropdown-arrow">
               <button><i class="material-icons white">expand_more</i></button>
               <div class="dropdown-content">
@@ -37,7 +37,7 @@ export default {
     title: String,
     hasBackwardArrow: Boolean,
     isSignedIn: Boolean,
-    username: String,
+    user: Object,
     arrowName:String
   },
 
@@ -77,7 +77,7 @@ export default {
 <style scoped>
 .white {
   color: white;
-} 
+}
 
 .navbar {
   padding-left: 20px;

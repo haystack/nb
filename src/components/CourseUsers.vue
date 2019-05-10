@@ -158,7 +158,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .add-user {
     display: flex;
     align-items: center;
