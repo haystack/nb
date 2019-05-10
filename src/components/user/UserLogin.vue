@@ -12,6 +12,8 @@
       <input id="login-password" type="password" v-model="user.password">
     </div>
 
+    <div v-if="message" class="message">{{ message }}</div>
+
     <button class="submit" :disabled="!submitEnabled" @click="login">
       Sign in
     </button>
@@ -30,6 +32,7 @@
           username: "",
           password: "",
         },
+        message: null,
       }
     },
     computed: {
@@ -40,17 +43,23 @@
     methods: {
       login: function() {
         axios.post("/api/users/login", this.user)
-          .then(() => eventBus.$emit('signin-success'))
+          .then(() => {
+            eventBus.$emit('signin-success')
+            this.resetForm()
+          })
           .catch(err => {
+            if (err.response.status === 401) {
+              this.message = "Invalid username and password. Try again!"
+            }
             console.error(`Signin failed: ${err.response.data.error}`)
           })
-          .then(() => this.resetForm())
       },
       resetForm: function() {
         this.user = {
           username: "",
           password: "",
-        }
+        },
+        this.message = null
       },
     },
   }
@@ -81,6 +90,10 @@
     border: solid 1px #aaa;
     font-size: 16px;
     flex-grow: 1;
+  }
+  .form .message {
+    color: #cf000f;
+    font-size: 14px;
   }
   button.submit {
     width: 80px;
