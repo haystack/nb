@@ -82,8 +82,8 @@ router.get('/student', (req,res) =>{
  * @param id: id of the class
  */
 router.get('/instructorList/:id', (req,res) =>{
-  Class.findByPk(req.params.id, 
-    {include:[{association: 'Instructors', attributes:['id','username','email']}]})
+  Class.findByPk(req.params.id,
+    {include:[{association: 'Instructors', attributes:['id','username','first_name','last_name','email']}]})
     .then((nb_class) =>
       res.status(200).json(nb_class.Instructors)
     );
@@ -96,7 +96,7 @@ router.get('/instructorList/:id', (req,res) =>{
  */
 router.get('/studentList/:id', (req,res) =>{
   Class.findByPk(req.params.id, {include:[{association: 'GlobalSection',
-    include: [{association:'MemberStudents', attributes:['id','username','email']}]}]})
+    include: [{association:'MemberStudents', attributes:['id','username','first_name','last_name','email']}]}]})
     .then((nb_class) =>
       res.status(200).json(nb_class.GlobalSection.MemberStudents)
     );
@@ -108,10 +108,10 @@ router.get('/studentList/:id', (req,res) =>{
  * @param id: id of the class
  */
 router.post('/instructor/:id', (req, res) => {
-  Class.findByPk(req.params.id).then(nb_class => 
-    User.findByPk(req.body.id).then(user => 
+  Class.findByPk(req.params.id).then(nb_class =>
+    User.findByPk(req.body.id).then(user =>
       nb_class.addInstructor(user)
-    )  
+    )
   ).then(() => res.status(200).json(null));
 });
 

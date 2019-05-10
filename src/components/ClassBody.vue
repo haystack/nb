@@ -3,50 +3,12 @@
     <h3>{{nb_class.class_name}} <i v-if='isInstructor' class= "material-icons" v-on:click="openGrading">check_box</i></h3>
     <div class='split'>
       <div v-if='isInstructor'>
-        
-        <form  class='component' v-on:submit.prevent='addInstructor' method="post">
-          <h3>Add Instructor</h3>
-          <div class='form-class'>
-            <input v-model.trim='new_instructor.username' type='text'>
-            <div v-if="new_instructor.username.length">
-              <ul v-if="possible_users.length >= 1">Do you mean?
-                <li v-for='possible_user in possible_users' :key="possible_user.id" class="text-button" v-on:click="new_instructor = possible_user">{{ possible_user.username }} ({{ possible_user.email}})</li>
-              </ul>
-              <p v-else-if="new_student.username.length > 0">No users found</p>
-            </div>
-          </div>
-          <input type='submit' value='Add'>
-        </form>
-
-        <form  class='component' v-on:submit.prevent='addStudent' method="post">
-          <h3>Add Student</h3>
-          <div class='form-class'>
-            <input v-model.trim='new_student.username' type='text'>
-            <div v-if="new_student.username.length">
-              <ul v-if="possible_users.length >= 1">Do you mean?
-                <li v-for='possible_user in possible_users' :key="possible_user.id" class="text-button" v-on:click="new_student = possible_user">{{ possible_user.username }} ({{ possible_user.email}})</li>
-              </ul>
-              <p v-else-if="new_student.username.length > 0">No users found</p>
-            </div>
-          </div>
-          <input type='submit' value='Add'>
-        </form>
-
-        <div v-if='instructor_list.length' class='component'>
-          <h4>Instructors</h4>
-          <ul class="user-item">
-            <li v-for='instructor in instructor_list' v-bind:key="instructor.id">{{instructor.username}}</li>
-          </ul>
-        </div>
-
-
-        <div v-if='student_list.length' class='component'>
-          <h4>Students</h4>
-          <ul class="user-item">
-            <li v-for='student in student_list' v-bind:key="student.id">{{student.username}}</li>
-          </ul>
-        </div>
-
+        <user-table
+            :instructors="instructor_list"
+            :students="student_list"
+            :suggestions="all_users"
+            @add-user="addUser">
+        </user-table>
       </div>
       <FileList v-bind:type='type' v-if='parent_file' v-bind:parent='parent_file' v-bind:listener='listener'/>
     </div>
@@ -56,6 +18,7 @@
 
 <script>
 import { eventBus } from "../main";
+import UserTable from "./UserTable.vue"
 import FileList from "./FileList.vue";
 import axios from 'axios';
 import Vue from 'vue'
@@ -63,7 +26,7 @@ import Vue from 'vue'
 export default {
   name: "ClassBody",
 
-  components: { FileList },
+  components: { FileList, UserTable },
 
   data() {
     return {
@@ -141,10 +104,11 @@ export default {
       this.possible_users = this.all_users.filter(user =>
         (regex.test(user.username) || regex.test(user.email))
         && !student_id_list.includes(user.id)
-        && user.id != new_user.id 
+        && user.id != new_user.id
         && user.username != new_user.username)
     },
     loadInstructors: function(){
+      // TODO: this should probably be verified on server and send 401 if user is student
       if (this.type == "instructor"){
         axios.get(`/api/classes/instructorList/${this.nb_class.id}`).then((res) => {
           this.instructor_list = res.data
@@ -152,23 +116,22 @@ export default {
       }
     },
     loadStudents: function(){
+      // TODO: same as above, check on server and send 401 appropriately
       if (this.type == "instructor"){
         axios.get(`/api/classes/studentList/${this.nb_class.id}`).then((res) => {
           this.student_list = res.data
         })
       }
     },
-    addInstructor: function(user){
-      const bodyContent = this.new_instructor;
-      axios.post(`/api/classes/instructor/${this.nb_class.id}`, bodyContent)
-        .then(() => {
-          this.loadInstructors(); this.new_instructor = {username:""};
-        })
-    },
-    addStudent: function(user){
-      const bodyContent = this.new_student;
-      axios.post(`/api/classes/student/${this.nb_class.id}`, bodyContent)
-        .then(() => {this.loadStudents(); this.new_student = {username:""};})
+    addUser: function(user, role) {
+      // TODO: same as above, check on server and send 401 appropriately
+      if (role === 'student') {
+        axios.post(`/api/classes/student/${this.nb_class.id}`, user)
+          .then(() => this.loadStudents())
+      } else if (role === 'instructor') {
+        axios.post(`/api/classes/instructor/${this.nb_class.id}`, user)
+          .then(() => this.loadInstructors())
+      }
     },
     openGrading: function(){
       this.$router.push("grading")
@@ -190,11 +153,15 @@ export default {
 </script>
 
 <style scoped>
-.split{
+#class {
+  padding: 20px;
+}
+
+/* .split{
   display: flex;
   flex-grow: 3;
   justify-content: space-around;
-}
+} */
 
 .user-item {
   display: flex;
