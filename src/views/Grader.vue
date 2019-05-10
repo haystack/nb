@@ -1,13 +1,13 @@
 <template>
 <div>
   <grade-table
-      v-for="gradingSystem in gradingSystems" :gradingSystem="gradingSystem">
+      v-for="gradingSystem in gradingSystems" :key="gradingSystem.id" :gradingSystem="gradingSystem">
   </grade-table>
   <div>
     <div>
       Grading System: 
       <select v-model="selectedGrading">
-        <option v-for="gradingSystem in gradingSystems" :value="gradingSystem.id">
+        <option v-for="gradingSystem in gradingSystems" :key="gradingSystem.id" :value="gradingSystem.id">
           {{gradingSystem.grading_system_name}}
         </option>
       </select>
@@ -15,12 +15,17 @@
     <div>
       Document: 
       <select v-model="selectedSource">
-        <option v-for="source in sources" :value="source.id">
+        <option v-for="source in sources" :key="source.id" :value="source.id">
           {{source.filename}}
         </option>
       </select>
     </div>
+    <span>
+      Deadline:
+      <datepicker v-model=date></datepicker>
+    </span>
     <button v-on:click="createGrades">Generate</button>
+    
   </div>
 </div>
 </template>
@@ -30,6 +35,7 @@
   import Vue from 'vue'
   import VTooltip from 'v-tooltip'
   import VModal from 'vue-js-modal'
+  import Datepicker from 'vuejs-datepicker';
   Vue.use(VTooltip)
   Vue.use(VModal)
 
@@ -42,7 +48,8 @@
         gradingSystems: [],
         sources: [],
         selectedGrading: null,
-        selectedSource: null
+        selectedSource: null,
+        date: null
       }
     },
     created: function() {
@@ -70,7 +77,8 @@
       createGrades: function(){
         axios.get("/api/grades/grades",{params:{
           gradingSystemId: this.selectedGrading, 
-          sourceId: this.selectedSource
+          sourceId: this.selectedSource,
+          date: this.date
         }})
         .then(res => {
           console.log(res.data);
@@ -82,8 +90,8 @@
             csv += row.total_comments+",";
             csv += row.total_words+",";
             csv += row.total_chars+",";
-            csv += row.total_tags+"\n";
-            csv += row.grade
+            csv += row.total_tags+",";
+            csv += row.grade+"\n"
           });
           console.log(csv);
           var hiddenElement = document.createElement('a');
@@ -95,7 +103,8 @@
       }
     },
     components: {
-      GradeTable
+      GradeTable,
+      Datepicker
     }
   }
 </script>
