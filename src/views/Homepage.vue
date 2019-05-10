@@ -3,20 +3,20 @@
     <NavBar v-bind:hasBackwardArrow="false" title="NB Prototype" v-bind:isSignedIn="this.user !== null" v-bind:user="this.user"/>
     <div class="app-body">
       <div class="sidebar">
-        <h2 class="title">My Classes</h2>
-        <h3 class="subtitle">Enrolled as Instructor</h3>
-        <course-list
-            :courses="courses.instructor"
-            :selectedCourse="selectedCourse"
-            @select-course="onSelectCourse">
-        </course-list>
-        <!-- <ClassCreate :listener="listener"/> -->
-        <h3 class="subtitle">Enrolled as Student</h3>
+        <h2 class="title"> My Classes </h2>
+        <h3 class="subtitle"> Enrolled as Student </h3>
         <course-list
             :courses="courses.student"
             :selectedCourse="selectedCourse"
             @select-course="onSelectCourse">
         </course-list>
+        <h3 class="subtitle"> Enrolled as Instructor </h3>
+        <course-list
+            :courses="courses.instructor"
+            :selectedCourse="selectedCourse"
+            @select-course="onSelectCourse">
+        </course-list>
+        <course-create @create-course="onCreateCourse"></course-create>
       </div>
       <div class="dashboard-wrapper">
         <course-dashboard
@@ -86,6 +86,9 @@
           this.selectedCourse = course
         })
       },
+      onCreateCourse: function() {
+        this.loadCourses()
+      },
       redirect: function(page) {
         this.$router.push({ name: page, params: { class: null } })
       },
@@ -117,7 +120,6 @@
     width: 100%;
     height: calc(100vh - 56px);
   }
-
   .sidebar {
     width: 300px;
     padding: 0 0 0 20px;
@@ -126,7 +128,6 @@
     background-color: #eee;
     text-align: left;
   }
-
   .dashboard-wrapper {
     padding: 20px;
     height: calc(100% - 46px);

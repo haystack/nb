@@ -1,43 +1,78 @@
 <template>
-<!-- the submit event will no longer reload the page -->
-  <form class='component' v-on:submit.prevent='create' method="post">
-    <h3>Create Class</h3>
-
-    <div class='form-class'>
-      <label for='name'>Class name:</label>
-      <input id='name' v-model.trim='name' type='text' name='name'>
+  <div class="create-course">
+    <h3> Create a New Class </h3>
+    <div class="group">
+      <label for='new-course-name'>Name:</label>
+      <input id='new-course-name' v-model='newCourse.name' type='text'>
     </div>
-
-    <input type='submit' value='Create'>
-  </form>
+    <button
+        :disabled="newCourse.name.length === 0"
+        @click="createCourse">
+      Create
+    </button>
+  </div>
 </template>
 
 <script>
-import axios from "axios";
-import { eventBus } from "../main";
+  import axios from "axios"
 
-export default {
-  name: "course-create",
-
-  data() {
-    return {
-      name: "",
-    };
-  },
-
-  props:{
-    listener: Object,
-  },
-
-  methods: {
-    create: function() {
-      const bodyContent = {name: this.name};
-      axios.post("/api/classes/create", bodyContent).then((res) => {
-          this.name = "";
-          eventBus.$emit("class-changes");
-          this.listener.$emit("setClass", {nb_class: res.data, mode: "instructor"});
-      })
+  export default {
+    name: "course-create",
+    data() {
+      return {
+        newCourse: {
+          name: "",
+        },
+      }
     },
+    methods: {
+      createCourse: function() {
+        axios.post("/api/classes/create", this.newCourse).then(res => {
+          this.newCourse = { name: "" }
+          axios.post("/api/classes/current", { id: res.data.id }).then(() => {
+            this.$emit("create-course")
+          })
+        })
+      },
+    }
   }
-};
 </script>
+
+<style scoped>
+  .create-course {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px 20px 0;
+  }
+  .create-course .group {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+  }
+  .create-course .group input {
+    margin-left: 5px;
+    padding: 6px 8px;
+    border: solid 1px #aaa;
+    border-radius: 5px;
+    font-size: 16px;
+    flex-grow: 1;
+  }
+  .create-course button {
+    width: 80px;
+    align-self: flex-end;
+    padding: 6px 0;
+    border-radius: 5px;
+    border: solid 1px #007bff;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .create-course button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .create-course button:enabled:hover {
+    background-color: #0069d9;
+  }
+</style>
