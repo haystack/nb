@@ -32,9 +32,9 @@
 <script>
   import axios from "axios"
   import NavBar from '../components/NavBar.vue'
-  import CourseCreate from '../components/CourseCreate.vue'
-  import CourseList from '../components/CourseList.vue'
-  import CourseDashboard from '../components/CourseDashboard.vue'
+  import CourseCreate from '../components/sidebar/CourseCreate.vue'
+  import CourseList from '../components/sidebar/CourseList.vue'
+  import CourseDashboard from '../components/course/CourseDashboard.vue'
 
   export default {
     name: 'app',
