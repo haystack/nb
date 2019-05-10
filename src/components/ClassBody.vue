@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import CourseUsers from "./UserTable.vue"
-import CourseContents from "./FileList.vue"
+import CourseUsers from "./CourseUsers.vue"
+import CourseContents from "./CourseContents.vue"
 import axios from 'axios'
 
 export default {
