@@ -9,7 +9,7 @@
       </h3>
     </div>
 
-    <p v-if="contents.length === 0"> This folder is empty </p>
+    <p v-if="contents.length === 0" class="empty"> This folder is empty </p>
 
     <div v-if="directories.length" class="directories">
       <div class="header"> Folders </div>
@@ -207,6 +207,11 @@
   .breadcrumb h3:last-child {
     color: #000;
     font-weight: bold;
+  }
+
+  p.empty {
+    text-align: left;
+    color: #444;
   }
 
   .directories {

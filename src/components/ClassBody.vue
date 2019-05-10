@@ -1,6 +1,5 @@
 <template>
   <div id="class">
-    <h3>{{nb_class.class_name}} <i v-if='isInstructor' class= "material-icons" v-on:click="openGrading">check_box</i></h3>
     <div class="tabs">
       <div
           v-for="tab in tabs"
@@ -11,7 +10,7 @@
         {{ tab.label }}
       </div>
     </div>
-    <div v-if="showContentsTab">
+    <div v-if="showContentsTab" class="contents-tab">
       <course-contents
           v-if='filePath.length'
           :userType='type'
@@ -19,7 +18,8 @@
           @switch-directory="switchDirectory">
       </course-contents>
     </div>
-    <div v-if="showUsersTab">
+    <div v-if="showUsersTab" class="users-tab">
+      <h3> {{nb_class.class_name}} </h3>
       <course-users
           :instructors="instructor_list"
           :students="student_list"
@@ -27,8 +27,9 @@
           @add-user="addUser">
       </course-users>
     </div>
-    <div v-if="showGradesTab">
-      <div style="padding: 20px;">TODO: INSERT GRADING UI HERE</div>
+    <div v-if="showGradesTab" class="grades-tab">
+      <h3> {{nb_class.class_name}} </h3>
+      <div>TODO: INSERT GRADING UI HERE</div>
     </div>
   </div>
 
@@ -50,16 +51,24 @@ export default {
       instructor_list: [],
       student_list: [],
       all_users:[],
-      tabs: [
-        { label: "Contents", type: 'contents' },
-        { label: "Users", type: 'users' },
-        { label: "Grades", type: 'grades'},
-      ],
       currentTab: 'contents'
     };
   },
 
   computed:{
+    tabs: function() {
+      if (this.type === "instructor") {
+        return [
+          { label: "Contents", type: 'contents' },
+          { label: "Users", type: 'users' },
+          { label: "Grades", type: 'grades'},
+        ]
+      } else {
+        return [
+          { label: "Contents", type: 'contents' },
+        ]
+      }
+    },
     isInstructor(){
       return this.type == "instructor";
     },
@@ -170,37 +179,32 @@ export default {
 </script>
 
 <style scoped>
-#class {
-  padding: 20px;
-}
+  #class {
+    padding: 20px;
+  }
 
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-}
-.tabs .tab {
-  color: #444;
-  cursor: pointer;
-}
-.tabs .tab:hover {
-  color: #000;
-  font-weight: bold;
-}
+  .tabs {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+  }
+  .tabs .tab {
+    color: #444;
+    cursor: pointer;
+  }
+  .tabs .tab:hover {
+    color: #000;
+    font-weight: bold;
+  }
 
-h3{
-  display: inline-flex;
-  vertical-align: middle;
-}
-
-i{
-  margin-left: 5px;
-}
-
-ul {
-  list-style: none;
-  padding: 0px;
-  margin: 0px;
-  width: 100%;
-}
+  .users-tab > h3,
+  .grades-tab > h3 {
+    margin: 0;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+  }
 </style>

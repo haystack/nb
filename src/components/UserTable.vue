@@ -159,10 +159,6 @@
 </script>
 
 <style>
-  .course-users {
-    padding-top: 20px;
-  }
-
   .add-user {
     display: flex;
     align-items: center;
