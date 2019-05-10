@@ -87,7 +87,7 @@
           }
           this.$emit('save-criterion', this.editting)
         } else { // creating a new criterion
-          let criterion = new CustomCriterion(Date.now(), this.label) // TODO: Use actual ID
+          let criterion = new CustomCriterion(Date.now(), this.label) // Actual ID is set by listener for new-criterion
           for (let filter of this.filters) {
             criterion.setFilter(filter.value, filter.type)
           }

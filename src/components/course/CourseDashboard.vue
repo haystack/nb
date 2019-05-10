@@ -27,7 +27,7 @@
       </course-users>
     </div>
     <div v-if="showGradesTab" class="grades-tab">
-      <div style="padding-top:20px;">TODO: INSERT GRADING UI HERE</div>
+      <Grader/>
     </div>
   </div>
 
@@ -36,6 +36,7 @@
 <script>
 import CourseUsers from "./CourseUsers.vue"
 import CourseContents from "./CourseContents.vue"
+import Grader from "../grader/Grader.vue"
 import axios from 'axios'
 
 export default {
@@ -113,7 +114,6 @@ export default {
       }
     },
     loadInstructors: function(){
-      // TODO: this should probably be verified on server and send 401 if user is student
       if (this.userType == "instructor") {
         axios.get(`/api/classes/instructorList/${this.course.id}`)
           .then((res) => {
@@ -122,7 +122,6 @@ export default {
       }
     },
     loadStudents: function(){
-      // TODO: same as above, check on server and send 401 appropriately
       if (this.userType == "instructor") {
         axios.get(`/api/classes/studentList/${this.course.id}`)
           .then((res) => {
@@ -137,7 +136,6 @@ export default {
         })
     },
     addUser: function(user, role) {
-      // TODO: same as above, check on server and send 401 appropriately
       if (role === 'student') {
         axios.post(`/api/classes/student/${this.course.id}`, user)
           .then(() => this.loadStudents())
@@ -146,9 +144,9 @@ export default {
           .then(() => this.loadInstructors())
       }
     },
-    openGrading: function(){
-      this.$router.push("grading")
-    },
+    // openGrading: function(){
+    //   this.$router.push("grading")
+    // },
     loadFiles: function(){
       axios.get(`/api/files/class/${this.course.id}`)
         .then(res => {
@@ -167,12 +165,16 @@ export default {
   },
   components: {
     CourseContents,
-    CourseUsers
+    CourseUsers,
+    Grader
   },
 }
 </script>
 
 <style scoped>
+  .dashboard{
+    overflow-x: hidden;
+  }
   .tabs {
     display: flex;
     justify-content: space-around;

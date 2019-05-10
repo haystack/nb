@@ -99,11 +99,11 @@
             //   enabled: true,
             // },
           },
-          {
-            label: 'Assignment Due', // TODO add due date field
-            field: 'due_date',
-            sortable: true,
-          },
+          // {
+          //   label: 'Assignment Due', // TODO add due date field
+          //   field: 'due_date',
+          //   sortable: true,
+          // },
           {
             label: 'Last Updated', // TODO format
             field: 'updatedAt',

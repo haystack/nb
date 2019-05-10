@@ -3,7 +3,7 @@
   <grade-table
       v-for="gradingSystem in gradingSystems" :key="gradingSystem.id" :gradingSystem="gradingSystem">
   </grade-table>
-  <div>
+  <div class="settings">
     <div>
       Grading System: 
       <select v-model="selectedGrading">
@@ -22,7 +22,7 @@
     </div>
     <span>
       Deadline:
-      <datepicker v-model=date></datepicker>
+      <datepicker v-model=date :bootstrap-styling="true"></datepicker>
     </span>
     <button v-on:click="createGrades">Generate</button>
     
@@ -39,10 +39,10 @@
   Vue.use(VTooltip)
   Vue.use(VModal)
 
-  import GradeTable from '../components/grader/GradeTable.vue'
+  import GradeTable from './GradeTable.vue'
 
   export default {
-    name: 'grader',
+    name: 'Grader',
     data() {
       return {
         gradingSystems: [],
@@ -65,12 +65,10 @@
     mounted: function(){
       axios.get('/api/grades/gradingSystems').then(res => {
         this.gradingSystems = res.data;
-        console.log(res.data)
       })
 
       axios.get('/api/classes/sourceList').then(res => {
         this.sources = res.data;
-        console.log(res.data)
       });
     },
     methods:{
@@ -81,7 +79,6 @@
           date: this.date
         }})
         .then(res => {
-          console.log(res.data);
           var csv = 'Name,Email,Username,Total Comments,Total Words,Total Characters,Total Tags,Grade\n';
           res.data.forEach(function(row) {
             csv += row.name+",";
@@ -93,8 +90,7 @@
             csv += row.total_tags+",";
             csv += row.grade+"\n"
           });
-          console.log(csv);
-          var hiddenElement = document.createElement('a');
+          let hiddenElement = document.createElement('a');
           hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
           hiddenElement.target = '_blank';
           hiddenElement.download = 'grades.csv';
@@ -108,3 +104,9 @@
     }
   }
 </script>
+
+<style scoped>
+.settings{
+  margin: 30px;
+}
+</style>

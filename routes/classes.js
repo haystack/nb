@@ -84,9 +84,14 @@ router.get('/student', (req,res) =>{
 router.get('/instructorList/:id', (req,res) =>{
   Class.findByPk(req.params.id,
     {include:[{association: 'Instructors', attributes:['id','username','first_name','last_name','email']}]})
-    .then((nb_class) =>
-      res.status(200).json(nb_class.Instructors)
-    );
+    .then((nb_class) =>{
+      if(nb_class.Instructors.filter(instructor => instructor.id == req.session.userId).length < 1){
+        res.status(401).json(null);
+      }
+      else{
+        res.status(200).json(nb_class.Instructors);
+      }
+    });
 });
 
 /**
@@ -95,11 +100,23 @@ router.get('/instructorList/:id', (req,res) =>{
  * @param id: id of the class
  */
 router.get('/studentList/:id', (req,res) =>{
-  Class.findByPk(req.params.id, {include:[{association: 'GlobalSection',
-    include: [{association:'MemberStudents', attributes:['id','username','first_name','last_name','email']}]}]})
-    .then((nb_class) =>
-      res.status(200).json(nb_class.GlobalSection.MemberStudents)
-    );
+  Class.findByPk(req.params.id, {include:[
+    {association: 'GlobalSection',
+    include: [{association:'MemberStudents', 
+      attributes:['id','username','first_name','last_name','email']}
+    ]},
+    {association: 'Instructors',
+    required: true,
+    where:{id: req.session.userId}}
+  ]})
+    .then((nb_class) =>{
+      if(nb_class){
+        res.status(200).json(nb_class.GlobalSection.MemberStudents);
+      }
+      else{
+        res.status(401).json(null);
+      }
+    });
 });
 
 /**
@@ -108,11 +125,18 @@ router.get('/studentList/:id', (req,res) =>{
  * @param id: id of the class
  */
 router.post('/instructor/:id', (req, res) => {
-  Class.findByPk(req.params.id).then(nb_class =>
-    User.findByPk(req.body.id).then(user =>
-      nb_class.addInstructor(user)
-    )
-  ).then(() => res.status(200).json(null));
+  Class.findByPk(req.params.id, {include:[
+    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+  .then(nb_class => {
+    if (!nb_class){
+      res.status(401).json(null);
+    }
+    else{
+      User.findByPk(req.body.id).then(user =>
+        nb_class.addInstructor(user)
+      ).then(() => res.status(200).json(null));
+    }
+  });
 });
 
 /**
@@ -121,8 +145,18 @@ router.post('/instructor/:id', (req, res) => {
  * @param id: id of the class
  */
 router.post('/student/:id', (req, res) => {
-  utils.addStudent(req.params.id, req.body.id)
-    .then(() => res.status(200).json(null));
+  Class.findByPk(req.params.id, {include:[
+    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+  .then(nb_class => {
+    if (!nb_class){
+      res.status(401).json(null);
+    }
+    else{
+      utils.addStudent(req.params.id, req.body.id)
+      .then(() => res.status(200).json(null));
+    }
+  });
+  
 });
 
 /**

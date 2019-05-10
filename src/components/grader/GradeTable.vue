@@ -11,6 +11,7 @@
         <tbody>
           <table-row
               v-for="grade in sortedGrades"
+              :key="grade.id"
               :default-criteria="defaultCriteria"
               :custom-criteria="customCriteria"
               :grade="grade"
@@ -166,13 +167,19 @@
 </script>
 
 <style scoped>
+  .grade-table{
+    overflow-x: scroll
+  }
   .table-wrapper,
   .add-column {
     display: inline-block;
   }
   .table-wrapper {
     max-width: 850px;
-    overflow-x: scroll;
+    /* overflow-x: scroll; */
+  }
+  table{
+    overflow-x: scroll; 
   }
   table, table td {
     padding: 8px;

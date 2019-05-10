@@ -61,7 +61,7 @@
         return isNumberKey(event, allowDecimal)
       },
       addGrade: function() {
-        let grade = new Grade(Date.now(), this.label, this.points) // TODO: use actual ID
+        let grade = new Grade(Date.now(), this.label, this.points) // Actual ID is set by listener for add-grade
         for (let criterion of this.defaultCriteria) {
           grade.setThreshold(this.totals[criterion.type], criterion.type)
         }
