@@ -2,10 +2,10 @@
   <div class="course-contents">
     <div class="breadcrumb">
       <h3
-          v-for="ancestor in path"
+          v-for="(ancestor, idx) in path"
           :key="ancestor.id"
           @click="switchDirectory(ancestor)">
-        {{ ancestor.filename }}
+        {{ idx === 0 ? "Home" : ancestor.filename }}
       </h3>
     </div>
 

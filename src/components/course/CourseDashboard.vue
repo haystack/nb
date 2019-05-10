@@ -19,7 +19,6 @@
       </course-contents>
     </div>
     <div v-if="showUsersTab" class="users-tab">
-      <h3>{{ course.class_name }}</h3>
       <course-users
           :instructors="instructors"
           :students="students"
@@ -28,8 +27,7 @@
       </course-users>
     </div>
     <div v-if="showGradesTab" class="grades-tab">
-      <h3>{{ course.class_name }}</h3>
-      <div>TODO: INSERT GRADING UI HERE</div>
+      <div style="padding-top:20px;">TODO: INSERT GRADING UI HERE</div>
     </div>
   </div>
 

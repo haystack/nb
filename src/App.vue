@@ -10,6 +10,7 @@
   --navbar-color: #4a2270;
   --navbar-hover-color: #68309c;
   --background-color: #cfc3db;
+  --navbar-height: 40px;
 }
 
 html {

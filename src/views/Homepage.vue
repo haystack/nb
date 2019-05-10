@@ -1,6 +1,6 @@
 <template>
   <div class="app-wrapper">
-    <NavBar v-bind:hasBackwardArrow="false" title="NB Prototype" v-bind:isSignedIn="this.user !== null" v-bind:user="this.user"/>
+    <nav-bar :course="selectedCourse" :user="user"></nav-bar>
     <div class="app-body">
       <div class="sidebar">
         <h2 class="title"> My Classes </h2>
@@ -67,7 +67,7 @@
           return 'student'
         }
         return ''
-      }
+      },
     },
     methods: {
       loadCourses: function() {
@@ -118,7 +118,7 @@
   .app-body {
     display: flex;
     width: 100%;
-    height: calc(100vh - 56px);
+    height: calc(100vh - var(--navbar-height));
   }
   .sidebar {
     width: 300px;
@@ -134,7 +134,7 @@
     overflow-y: scroll;
     flex-wrap: wrap;
     align-items: flex-start;
-    border: solid 3px #4a2270;
+    border: solid 3px #875f9a;
     flex-grow: 1;
   }
 </style>
