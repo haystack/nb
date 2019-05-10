@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <div class="home" @click="redirect('homepage')"> nb </div>
+    <div class="home" @click="redirect('home-page')"> nb </div>
     <div v-if="course" class="title">
       {{ course.class_name }}
     </div>
