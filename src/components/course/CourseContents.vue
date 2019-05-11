@@ -99,11 +99,11 @@
             //   enabled: true,
             // },
           },
-          // {
-          //   label: 'Assignment Due', // TODO add due date field
-          //   field: 'due_date',
-          //   sortable: true,
-          // },
+          {
+            label: 'Assignment Due', // TODO add due date field
+            field: 'Source.Assignment.deadline',
+            sortable: true,
+          },
           {
             label: 'Last Updated', // TODO format
             field: 'updatedAt',
@@ -131,6 +131,7 @@
         return this.contents.filter(item => item.is_directory)
       },
       files: function() {
+        console.log(this.contents.filter(item => !item.is_directory))
         return this.contents.filter(item => !item.is_directory)
       },
       currentDir: function() {

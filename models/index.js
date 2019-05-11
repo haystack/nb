@@ -105,6 +105,7 @@ if (!global.hasOwnProperty('db')) {
     GradingThreshold: sequelize.import('./Grading/GradingThresholds'),
     CriteriaCount: sequelize.import('./Grading/CriteriaCounts'),
     Criteria: sequelize.import('./Grading/Criteria'),
+    Assignment: sequelize.import('./Grading/Assignments')
   };
 
   global.db = {

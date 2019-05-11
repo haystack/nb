@@ -28,6 +28,7 @@ const source = (sequelize, DataTypes) => {
       associate: (models) =>{
         Source.hasMany(models.Location, {as: 'Locations', foreignKey: {name: 'source_id', allowNull: false}, onDelete: 'CASCADE'});
         Source.belongsTo(models.Class, {as: 'Class', foreignKey: {name: 'class_id', allowNull: false}, onDelete: 'CASCADE'});
+        Source.hasOne(models.Assignment, {as: 'Assignment', foreignKey: {name: 'source_id', allowNull: false}, onDelete: 'CASCADE'});
       }
     },
     hooks:{

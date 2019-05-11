@@ -21,7 +21,7 @@ router.get('/class/:id', (req, res) => {
  */
 router.get('/folder/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id)
-  .then((file) => file.getChildren({include:[{association:'Source'}]}))
+  .then((file) => file.getChildren({include:[{association:'Source', include:[{association:'Assignment', required: false}]}]}))
   .then((files) => {
     res.status(200).json(files);
   });

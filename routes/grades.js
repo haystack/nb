@@ -6,6 +6,7 @@ const GradingSystem = require('../models').GradingSystem;
 const GradingThreshold = require('../models').GradingThreshold;
 const CriteriaCount = require('../models').CriteriaCount;
 const Criteria = require('../models').Criteria;
+const Assignment = require('../models').Assignment;
 const router = express.Router();
 const h2p = require('html2plaintext');
 
@@ -190,7 +191,7 @@ router.get('/grades', (req, res) => {
               include: [{
                 association: 'Source',
                 where:{id: req.query.sourceId},
-                required: true
+                required: true,
               }],
             }]
           },
@@ -200,7 +201,14 @@ router.get('/grades', (req, res) => {
       }]
     }]
 }).then(nb_class => {
-  // res.status(200).json(nb_class.GlobalSection.MemberStudents);
+  Source.findByPk(req.query.sourceId,{include: [{association: 'Assignment'}]}).then(source =>{
+    if(source.Assignment){
+      source.Assignment.update({deadline: new Date(req.query.date)});
+    }
+    else{
+      Assignment.create({deadline: new Date(req.query.date), source_id: source.id});
+    }
+  })
   GradingSystem.findByPk(req.query.gradingSystemId, {include:
     [
       {association: 'Criteria'},
