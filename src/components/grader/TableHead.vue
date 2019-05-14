@@ -12,9 +12,7 @@
           class="overflow-menu"
           :disabled="!overflowMenu">
           <span class="tooltip-target" @click="overflowMenu = true">
-            <i class="fas fa-edit"></i>
-            <!-- Icon doesn't render -->
-            <i class="material-icons">edit</i> 
+            <font-awesome-icon :icon="editIcon"></font-awesome-icon>
           </span>
           <template slot="popover">
             <div class="overflow-btn" @click="editCriterion(criterion)">
@@ -32,6 +30,8 @@
 </template>
 
 <script>
+  import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+  import { faEdit } from '@fortawesome/free-solid-svg-icons'
   import { CustomCriterion } from '../../models/grade-schema.js'
 
   export default {
@@ -48,7 +48,8 @@
     },
     data() {
       return {
-        overflowMenu: false
+        overflowMenu: false,
+        editIcon: faEdit,
       }
     },
     methods: {
@@ -60,7 +61,10 @@
         this.overflowMenu = false
         this.$emit('delete-criterion', criterion)
       }
-    }
+    },
+    components: {
+      FontAwesomeIcon,
+    },
   }
 </script>
 

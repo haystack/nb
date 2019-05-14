@@ -116,8 +116,7 @@
   }
   .custom-label,
   .filter-header,
-  .filter-type,
-  .form-buttons {
+  .filter-type {
     width: 200px;
     padding: 8px;
   }
@@ -131,9 +130,16 @@
     font-size: 16px;
     text-align: center;
   }
+  .form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    width: 216px;
+    padding: 8px 0;
+  }
   .form-buttons button {
     width: 80px;
     padding: 6px;
+    margin-left: 10px;
     border-radius: 5px;
     font-size: 14px;
     color: #fff;

@@ -172,9 +172,6 @@ export default {
 </script>
 
 <style scoped>
-  .dashboard{
-    overflow-x: hidden;
-  }
   .tabs {
     display: flex;
     justify-content: space-around;

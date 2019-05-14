@@ -177,7 +177,7 @@
     margin: 0 10px;
     flex-grow: 1;
   }
-  .add-user .vue-simple-suggest .input-wrapper input {
+  /deep/ .add-user .vue-simple-suggest .input-wrapper input {
     font-size: 16px;
     padding: 6px 8px;
     border-radius: 5px;

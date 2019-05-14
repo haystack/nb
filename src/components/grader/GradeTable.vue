@@ -28,7 +28,7 @@
         </table-foot>
       </table>
     </div>
-    <div class="add-column">
+    <div class="options">
       <div @click="createCriterion">
         + Add Custom Column
       </div>
@@ -167,19 +167,9 @@
 </script>
 
 <style scoped>
-  .grade-table{
-    overflow-x: scroll
-  }
-  .table-wrapper,
-  .add-column {
-    display: inline-block;
-  }
   .table-wrapper {
-    max-width: 850px;
-    /* overflow-x: scroll; */
-  }
-  table{
-    overflow-x: scroll; 
+    max-width: 100%;
+    overflow-x: scroll;
   }
   table, table td {
     padding: 8px;
@@ -195,18 +185,18 @@
   table tr:hover {
     background-color: #ffffd0;
   }
-  .add-column {
-    display: inline-block;
-    vertical-align: top;
-    margin-left: 10px;
+  .options {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 10px;
   }
-  .add-column > div {
+  .options > div {
     padding: 8px;
     border: solid 1px #aaa;
     border-radius: 5px;
     cursor: pointer;
   }
-  .add-column > div:hover {
+  .options > div:hover {
     background-color: #eee;
   }
 </style>

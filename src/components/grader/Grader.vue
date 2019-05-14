@@ -1,33 +1,42 @@
 <template>
-<div>
-  <grade-table
-      v-for="gradingSystem in gradingSystems" :key="gradingSystem.id" :gradingSystem="gradingSystem">
-  </grade-table>
-  <div class="settings">
-    <div>
-      Grading System: 
-      <select v-model="selectedGrading">
-        <option v-for="gradingSystem in gradingSystems" :key="gradingSystem.id" :value="gradingSystem.id">
-          {{gradingSystem.grading_system_name}}
-        </option>
-      </select>
+  <div class="grader">
+    <grade-table
+        v-if="selectedGrading !== null"
+        :gradingSystem="gradingSystems[selectedGrading]">
+    </grade-table>
+
+    <div class="settings">
+      <div class="group">
+        <span class="label"> Grading System: </span>
+        <select v-model="selectedGrading">
+          <option
+              v-for="(gradingSystem, index) in gradingSystems"
+              :key="index"
+              :value="index">
+            {{gradingSystem.grading_system_name}}
+          </option>
+        </select>
+      </div>
+      <div class="group">
+        <span class="label"> Document: </span>
+        <select v-model="selectedSource">
+          <option
+              v-for="(source, index) in sources"
+              :key="index"
+              :value="index">
+            {{source.filename}}
+          </option>
+        </select>
+      </div>
+      <div class="group">
+        <span class="label"> Deadline: </span>
+        <datepicker v-model="date" :bootstrap-styling="true"></datepicker>
+      </div>
+      <button :disabled="!submitEnabled" @click="createGrades">
+        Generate Grades
+      </button>
     </div>
-    <div>
-      Document: 
-      <select v-model="selectedSource">
-        <option v-for="source in sources" :key="source.id" :value="source.id">
-          {{source.filename}}
-        </option>
-      </select>
-    </div>
-    <span>
-      Deadline:
-      <datepicker v-model=date :bootstrap-styling="true"></datepicker>
-    </span>
-    <button v-on:click="createGrades">Generate</button>
-    
   </div>
-</div>
 </template>
 
 <script>
@@ -52,30 +61,40 @@
         date: null
       }
     },
+    computed: {
+      submitEnabled: function() {
+        return this.selectedGrading !== null && this.selectedSource !== null
+      }
+    },
     created: function() {
       axios.get("/api/users/current").then(res => {
         if (!(res.data.username !== undefined && res.data.username !== "")) {
-          this.$router.push('/');
+          this.$router.push('/')
         }
       })
       .catch(() => {
-        this.$router.push('/');
-      });
-    },
-    mounted: function(){
-      axios.get('/api/grades/gradingSystems').then(res => {
-        this.gradingSystems = res.data;
+        this.$router.push('/')
       })
-
-      axios.get('/api/classes/sourceList').then(res => {
-        this.sources = res.data;
-      });
     },
-    methods:{
-      createGrades: function(){
+    mounted: function() {
+      axios.get('/api/grades/gradingSystems').then(res => {
+        this.gradingSystems = res.data
+        if (this.gradingSystems.length > 0) {
+          this.selectedGrading = 0 // defaults to the first one
+        }
+      })
+      axios.get('/api/classes/sourceList').then(res => {
+        this.sources = res.data
+        if (this.sources.length > 0) {
+          this.selectedSource = 0 // defaults to the first one
+        }
+      })
+    },
+    methods: {
+      createGrades: function() {
         axios.get("/api/grades/grades",{params:{
-          gradingSystemId: this.selectedGrading, 
-          sourceId: this.selectedSource,
+          gradingSystemId: this.gradingSystems[this.selectedGrading].id,
+          sourceId: this.sources[this.selectedSource].id,
           date: this.date
         }})
         .then(res => {
@@ -106,7 +125,43 @@
 </script>
 
 <style scoped>
-.settings{
-  margin: 30px;
-}
+  .grader {
+    padding-top: 20px;
+    overflow: scroll;
+  }
+  .settings {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .settings .group {
+    margin-right: 10px;
+  }
+  .settings .group select {
+    font-size: 16px;
+  }
+  .vdp-datepicker {
+    display: inline-block;
+  }
+  /deep/ .vdp-datepicker .vdp-datepicker__calendar {
+    bottom: 0;
+    right: 0;
+  }
+  .settings button {
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: solid 1px #007bff;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .settings button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .settings button:enabled:hover {
+    background-color: #0069d9;
+  }
 </style>

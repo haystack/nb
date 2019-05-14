@@ -121,6 +121,7 @@
     height: calc(100vh - var(--navbar-height));
   }
   .sidebar {
+    min-width: 300px;
     width: 300px;
     padding: 0 0 0 20px;
     height: 100%;
