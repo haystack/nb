@@ -1,9 +1,6 @@
 {
   "name": "nb-backend-test-vue",
   "version": "0.1.0",
-  "engines": {
-    "node": "11.x"
-  },
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
