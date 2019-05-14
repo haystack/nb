@@ -14,7 +14,7 @@ export default new Router({
       path: '/home',
       name: 'home-page',
       props: { default: true },
-      component: () => import('./views/HomePage.vue'),
+      component: () => import('./views/Homepage.vue'),
     },
     // {
     //   path: '/grading',
