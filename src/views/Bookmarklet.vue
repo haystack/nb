@@ -1,13 +1,13 @@
 <template>
   <div id="bookmarklet" class="component">
     <NavBar title="NB Prototype"/>
-    <p>To enable the NB sidebar for a class reading, either drag (don't click) this <a href = "javascript:(function(){let s = document.createElement('script'); s.src= 'https://cdn.jsdelivr.net/gh/alisaono/nbdemo/dist/bundle.js'; document.body.append(s);})()">NB Bookmarklet</a> link to your bookmarks bar, or make a new bookmark with the code below as the URL.</p>
+    <p>To enable the NB sidebar for a class reading, either drag (don't click) this <a href = "javascript:(function(){let s = document.createElement('script'); s.src= 'https://cdn.jsdelivr.net/gh/alisaono/nbdemo@latest/dist/bundle.js'; document.body.append(s);})()">NB Bookmarklet</a> link to your bookmarks bar, or make a new bookmark with the code below as the URL.</p>
     <p>When on the class reading page, just click on the bookmark and the sidebar should appear.</p>
     <pre>
       <code>
         javascript:(function(){
           let s = document.createElement('script');
-          s.src= 'https://cdn.jsdelivr.net/gh/alisaono/nbdemo/dist/bundle.js';
+          s.src= 'https://cdn.jsdelivr.net/gh/alisaono/nbdemo@latest/dist/bundle.js';
           document.body.append(s);
         })()
       </code>
