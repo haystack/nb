@@ -23,9 +23,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/dist')));
 app.use(cors({
   origin: function(origin, callback){
-    //Temporarily allow all origins
-    callback(null, true);
-    
     if(!origin || origin == 'http://localhost:8080' || origin == 'https://nb-demo.herokuapp.com'){
       callback(null, true);
     }
@@ -35,7 +32,8 @@ app.use(cors({
           callback(null, true);
         } else {
           console.log(origin);
-          callback( new Error('Not allowed by CORS'));
+          callback(null, true);
+          // callback( new Error('Not allowed by CORS'));
         }
       });
     }
