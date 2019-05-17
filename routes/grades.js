@@ -51,7 +51,7 @@ router.post('/threshold/:id', (req, res) => {
     score: req.body.points,
     total_comments: req.body.totalComments,
     total_words: req.body.totalWords,
-    total_tags: req.body.totalTags,
+    total_tags: req.body.totalHashtags,
     total_chars: req.body.totalChars,
     grading_system_id: req.params.id,
     CriteriaCounts: Object.keys(req.body.customCriteria).map(id => {
@@ -80,7 +80,7 @@ router.put('/threshold/:id', (req, res) => {
       score: req.body.points,
       total_comments: req.body.totalComments,
       total_words: req.body.totalWords,
-      total_tags: req.body.totalTags,
+      total_tags: req.body.totalHashtags,
       total_chars: req.body.totalChars,
     }))
     .then(threshold =>

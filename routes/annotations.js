@@ -13,7 +13,6 @@ const router = express.Router();
  * @name GET/api/annotations/allUsers
  */
 router.get('/allUsers', (req,res) => {
-  console.log(req.query.url);
   Source.findOne({where:{filepath: req.query.url}, include:[{association: 'Class',
     include: [
       {association:'GlobalSection', include:[{association: 'MemberStudents', attributes:['id', 'username', 'first_name', 'last_name']}]},
@@ -92,8 +91,6 @@ router.get('/annotation', (req, res)=> {
           let annotation = {};
 
           let range = location.HtmlLocation;
-          console.log(location);
-          console.log(location.Thread);
           let head = location.Thread.HeadAnnotation;
 
           annotation.id = head.id;
