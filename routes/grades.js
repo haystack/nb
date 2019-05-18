@@ -179,7 +179,7 @@ router.get('/grades', (req, res) => {
         association: 'MemberStudents',
         include:[{
           association: 'Annotations',
-          // TODO: fix in query, temp measure is in filtering below 
+          // TODO: fix in query, temp measure is in filtering below
           // where: { createdAt: {$lt : new Date(req.query.date)}},
           // required: false,
           include:[{
@@ -201,14 +201,14 @@ router.get('/grades', (req, res) => {
       }]
     }]
 }).then(nb_class => {
-  Source.findByPk(req.query.sourceId,{include: [{association: 'Assignment'}]}).then(source =>{
-    if(source.Assignment){
-      source.Assignment.update({deadline: new Date(req.query.date)});
-    }
-    else{
-      Assignment.create({deadline: new Date(req.query.date), source_id: source.id});
-    }
-  })
+  // Source.findByPk(req.query.sourceId,{include: [{association: 'Assignment'}]}).then(source =>{
+  //   if(source.Assignment){
+  //     source.Assignment.update({deadline: new Date(req.query.date)});
+  //   }
+  //   else{
+  //     Assignment.create({deadline: new Date(req.query.date), source_id: source.id});
+  //   }
+  // })
   GradingSystem.findByPk(req.query.gradingSystemId, {include:
     [
       {association: 'Criteria'},
@@ -222,7 +222,7 @@ router.get('/grades', (req, res) => {
       let filters = {};
       let date = new Date(req.query.date);
       let students = nb_class.GlobalSection.MemberStudents.map(student => {
-        annotations[student.id] = student.Annotations.filter(annotation => 
+        annotations[student.id] = student.Annotations.filter(annotation =>
           req.query.date && annotation.get({plain:true}).createdAt < date
         );
         return student.get({plain: true});

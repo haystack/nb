@@ -20,7 +20,7 @@
             :key="dir.id"
             @click="switchDirectory(dir)">
           <font-awesome-icon :icon="folderIcon"></font-awesome-icon>
-          <span>{{dir.filename}}</span>
+          <span>{{ dir.filename }}</span>
         </div>
       </div>
     </div>
@@ -41,10 +41,22 @@
           <template slot="table-row" slot-scope="props">
             <span
                 v-if="props.column.field === 'filename'"
-                class="item"
+                class="clickable filename"
                 @click="openFile(props.row)">
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
-              <span> {{props.row.filename}} </span>
+              <span>{{ props.row.filename }}</span>
+            </span>
+            <span v-else-if="props.column.field === 'assignment'">
+              <span>
+                {{ props.row.Source.Assignment ?
+                  props.row.Source.Assignment.deadline : "N/A" }}
+              </span>
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="editIcon"
+                  @click="editAssignment(props.row)">
+              </font-awesome-icon>
             </span>
             <span v-else>
               {{ props.formattedRow[props.column.field] }}
@@ -53,6 +65,27 @@
         </vue-good-table>
       </div>
     </div>
+
+    <modal name="edit-file-modal" height="auto">
+      <!-- TODO: add options to edit filename, URL, etc -->
+      <div v-if="edittingFile.file" class="edit-file-form">
+        <h3>{{ edittingFile.file.filename }}</h3>
+        <div class="group">
+          <div class="label"> Assignment Due: </div>
+          <div class="field">
+            <datepicker
+                v-model="edittingFile.newDeadline"
+                :inline="true"
+                :bootstrap-styling="true">
+            </datepicker>
+          </div>
+        </div>
+        <div class="group form-buttons">
+          <button class="cancel" @click="closeEdit"> Cancel </button>
+          <button class="save" @click="saveEdit"> Save </button>
+        </div>
+      </div>
+    </modal>
 
     <div v-if="userType === 'instructor'" class="add-file">
       <h3>New File</h3>
@@ -67,10 +100,15 @@
 
 <script>
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-  import { faFolder, faFile } from '@fortawesome/free-solid-svg-icons'
+  import { faFolder, faFile, faEdit } from '@fortawesome/free-solid-svg-icons'
+
+  import Vue from 'vue'
+  import VModal from 'vue-js-modal'
+  Vue.use(VModal)
 
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
+  import datepicker from 'vuejs-datepicker'
 
   import axios from 'axios'
 
@@ -90,6 +128,7 @@
       return {
         folderIcon: faFolder,
         fileIcon: faFile,
+        editIcon: faEdit,
         fileColumns: [
           {
             label: 'Name',
@@ -101,7 +140,7 @@
           },
           {
             label: 'Assignment Due', // TODO add due date field
-            field: 'Source.Assignment.deadline',
+            field: 'assignment',
             sortable: true,
           },
           {
@@ -117,7 +156,11 @@
         newFile: {
           name: "",
           url: "",
-        }
+        },
+        edittingFile: {
+          file: null,
+          newDeadline: "",
+        },
       }
     },
     computed:{
@@ -169,14 +212,37 @@
       },
       openFile: function(file) {
         location.href = file.Source.filepath
-      }
+      },
+      editAssignment: function(file) {
+        this.edittingFile.file = file
+        if (file.Source.Assignment) {
+          this.edittingFile.newDeadline = file.Source.Assignment.deadline
+        }
+        this.$modal.show('edit-file-modal')
+      },
+      saveEdit: function() {
+        let req = { deadline: this.edittingFile.newDeadline }
+        axios.post(`/api/files/file/update/${this.edittingFile.file.id}`, req)
+          .then(() =>{
+            this.closeEdit()
+            this.loadFiles()
+          })
+      },
+      closeEdit: function() {
+        this.$modal.hide('edit-file-modal')
+        this.edittingFile = {
+          file: null,
+          newDeadline: "",
+        }
+      },
     },
     mounted: function() {
       this.loadFiles()
     },
     components: {
       FontAwesomeIcon,
-      VueGoodTable
+      VueGoodTable,
+      datepicker,
     }
   }
 </script>
@@ -292,14 +358,56 @@
     font-size: 14px;
     text-align: left;
   }
-  .files .listing .item {
+  .files .listing .clickable {
     cursor: pointer;
   }
-  .files .listing .item:hover {
+  .files .listing .clickable:hover {
     color: #007bff;
   }
-  .files .listing .item span {
+  .files .listing .filename span {
     margin-left: 5px;
+  }
+
+  .edit-file-form {
+    height: 100%;
+    overflow: scroll;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+  .edit-file-form .group {
+    padding: 8px;
+    display: flex;
+  }
+  .edit-file-form .group .field {
+    margin-left: 10px;
+    flex-grow: 1;
+  }
+  .edit-file-form .form-buttons {
+    padding: 8px 8px 16px 8px;
+  }
+  .edit-file-form .form-buttons button {
+    width: 80px;
+    padding: 6px;
+    margin: 0 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .edit-file-form .form-buttons button.cancel {
+    background-color: #6c757d;
+    border: solid 1px #6c757d;
+  }
+  .edit-file-form .form-buttons button.cancel:hover {
+    background-color: #5a6268;
+  }
+  .edit-file-form .form-buttons button.save {
+    background-color: #007bff;
+    border: solid 1px #007bff;
+  }
+  .edit-file-form .form-buttons button.save:hover {
+    background-color: #0069d9;
   }
 
   .add-file {

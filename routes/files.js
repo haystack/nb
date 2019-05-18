@@ -1,5 +1,6 @@
 const express = require('express');
 const FileSystemObject = require('../models').FileSystemObject;
+const Assignment = require('../models').Assignment;
 const router = express.Router();
 const utils = require('../models/utils')(require('../models'));
 
@@ -70,6 +71,32 @@ router.post('/file/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id)
   .then((child) => {
     res.status(200).json(child);
+  });
+});
+
+/**
+ * Update fields of file
+ * @name POST/api/files/file/update/:id
+ * @param id: id of file
+ * @param deadline: assignment deadline of file
+ */
+router.post('/file/update/:id', (req, res) => {
+  FileSystemObject.findByPk(req.params.id, { include: [{
+    association: 'Source',
+    include: [{ association:'Assignment', required: false }],
+  }]})
+  .then((file) => {
+    if (file.Source.Assignment) {
+      file.Source.Assignment.update({
+        deadline: new Date(req.body.deadline)
+      });
+    } else {
+      Assignment.create({
+        deadline: new Date(req.body.deadline),
+        source_id: file.Source.id,
+      });
+    }
+    res.status(200).json(file);
   });
 });
 
