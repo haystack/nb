@@ -46,10 +46,10 @@
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
               <span>{{ props.row.filename }}</span>
             </span>
-            <span v-else-if="props.column.field === 'assignment'">
+            <span v-else-if="props.column.field === 'Source.Assignment.deadline'">
               <span>
                 {{ props.row.Source.Assignment ?
-                  props.row.Source.Assignment.deadline : "N/A" }}
+                  props.formattedRow[props.column.field] : "N/A" }}
               </span>
               <font-awesome-icon
                   v-if="userType === 'instructor'"
@@ -139,13 +139,19 @@
             // },
           },
           {
-            label: 'Assignment Due', // TODO add due date field
-            field: 'assignment',
+            label: 'Assignment Due',
+            field: 'Source.Assignment.deadline',
+            type: 'date',
+            dateInputFormat: 'YYYY-MM-DD',
+            dateOutputFormat: 'MMM Do YYYY',
             sortable: true,
           },
           {
-            label: 'Last Updated', // TODO format
+            label: 'Last Updated',
             field: 'updatedAt',
+            type: 'date',
+            dateInputFormat: 'YYYY-MM-DD',
+            dateOutputFormat: 'MMM Do YYYY',
             sortable: true,
           },
         ],
@@ -174,7 +180,6 @@
         return this.contents.filter(item => item.is_directory)
       },
       files: function() {
-        console.log(this.contents.filter(item => !item.is_directory))
         return this.contents.filter(item => !item.is_directory)
       },
       currentDir: function() {
@@ -204,6 +209,10 @@
       loadFiles: function() {
         axios.get(`/api/files/folder/${this.currentDir.id}`)
           .then(res => {
+            for (let file of res.data) {
+              let date = file.updatedAt.replace(' ', 'T')
+              file.updatedAt = new Date(date).toISOString()
+            }
             this.contents = res.data
           })
       },
