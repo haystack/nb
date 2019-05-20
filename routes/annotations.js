@@ -71,7 +71,9 @@ router.get('/annotation', (req, res)=> {
     source.getLocations({include:
       [
         {association:'HtmlLocation'},
-        {association: 'Thread', include:[
+        {association: 'Thread', 
+        required: true,
+        include:[
           {association: 'HeadAnnotation', attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
           include:[
             {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
