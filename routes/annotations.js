@@ -66,12 +66,29 @@ router.get('/allTagTypes', (req,res) => {
  */
 router.get('/annotation', (req, res)=> {
   Source.findOne({where:{filepath: req.query.url},
-    include:[{association: 'Class', include:[{association: 'Instructors', attributes: ['id']}]}]})
-  .then(source =>
+    include:[{
+      association: 'Class',
+      include: [
+        {association: 'Instructors', attributes: ['id']},
+        {association: 'GlobalSection', include: [{
+          association: 'MemberStudents', attributes: ['id']
+        }]}
+      ]
+    }]})
+  .then(source => {
+    let instructors = source.Class.Instructors.map(user => user.id);
+    let isUserInstructor = instructors.indexOf(req.session.userId) >= 0;
+    let isUserStudent = source.Class.GlobalSection.MemberStudents
+      .find(user => user.id === req.session.userId);
+    if (!isUserInstructor && !isUserStudent) {
+      res.status(200).json([]);
+      return;
+    }
+
     source.getLocations({include:
       [
         {association:'HtmlLocation'},
-        {association: 'Thread', 
+        {association: 'Thread',
         required: true,
         include:[
           {association: 'HeadAnnotation', attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
@@ -88,46 +105,57 @@ router.get('/annotation', (req, res)=> {
         ]}
       ]})
       .then(locations => {
-        let instructors = source.Class.Instructors.map(user => user.id);
-        let annotations = locations.map((location) => {
-          let annotation = {};
+        let annotations = locations
+          .filter((location) => {
+            let head = location.Thread.HeadAnnotation;
+            if (head.visibility === 'MYSELF'
+              && head.Author.id !== req.session.userId) {
+              return false;
+            }
+            if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
+              return false;
+            }
+            return true;
+          })
+          .map((location) => {
+            let annotation = {};
 
-          let range = location.HtmlLocation;
-          let head = location.Thread.HeadAnnotation;
+            let range = location.HtmlLocation;
+            let head = location.Thread.HeadAnnotation;
 
-          annotation.id = head.id;
-          annotation.range = {
-            start: range.start_node,
-            end: range.end_node,
-            startOffset: range.start_offset,
-            endOffset: range.end_offset
-          };
-          annotation.parent = null;
-          annotation.timestamp = head.dataValues.created_at;
-          annotation.author = head.Author.id;
-          annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
-          annotation.instructor = instructors.indexOf(head.Author.id) >= 0;
-          annotation.html = head.content;
-          annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
-          annotation.people = head.TaggedUsers.map(userTag => userTag.id);
-          annotation.visibility = head.visibility;
-          annotation.anonymity = head.anonymity;
-          annotation.replyRequestedByMe = head.ReplyRequesters
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-          annotation.replyRequestCount = head.ReplyRequesters.length;
-          annotation.starredByMe = head.Starrers
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-          annotation.starCount = head.Starrers.length;
-          annotation.seenByMe = location.Thread.SeenUsers
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-          annotation.bookmarked = head.Bookmarkers
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-          return annotation;
-        });
+            annotation.id = head.id;
+            annotation.range = {
+              start: range.start_node,
+              end: range.end_node,
+              startOffset: range.start_offset,
+              endOffset: range.end_offset
+            };
+            annotation.parent = null;
+            annotation.timestamp = head.dataValues.created_at;
+            annotation.author = head.Author.id;
+            annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
+            annotation.instructor = instructors.indexOf(head.Author.id) >= 0;
+            annotation.html = head.content;
+            annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
+            annotation.people = head.TaggedUsers.map(userTag => userTag.id);
+            annotation.visibility = head.visibility;
+            annotation.anonymity = head.anonymity;
+            annotation.replyRequestedByMe = head.ReplyRequesters
+              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            annotation.replyRequestCount = head.ReplyRequesters.length;
+            annotation.starredByMe = head.Starrers
+              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            annotation.starCount = head.Starrers.length;
+            annotation.seenByMe = location.Thread.SeenUsers
+              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            annotation.bookmarked = head.Bookmarkers
+              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            return annotation;
+          });
         res.status(200).json(annotations);
 
       })
-  );
+  });
 });
 
 
@@ -233,32 +261,44 @@ router.get('/reply/:id', (req, res)=> {
       ]
     })
     .then(annotations => {
-      return annotations.map(annotation => {
-        let reply = {};
-        reply.id = annotation.id;
-        reply.range = null;
-        reply.parent = req.params.id;
-        reply.timestamp = annotation.dataValues.created_at;
-        reply.author = annotation.Author.id;
-        reply.authorName = annotation.Author.first_name + " " + annotation.Author.last_name;
-        reply.instructor = instructors.indexOf(annotation.Author.id) >= 0;
-        reply.html = annotation.content;
-        reply.hashtags = annotation.Tags.map(tag => tag.tag_type_id);
-        reply.people = annotation.TaggedUsers.map(userTag => userTag.id);
-        reply.visibility = annotation.visibility;
-        reply.anonymity = annotation.anonymity;
-        reply.replyRequestedByMe = annotation.ReplyRequesters
-          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-        reply.replyRequestCount = annotation.ReplyRequesters.length;
-        reply.starredByMe = annotation.Starrers
-          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-        reply.starCount = annotation.Starrers.length;
-        reply.seenByMe = annotation.Thread.SeenUsers
-          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-        reply.bookmarked = annotation.Bookmarkers
-          .reduce((bool, user)=> bool || user.id == req.session.userId, false);
-        return reply;
-      });
+      let isUserInstructor = instructors.indexOf(req.session.userId) >= 0;
+      return annotations
+        .filter(annotation => {
+          if (annotation.visibility === 'MYSELF'
+            && annotation.Author.id !== req.session.userId) {
+            return false;
+          }
+          if (annotation.visibility === 'INSTRUCTORS' && !isUserInstructor) {
+            return false;
+          }
+          return true;
+        })
+        .map(annotation => {
+          let reply = {};
+          reply.id = annotation.id;
+          reply.range = null;
+          reply.parent = req.params.id;
+          reply.timestamp = annotation.dataValues.created_at;
+          reply.author = annotation.Author.id;
+          reply.authorName = annotation.Author.first_name + " " + annotation.Author.last_name;
+          reply.instructor = instructors.indexOf(annotation.Author.id) >= 0;
+          reply.html = annotation.content;
+          reply.hashtags = annotation.Tags.map(tag => tag.tag_type_id);
+          reply.people = annotation.TaggedUsers.map(userTag => userTag.id);
+          reply.visibility = annotation.visibility;
+          reply.anonymity = annotation.anonymity;
+          reply.replyRequestedByMe = annotation.ReplyRequesters
+            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+          reply.replyRequestCount = annotation.ReplyRequesters.length;
+          reply.starredByMe = annotation.Starrers
+            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+          reply.starCount = annotation.Starrers.length;
+          reply.seenByMe = annotation.Thread.SeenUsers
+            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+          reply.bookmarked = annotation.Bookmarkers
+            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+          return reply;
+        });
     })
     .then(annotations => res.status(200).json(annotations));
   });
