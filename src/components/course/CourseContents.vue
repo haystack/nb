@@ -142,16 +142,16 @@
             label: 'Assignment Due',
             field: 'Source.Assignment.deadline',
             type: 'date',
-            dateInputFormat: 'YYYY-MM-DD',
-            dateOutputFormat: 'MMM Do YYYY',
+            dateInputFormat: 'yyyy-MM-dd',
+            dateOutputFormat: 'MMM do yyyy',
             sortable: true,
           },
           {
             label: 'Last Updated',
             field: 'updatedAt',
             type: 'date',
-            dateInputFormat: 'YYYY-MM-DD',
-            dateOutputFormat: 'MMM Do YYYY',
+            dateInputFormat: 'yyyy-MM-dd',
+            dateOutputFormat: 'MMM do yyyy',
             sortable: true,
           },
         ],
@@ -210,8 +210,13 @@
         axios.get(`/api/files/folder/${this.currentDir.id}`)
           .then(res => {
             for (let file of res.data) {
-              let date = file.updatedAt.replace(' ', 'T')
-              file.updatedAt = new Date(date).toISOString()
+	      let idx = file.updatedAt.indexOf('T')
+	      file.updatedAt = file.updatedAt.slice(0, idx)
+	      if (file.Source.Assignment.deadline) {
+		console.log(file.Source.Assignment.deadline)
+                idx = file.Source.Assignment.deadline.indexOf('T')
+                file.Source.Assignment.deadline = file.Source.Assignment.deadline.slice(0, idx)
+              }
             }
             this.contents = res.data
           })
