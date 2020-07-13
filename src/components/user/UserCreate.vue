@@ -67,6 +67,7 @@
             .then(() => eventBus.$emit('signin-success'))
           })
           .catch(err => {
+            // eslint-disable-next-line
             console.error(`Signup failed: ${err.response.data.error}`)
           })
           .then(() => this.resetForm())
