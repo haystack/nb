@@ -212,7 +212,7 @@
             for (let file of res.data) {
 	      let idx = file.updatedAt.indexOf('T')
 	      file.updatedAt = file.updatedAt.slice(0, idx)
-	      if (file.Source.Assignment) {
+	      if (file.Source && file.Source.Assignment) {
                 idx = file.Source.Assignment.deadline.indexOf('T')
                 file.Source.Assignment.deadline = file.Source.Assignment.deadline.slice(0, idx)
               }
