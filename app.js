@@ -28,6 +28,7 @@ app.use(cors({
       || origin == 'http://localhost:8080'
       || origin == 'https://nb-demo.herokuapp.com'
       || origin == 'http://nb-next.csail.mit.edu'
+      || origin == 'http://jumana-nb.csail.mit.edu'
     ){
       callback(null, true);
     }
