@@ -1,0 +1,561 @@
+#nb-app {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/*
+  Temporary workaround with plugin inheritting parent's style ...
+  Would be nice to use Shadow DOM instead once it's supported by Quill.
+  See the transition notes for details.
+*/
+#nb-app select {
+  all: unset;
+  text-transform: initial;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+  border: solid 1px #aaa;
+  background: #f5f5f5;
+}
+#nb-app label,
+#nb-app label:after {
+  all: unset;
+}
+#nb-app button {
+  line-height: initial;
+}
+#nb-app button:hover,
+#nb-app button:focus {
+  box-shadow: none;
+  outline: none;
+}
+/* ... temporary workaround with plugin inheritting parent's style */
+
+#nb-app .login-form {
+  padding: 20px;
+}
+#nb-app .login-form .title {
+  font-size: 20px;
+  padding-bottom: 10px;
+  border-bottom: solid 2px #aaa;
+  color: #666;
+}
+#nb-app .login-form .group,
+#nb-app .login-form .buttons {
+  margin: 20px 0;
+}
+#nb-app .login-form .group {
+  display: flex;
+  align-items: center;
+  align-content: stretch;
+}
+#nb-app .login-form .group label {
+  padding-right: 10px;
+}
+#nb-app .login-form .group input {
+  flex: 1;
+  font-size: 16px;
+  border-radius: 4px;
+  border: solid 1px #ddd;
+  padding: 6px;
+}
+#nb-app .login-form .message {
+  color: #cf000f;
+  font-size: 13px;
+}
+#nb-app .login-form .buttons {
+  text-align: right;
+}
+#nb-app .login-form .buttons button.submit {
+  width: 80px;
+  padding: 6px;
+  border-radius: 5px;
+  background-color: #007bff;
+  border: solid 1px #007bff;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+#nb-app .login-form button.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+#nb-app .login-form button.submit:enabled:hover {
+  background-color: #0069d9;
+}
+
+#nb-app .nb-highlights {
+  position: absolute;
+  top: 0;
+  right: 395px; /* assuming sidebar is 350px wide + 2 * 10px padding + 5px margin */
+  width: calc(100vw - 395px);
+  height: 100%;
+  pointer-events: none;
+}
+#nb-app .nb-highlights .nb-highlight {
+  fill: rgb(255, 204, 1);
+  opacity: 0.2;
+}
+
+#nb-app .nb-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 370px;
+  height: 100vh;
+  overflow-y: scroll;
+  padding: 0 10px;
+  border-left: solid 3px #eee;
+  position: fixed;
+  top: 0;
+  right: 0;
+  line-height: normal;
+  font-size: 16px;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  background: #fff;
+  z-index: 9999;
+}
+
+#nb-app .nb-sidebar .nb-nav-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 15px;
+  padding: 5px 10px;
+  display: flex;
+  justify-content: space-between;
+  background: #eee;
+  font-size: 13px;
+}
+#nb-app .nb-sidebar .nb-nav-bar .overflow-menu {
+  display: inline-block;
+  cursor: pointer;
+}
+
+#nb-app-wrapper .nav-overflow-wrapper .tooltip-arrow {
+  display: none;
+}
+#nb-app-wrapper .nav-overflow-wrapper .overflow-options {
+  border-radius: 4px;
+  border: solid 1px #aaa;
+}
+#nb-app-wrapper .nav-overflow-wrapper .overflow-option {
+  background-color: #fff;
+  color: #666;
+}
+#nb-app-wrapper .nav-overflow-wrapper .overflow-option:not(:first-child) {
+  border-top: solid 1px #aaa;
+}
+#nb-app-wrapper .nav-overflow-wrapper .overflow-option:hover {
+  color: #000;
+}
+
+#nb-app .nb-sidebar .filter-view {
+  margin: 32px 0 5px 0;
+}
+#nb-app .nb-sidebar .filter-view .filter-header {
+  display: flex;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search {
+  display: flex;
+  flex-grow: 1;
+  margin-right: 3px;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search .dropdown {
+  position: relative;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search .dropdown select {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  font-size: 13px;
+  padding: 0 15px 0 5px;
+  background: #eee;
+  border: solid 1px #aaa;
+  -webkit-appearance: none;
+  border-radius: 5px 0 0 5px;
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search .dropdown select:hover {
+  background: #ddd;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search .dropdown .fa-caret-down {
+  display: flex;
+  height: 28px;
+  position: absolute;
+  right: 5px;
+  top: 0;
+  font-size: 11px;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search .text {
+  flex-grow: 1;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search .text .ql-container {
+  border-color: #aaa !important;
+  border-radius: 0 5px 5px 0;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .search .text .ql-blank,
+#nb-app .nb-sidebar .filter-view .filter-header .search .text .ql-editor {
+  padding: 5px 7px;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .overflow-menu {
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .filter-view .filter-header button.toggle-filters {
+  font-size: 13px;
+  padding: 8px 10px;
+  margin: 0 5px;
+  border-radius: 5px;
+  border: solid 1px #aaa;
+  background-color: #fff;
+  color: #666;
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .filter-view .filter-header button.toggle-filters:hover {
+  color: #000;
+}
+#nb-app .nb-sidebar .filter-view .filter-header button.toggle-filters:focus {
+  outline: none;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .icon {
+  height: 32px;
+  margin-left: 5px;
+  color: #888;
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .filter-view .filter-header .icon.active {
+  color: #70a0f0;
+}
+
+#nb-app-wrapper .filter-options-wrapper .tooltip-arrow {
+  display: none;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options {
+  width: 240px;
+  padding: 10px;
+  background: #fff;
+  border: solid 1px #aaa;
+  border-radius: 4px;
+  color: #000;
+  font-size: 13px;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .title {
+  color: #444;
+  padding-bottom: 5px;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .title:not(:first-child) {
+  border-top: solid 1px #aaa;
+  padding-top: 5px;
+  margin-top: 8px;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .hashtags > div,
+#nb-app-wrapper .filter-options-wrapper .filter-options .comments-replies > div,
+#nb-app-wrapper .filter-options-wrapper .filter-options .reply-requests > div,
+#nb-app-wrapper .filter-options-wrapper .filter-options .upvotes > div,
+#nb-app-wrapper .filter-options-wrapper .filter-options .others > div {
+  width: 49%;
+  display: inline-block;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div {
+  display: flex;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div label {
+  flex-grow: 1;
+}
+#nb-app-wrapper .filter-options-wrapper .filter-options .advanced > div input {
+  width: 30px;
+}
+
+#nb-app .nb-sidebar .list-view {
+  margin-bottom: 10px;
+}
+#nb-app .nb-sidebar .list-view .list-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  color: #444;
+}
+#nb-app .nb-sidebar .list-view .list-header .count {
+  margin-right: 5px;
+  font-size: 13px;
+}
+#nb-app .nb-sidebar .list-view .list-header .toggle-highlights {
+  color: #444;
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .list-view .list-header .toggle-highlights .icon {
+  vertical-align: bottom;
+}
+#nb-app .nb-sidebar .list-view .list-header .sort {
+  font-size: 13px;
+  margin-left: auto;
+}
+#nb-app .nb-sidebar .list-view .list-table {
+  position: relative;
+  height: 160px;
+  border: solid 1px #ddd;
+  overflow-y: scroll;
+}
+#nb-app .nb-sidebar .list-view .list-row {
+  display: flex;
+  padding: 4px;
+  color: #226;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#nb-app .nb-sidebar .list-view .list-row:nth-child(even) {
+  background-color: #f0f0f0;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags {
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-right: 5px;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.counter {
+  background-color: #eee;
+  color: #aaa;
+  font-size: 11px;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.instr {
+  background-color: #f4ad3e;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .icon-wrapper.question {
+  width: 13px;
+  color: #aaa;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .placeholder.instr {
+  width: 16px;
+  height: 16px;
+}
+#nb-app .nb-sidebar .list-view .list-row .flags .placeholder.question {
+  width: 13px;
+  height: 16px;
+}
+
+#nb-app .nb-sidebar .thread-view {
+  min-height: 100px;
+  margin-bottom: 10px;
+  overflow-y: scroll;
+}
+#nb-app .nb-sidebar .thread-view .thread-header {
+  padding: 0 0 10px 0;
+  color: #444;
+  border-bottom: 1px solid #666;
+}
+#nb-app .nb-sidebar .thread-view .thread-header .icon {
+  color: #444;
+}
+
+#nb-app .nb-sidebar .thread-view .thread-row {
+  padding: 8px 6px;
+}
+#nb-app .nb-sidebar .thread-view .thread-row:hover {
+  background-color: #f0f0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-block {
+  border-left: 1px solid #ddd;
+  margin-left: 20px;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header {
+  position: relative;
+  margin-bottom: 5px;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .author {
+  font-size: 15px;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .author .instr-icon {
+  display: inline-block;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background-color: #f4ad3e;
+  color: #fff;
+  font-size: 11px;
+  vertical-align: bottom;
+  font-family: 'Verdana', 'Geneva', sans-serif;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .timestamp {
+  font-size: 13px;
+  color: #444;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark {
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .icon {
+  height: 16px;
+  vertical-align: middle;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .fas {
+  color: #70a0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark .far {
+  color: #444;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .options .bookmark:hover {
+  color: #70a0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .overflow-menu {
+  margin: 0 3px 0 6px;
+  vertical-align: middle;
+  display: inline-block;
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .header .overflow-icon {
+  color: #444;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .body > p {
+  margin: 0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .footer {
+  text-align: right;
+  font-size: 14px;
+  color: #444;
+  margin-top: 8px;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .footer > span {
+  cursor: pointer;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .footer > span:hover {
+  color: #70a0f0;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .footer > span:focus {
+  outline: none;
+}
+#nb-app .nb-sidebar .thread-view .thread-row .footer > span .icon {
+  height: 14px;
+  vertical-align: top;
+}
+
+#nb-app-wrapper .thread-overflow-wrapper .tooltip-arrow {
+  display: none;
+}
+#nb-app-wrapper .thread-overflow-wrapper .overflow-options {
+  border-radius: 4px;
+  border: solid 1px #aaa;
+}
+#nb-app-wrapper .thread-overflow-wrapper .overflow-option {
+  background-color: #fff;
+  color: #666;
+}
+#nb-app-wrapper .thread-overflow-wrapper .overflow-option:not(:first-child) {
+  border-top: solid 1px #aaa;
+}
+#nb-app-wrapper .thread-overflow-wrapper .overflow-option:hover {
+  color: #000;
+}
+
+#nb-app .editor-view {
+  margin-top: auto;
+}
+#nb-app .editor-view .header {
+  font-size: 14px;
+  color: #444;
+  padding-bottom: 5px;
+}
+#nb-app .editor-view .footer {
+  color: #444;
+}
+#nb-app .editor-view .footer .selections {
+  padding-top: 5px;
+  font-size: 12px;
+}
+#nb-app .editor-view .footer .checkbox-buttons {
+  display: flex;
+  padding: 5px 0;
+  font-size: 12px;
+}
+#nb-app .editor-view .footer .checkbox-buttons .buttons {
+  margin-left: auto;
+}
+#nb-app .editor-view .footer .checkbox-buttons button {
+  width: 80px;
+  padding: 6px;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #fff;
+  cursor: pointer;
+}
+#nb-app .editor-view .footer .checkbox-buttons button.cancel {
+  background-color: #666;
+  border-color: #666;
+}
+#nb-app .editor-view .footer .checkbox-buttons button.cancel:hover {
+  background-color: #444;
+}
+#nb-app .editor-view .footer .checkbox-buttons button.submit {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+#nb-app .editor-view .footer .checkbox-buttons button.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+#nb-app .editor-view .footer .checkbox-buttons button.submit:enabled:hover {
+  background-color: #0069d9;
+}
+
+#nb-app .ql-toolbar {
+  background: #eee;
+}
+#nb-app .ql-toolbar button {
+  height: 20px;
+  width: 22px;
+}
+#nb-app .ql-toolbar .ql-picker {
+  height: 22px;
+}
+#nb-app .ql-picker-label::before {
+  line-height: 20px;
+  font-size: 13px;
+}
+#nb-app .ql-toolbar .ql-icon-picker {
+  width: 26px;
+}
+#nb-app .ql-hashtag:after {
+  content: "#";
+  font-size: 13px;
+  color: #444;
+}
+#nb-app .ql-people:after {
+  content: "@";
+  font-size: 13px;
+  color: #444;
+}
+#nb-app .ql-hashtag:hover:after, #nb-app .ql-people:hover:after {
+  color: #06c;
+}
+#nb-app .editor-view .ql-editor {
+  min-height: 80px;
+}
+
+#nb-app .ql-tooltip {
+  z-index: 1;
+}
+#nb-app .ql-mention-list-container {
+  max-height: 154px;
+  overflow-y: scroll;
+}
+#nb-app .ql-mention-list-item > span {
+  font-size: 24px;
+  margin: 0 5px 0 -5px;
+  vertical-align: middle;
+}
