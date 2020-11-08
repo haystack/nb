@@ -29,12 +29,16 @@
     <div v-if="showGradesTab" class="grades-tab">
       <Grader/>
     </div>
+    <div v-if="showCourseSettingsTab" class="course-settings-tab">
+      <CourseSettings :course="course" />
+    </div>
   </div>
 
 </template>
 
 <script>
 import CourseUsers from "./CourseUsers.vue"
+import CourseSettings from "./CourseSettings.vue"
 import CourseContents from "./CourseContents.vue"
 import Grader from "../grader/Grader.vue"
 import axios from 'axios'
@@ -61,6 +65,7 @@ export default {
           { label: "Contents", type: 'contents' },
           { label: "Users", type: 'users' },
           { label: "Grades", type: 'grades'},
+          { label: "Settings", type: 'courseSettings'}
         ]
       } else {
         return [
@@ -69,17 +74,25 @@ export default {
       }
     },
     showContentsTab: function() {
+      console.log(this.currentTab)
       return this.currentTab === 'contents'
     },
     showUsersTab: function() {
+      console.log(this.currentTab)
       return this.userType === 'instructor' && this.currentTab === 'users'
     },
     showGradesTab: function() {
+      console.log(this.currentTab)
       return this.userType === 'instructor' && this.currentTab === 'grades'
-    }
+    },
+    showCourseSettingsTab: function() {
+       console.log(this.currentTab)
+      return this.userType === 'instructor' && this.currentTab === 'courseSettings'
+    },
   },
   watch: {
     course: function(){
+      console.log("WATCH")
       this.currentTab = 'contents'
       this.loadFiles()
       this.loadStudents()
@@ -103,6 +116,8 @@ export default {
       }
     },
     openTab: function(type) {
+      console.log("OPEN TAB")
+      console.log(type)
       this.currentTab = type
     },
     icon: (file) => {
@@ -166,7 +181,8 @@ export default {
   components: {
     CourseContents,
     CourseUsers,
-    Grader
+    Grader,
+    CourseSettings
   },
 }
 </script>

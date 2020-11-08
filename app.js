@@ -19,12 +19,14 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '/dist')));
+
 app.use(cors({
   origin: function(origin, callback){
     if (
       !origin
       || origin == 'https://127.0.0.1:8080'
       || origin == 'https://jumana-nb.csail.mit.edu'
+      || origin == 'https://localhost:8080'
     ){
       callback(null, true);
     }

@@ -7,6 +7,24 @@ module.exports = function(models){
   const Source = models.Source;
 
   return {
+    editClass: function(id, newData) {
+      Class.findByPk(id).then((course)=>{
+        if(newData) {
+          course.update({
+            class_name: newData.class_name,
+            /*description: newData.description,
+            term: newData.term,
+            contact_email: newData.contact_email,
+            institution: newData.institution*/
+          })
+          .then(() => {
+            console.log("Updated title to " + newData.class_name);
+          })
+        };
+        
+        //if(newData.description)
+      })
+    },
     createClass: function (name, userId){
       return Class.create({
         class_name: name
@@ -19,6 +37,7 @@ module.exports = function(models){
           Promise.all([
             nb_class.setCreator(user),
             nb_class.setInstructors(user),
+            nb_class.update({contact_email: user.email})
           ])
         )
         .then(() => FileSystemObject.create({filename: name, is_directory: true})
