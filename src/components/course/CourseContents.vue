@@ -71,6 +71,14 @@
       <div v-if="edittingFile.file" class="edit-file-form">
         <h3>{{ edittingFile.file.filename }}</h3>
         <div class="group">
+        <label for="edit-filename"> Name: </label>
+        <input id="edit-filename" type="text" v-model="edittingFile.filename">
+        </div>
+        <div class="group">
+        <label for="edit-filepath"> URL: </label>
+        <input id="edit-filepath" type="text" v-model="edittingFile.filepath">
+        </div>
+        <div class="group">
           <div class="label"> Assignment Due: </div>
           <div class="field">
             <datepicker
@@ -142,16 +150,16 @@
             label: 'Assignment Due',
             field: 'Source.Assignment.deadline',
             type: 'date',
-            dateInputFormat: 'yyyy-MM-dd',
-            dateOutputFormat: 'MMM do yyyy',
+            dateInputFormat: 'YYYY-MM-DD',
+            dateOutputFormat: 'MMM Do YYYY',
             sortable: true,
           },
           {
             label: 'Last Updated',
             field: 'updatedAt',
             type: 'date',
-            dateInputFormat: 'yyyy-MM-dd',
-            dateOutputFormat: 'MMM do yyyy',
+            dateInputFormat: 'YYYY-MM-DDD',
+            dateOutputFormat: 'MMM do YYYY',
             sortable: true,
           },
         ],
@@ -166,6 +174,8 @@
         edittingFile: {
           file: null,
           newDeadline: "",
+          newFilename: "",
+          newFilepath: ""
         },
       }
     },
@@ -231,10 +241,12 @@
         if (file.Source.Assignment) {
           this.edittingFile.newDeadline = file.Source.Assignment.deadline
         }
+        this.edittingFile.filename = file.filename
+        this.edittingFile.filepath = file.Source.filepath
         this.$modal.show('edit-file-modal')
       },
       saveEdit: function() {
-        let req = { deadline: this.edittingFile.newDeadline }
+        let req = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.filename, filepath: this.edittingFile.filepath }
         axios.post(`/api/files/file/update/${this.edittingFile.file.id}`, req)
           .then(() =>{
             this.closeEdit()
@@ -246,6 +258,8 @@
         this.edittingFile = {
           file: null,
           newDeadline: "",
+          newFilename: "",
+          newFilepath: ""
         }
       },
     },
@@ -388,6 +402,7 @@
     align-items: center;
     flex-direction: column;
   }
+  
   .edit-file-form .group {
     padding: 8px;
     display: flex;
@@ -421,6 +436,21 @@
   }
   .edit-file-form .form-buttons button.save:hover {
     background-color: #0069d9;
+  }
+
+  .edit-file-form .group label {
+    margin-right: 5px;
+  }
+  .edit-file-form .group input {
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: solid 1px #aaa;
+    font-size: 16px;
+    flex-grow: 1;
+  }
+  .edit-file-form .message {
+    color: #cf000f;
+    font-size: 14px;
   }
 
   .add-file {

@@ -74,6 +74,8 @@ router.post('/file/:id', (req, res) => {
   });
 });
 
+
+
 /**
  * Update fields of file
  * @name POST/api/files/file/update/:id
@@ -86,17 +88,46 @@ router.post('/file/update/:id', (req, res) => {
     include: [{ association:'Assignment', required: false }],
   }]})
   .then((file) => {
-    if (file.Source.Assignment) {
-      file.Source.Assignment.update({
-        deadline: new Date(req.body.deadline)
-      });
-    } else {
-      Assignment.create({
-        deadline: new Date(req.body.deadline),
-        source_id: file.Source.id,
-      });
+    console.log("DEADLINE:")
+    console.log(req.body.deadline)
+    
+    let updateDeadline = ()=>{
+      if (file.Source.Assignment) {
+          file.Source.Assignment.update({
+            deadline: new Date(req.body.deadline)
+          }).then(()=>{
+            res.status(200).json(file);
+          });
+        } else {
+          Assignment.create({
+            deadline: new Date(req.body.deadline),
+            source_id: file.Source.id,
+          }).then(()=>{
+            res.status(200).json(file);
+          });
+        }
+        
     }
-    res.status(200).json(file);
+    
+    
+    file.update({
+      filename: req.body.filename
+    }).then(()=>{
+      if(file.Source) {
+        file.Source.update({
+          filepath: req.body.filepath, 
+          filename: req.body.filename, 
+        }).then(()=> {
+          if(req.body.deadline) updateDeadline()
+        })
+      }
+      else {
+        if(req.body.deadline) updateDeadline()
+        else res.status(200).json(file);
+      }
+    })
+    
+    
   });
 });
 
