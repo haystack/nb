@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "cross-env STAGE=production node ./bin/www",
+    "dev": "cross-env STAGE=dev node ./bin/www",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -21,6 +22,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "debug": "^4.0.1",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
