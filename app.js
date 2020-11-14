@@ -25,9 +25,8 @@ app.use(cors({
   origin: function(origin, callback){
     if (
       !origin
-      || origin == 'http://localhost:8080'
-      || origin == 'https://nb-demo.herokuapp.com'
-      || origin == 'http://nb-next.csail.mit.edu'
+      || origin == 'https://127.0.0.1:8080'
+      || origin == 'https://jumana-nb.csail.mit.edu'
     ){
       callback(null, true);
     }
