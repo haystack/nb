@@ -10,10 +10,12 @@ const https = require('https');
 const fs = require('fs');
 let key;
 let cert;
+let ca;
 
 if (process.env.STAGE === 'production') {
     key = fs.readFileSync(process.env.SSL_KEY || './key.pem');
     cert = fs.readFileSync(process.env.SSL_CERT || './cert.pem');
+    ca = fs.readFileSync(process.env.SSL_CA || './ca.pem');
 } else if (process.env.STAGE === 'dev') {
     key = fs.readFileSync('./dev_ssl_cert/key.pem');
     cert = fs.readFileSync('./dev_ssl_cert/cert.pem');
@@ -50,7 +52,7 @@ app.set('port', port);
 /**
  * Create HTTPs server.
  */
-const server = https.createServer({ key: key, cert: cert }, app);
+const server = https.createServer({ key: key, cert: cert, ca: ca }, app);
 
 /**
  * Event listener for HTTP server "error" event.
