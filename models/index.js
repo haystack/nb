@@ -13,7 +13,7 @@ if (!global.hasOwnProperty('db')) {
       protocol: 'postgres',
       port:     match[4],
       host:     match[3],
-      logging:  true, //false
+      logging:  false,
       define: {
         underscored: true
       }
@@ -23,6 +23,7 @@ if (!global.hasOwnProperty('db')) {
     sequelize = new Sequelize(config.db.name, config.db.user, config.db.pass, {
       host: 'localhost',
       dialect: 'postgres',
+      logging: false,
       port: 5432,
       pool: {
         max: 5,

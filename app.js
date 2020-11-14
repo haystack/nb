@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
 const cors = require('cors');
@@ -19,7 +18,6 @@ app.use(logger('dev'));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/dist')));
 app.use(cors({
   origin: function(origin, callback){
@@ -46,11 +44,19 @@ app.use(cors({
 
 //Need to make dynamic function that reads from url sources and checks origin.
 
-app.use(session({ secret: 'super-secret-password',
+app.use(session({ 
+    secret: 'super-secret-password',
+    name: 'nb.user.id',
     cookie:{
-      secure: false,
-      httpOnly: false},
-    saveUninitialized: false, resave: true }));
+      secure: true,
+      httpOnly: false,
+      sameSite: 'none'
+    },
+    saveUninitialized: false, 
+    resave: true,
+    rolling: true
+}));
+
 app.use('/', express.static('public'));
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
