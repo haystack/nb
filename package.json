@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "cross-env STAGE=production node ./bin/www",
-    "dev": "cross-env STAGE=dev node ./bin/www",
+    "start": "cross-env NODE_ENV=production node ./bin/www",
+    "dev": "cross-env NODE_ENV=dev node ./bin/www",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.2",
     "debug": "^4.0.1",
+    "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "express-session": "^1.17.1",
     "html2plaintext": "^2.1.2",
