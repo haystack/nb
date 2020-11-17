@@ -17,6 +17,29 @@
             @select-course="onSelectCourse">
         </course-list>
         <course-create @create-course="onCreateCourse"></course-create>
+        <button class="bookmarklet-button"
+          @click="openBookmarkletModal"
+        >
+        Add NB
+        </button>
+        <modal name="bookmarklet-modal" height="auto" width="70%" >
+        <div class="bookmarklet-modal">
+        <p>To enable the NB sidebar for a class reading, either drag (don't click) this <a href = "javascript:(function(){let s = document.createElement('script'); s.src= 'http://nb-next.csail.mit.edu/js/bundle.js'; document.body.append(s);})()">NB Bookmarklet</a> link to your bookmarks bar, or make a new bookmark with the code below as the URL.</p>
+    <p>When on the class reading page, just click on the bookmark and the sidebar should appear.</p>
+    <pre>
+      <code>
+        javascript:(function(){
+          let s = document.createElement('script');
+          s.src= 'http://nb-next.csail.mit.edu/js/bundle.js';
+          document.body.append(s);
+        })()
+      </code>
+    </pre>
+        <div class="group form-buttons">
+          <button class="cancel" @click="closeBookmarkletModal"> OK </button>
+        </div>
+        </div>
+        </modal>
       </div>
       <div class="dashboard-wrapper">
         <course-dashboard
@@ -25,11 +48,15 @@
             :userType="userType">
         </course-dashboard>
       </div>
+      
     </div>
   </div>
 </template>
 
 <script>
+  import Vue from 'vue'
+  import VModal from 'vue-js-modal'
+  Vue.use(VModal)
   import axios from "axios"
   import NavBar from '../components/NavBar.vue'
   import CourseCreate from '../components/sidebar/CourseCreate.vue'
@@ -92,6 +119,13 @@
       redirect: function(page) {
         this.$router.push({ name: page, params: { class: null } })
       },
+      openBookmarkletModal: function() {
+      
+        this.$modal.show('bookmarklet-modal')
+      },
+      closeBookmarkletModal: function() {
+        this.$modal.hide('bookmarklet-modal')
+      },
     },
     created: function() {
       axios.get("/api/users/current")
@@ -137,5 +171,52 @@
     align-items: flex-start;
     border: solid 3px #875f9a;
     flex-grow: 1;
+  }
+
+  .sidebar button {
+    width: 100%;
+    align-self: flex-end;
+    padding: 6px 0;
+    border-radius: 5px;
+    border: solid 1px #007bff;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .sidebar button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .sidebar button:enabled:hover {
+    background-color: #0069d9;
+  }
+
+  modal {
+  
+    height: 100%;
+    overflow: scroll;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    
+  }
+
+  modal p {
+  margin-left: 50px;
+  margin-right: 50px;
+  }
+
+  pre code {
+  background-color: #eee;
+  border: 1px solid #999;
+  display: block;
+  padding: 20px;
+  margin: 0 15%;
+  text-align: left;
+  }
+
+  .bookmarklet-modal {
+  padding: 20px;
   }
 </style>
