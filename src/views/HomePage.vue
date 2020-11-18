@@ -20,7 +20,7 @@
         <button class="bookmarklet-button"
           @click="openBookmarkletModal"
         >
-        Add NB
+        NB Embed Code
         </button>
         <modal name="bookmarklet-modal" height="auto" width="70%" >
         <div class="bookmarklet-modal">
@@ -35,9 +35,6 @@
         })()
       </code>
     </pre>
-        <div class="group form-buttons">
-          <button class="cancel" @click="closeBookmarkletModal"> OK </button>
-        </div>
         </div>
         </modal>
       </div>
@@ -174,7 +171,7 @@
   }
 
   .sidebar button {
-    width: 100%;
+    width: calc(100% - 20px);
     align-self: flex-end;
     padding: 6px 0;
     border-radius: 5px;
