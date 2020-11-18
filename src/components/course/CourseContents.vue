@@ -72,11 +72,11 @@
         <h3>{{ edittingFile.file.filename }}</h3>
         <div class="group">
         <label for="edit-filename"> Name: </label>
-        <input id="edit-filename" type="text" v-model="edittingFile.filename">
+        <input id="edit-filename" type="text" v-model="edittingFile.newFilename">
         </div>
         <div class="group">
         <label for="edit-filepath"> URL: </label>
-        <input id="edit-filepath" type="text" v-model="edittingFile.filepath">
+        <input id="edit-filepath" type="text" v-model="edittingFile.newFilepath">
         </div>
         <div class="group">
           <div class="label"> Assignment Due: </div>
@@ -90,7 +90,7 @@
         </div>
         <div class="group form-buttons">
           <button class="cancel" @click="closeEdit"> Cancel </button>
-          <button class="save" @click="saveEdit"> Save </button>
+          <button class="save" @click="saveEdit" :disabled="!editEnabled"> Save </button>
         </div>
       </div>
     </modal>
@@ -173,7 +173,6 @@
         },
         edittingFile: {
           file: null,
-          newDeadline: "",
           newFilename: "",
           newFilepath: ""
         },
@@ -185,6 +184,17 @@
       },
       newFileEnabled: function() {
         return this.newFile.name.length > 0 && this.newFile.url.length > 0
+      },
+      editEnabled: function() {
+        let ans = this.edittingFile.newFilename.length > 0 && this.edittingFile.newFilepath.length > 0
+        try {
+          let url = new URL(this.edittingFile.newFilepath)
+         
+        }
+        catch (_) {
+          ans = false
+        }
+        return ans
       },
       directories: function() {
         return this.contents.filter(item => item.is_directory)
@@ -220,6 +230,7 @@
         axios.get(`/api/files/folder/${this.currentDir.id}`)
           .then(res => {
             for (let file of res.data) {
+           
 	      let idx = file.updatedAt.indexOf('T')
 	      file.updatedAt = file.updatedAt.slice(0, idx)
 	      if (file.Source && file.Source.Assignment) {
@@ -241,12 +252,12 @@
         if (file.Source.Assignment) {
           this.edittingFile.newDeadline = file.Source.Assignment.deadline
         }
-        this.edittingFile.filename = file.filename
-        this.edittingFile.filepath = file.Source.filepath
+        this.edittingFile.newFilename = file.filename
+        this.edittingFile.newFilepath = file.Source.filepath
         this.$modal.show('edit-file-modal')
       },
       saveEdit: function() {
-        let req = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.filename, filepath: this.edittingFile.filepath }
+        let req = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
         axios.post(`/api/files/file/update/${this.edittingFile.file.id}`, req)
           .then(() =>{
             this.closeEdit()
@@ -257,7 +268,6 @@
         this.$modal.hide('edit-file-modal')
         this.edittingFile = {
           file: null,
-          newDeadline: "",
           newFilename: "",
           newFilepath: ""
         }
@@ -438,6 +448,11 @@
     background-color: #0069d9;
   }
 
+  .edit-file-form .form-buttons button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
   .edit-file-form .group label {
     margin-right: 5px;
   }
@@ -487,4 +502,6 @@
   .add-file button:enabled:hover {
     background-color: #0069d9;
   }
+
+  
 </style>

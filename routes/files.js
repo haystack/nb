@@ -114,14 +114,18 @@ router.post('/file/update/:id', (req, res) => {
       filename: req.body.filename
     }).then(()=>{
       if(file.Source) {
+   
         file.Source.update({
           filepath: req.body.filepath, 
           filename: req.body.filename, 
         }).then(()=> {
+   
           if(req.body.deadline) updateDeadline()
+          else res.status(200).json(file);
         })
       }
       else {
+     
         if(req.body.deadline) updateDeadline()
         else res.status(200).json(file);
       }
