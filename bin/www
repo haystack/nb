@@ -3,9 +3,17 @@
 /**
  * Module dependencies.
  */
+const donenv = require('dotenv');
 const app = require('../app');
 const debug = require('debug')('fritter-starter:server');
-const http = require('http');
+const https = require('https');
+const fs = require('fs');
+
+donenv.config();
+
+const key  = fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_KEY  || './privkey.pem' : './dev_ssl_cert/key.pem');
+const cert = fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_CERT || './cert.pem'    : './dev_ssl_cert/cert.pem');
+const ca   = fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_CA   || './chain.pem'   : './dev_ssl_cert/cert.pem'); // Since we don't have CA for dev, we are reading the cert as pleaeholder.
 
 /**
  * Normalize a port into a number, string, or false.
@@ -33,9 +41,9 @@ const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
- * Create HTTP server.
+ * Create HTTPs server.
  */
-const server = http.createServer(app);
+const server = https.createServer({ key: key, cert: cert, ca: ca }, app);
 
 /**
  * Event listener for HTTP server "error" event.
@@ -74,6 +82,7 @@ function onListening() {
     ? `pipe ${addr}`
     : `port ${addr.port}`;
   debug(`Listening on ${bind}`);
+  console.log(`Listening on ${bind}`);
 }
 
 

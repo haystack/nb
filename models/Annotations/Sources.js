@@ -7,7 +7,7 @@ const source = (sequelize, DataTypes) => {
     },
     filepath:{
       type: DataTypes.STRING, //url if html
-      unique: true,
+      unique: 'sources_filepath_classid_key',
       allowNull: true
     },
     filename:{
@@ -27,7 +27,7 @@ const source = (sequelize, DataTypes) => {
     classMethods:{
       associate: (models) =>{
         Source.hasMany(models.Location, {as: 'Locations', foreignKey: {name: 'source_id', allowNull: false}, onDelete: 'CASCADE'});
-        Source.belongsTo(models.Class, {as: 'Class', foreignKey: {name: 'class_id', allowNull: false}, onDelete: 'CASCADE'});
+        Source.belongsTo(models.Class, {as: 'Class', foreignKey: {name: 'class_id', unique: 'sources_filepath_classid_key', allowNull: false}, onDelete: 'CASCADE'});
         Source.hasOne(models.Assignment, {as: 'Assignment', foreignKey: {name: 'source_id', allowNull: false}, onDelete: 'CASCADE'});
       }
     },
