@@ -37,7 +37,7 @@ module.exports = function(models){
           Promise.all([
             nb_class.setCreator(user),
             nb_class.setInstructors(user),
-            nb_class.update({contact_email: user.email})
+            // nb_class.update({contact_email: user.email}) (This field does not exist yet in Class)
           ])
         )
         .then(() => FileSystemObject.create({filename: name, is_directory: true})
