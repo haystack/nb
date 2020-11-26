@@ -25,7 +25,7 @@ app.use(cors({
       !origin
       || origin == 'https://127.0.0.1:8080'
       || origin == 'https://jumana-nb.csail.mit.edu'
-      || origin == 'https://localhost:8082'
+      || origin == 'https://localhost:8080'
     ){
       callback(null, true);
     }
