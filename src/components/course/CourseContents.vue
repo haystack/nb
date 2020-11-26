@@ -150,18 +150,19 @@
             label: 'Assignment Due',
             field: 'Source.Assignment.deadline',
             type: 'date',
-            dateInputFormat: 'YYYY-MM-DD',
-            dateOutputFormat: 'MMM Do YYYY',
+            dateInputFormat: 'yyyy-MM-dd',
+            dateOutputFormat: 'MMM do yyyy',
             sortable: true,
           },
           {
             label: 'Last Updated',
             field: 'updatedAt',
             type: 'date',
-            dateInputFormat: 'YYYY-MM-DDD',
-            dateOutputFormat: 'MMM do YYYY',
+            dateInputFormat: 'yyyy-MM-dd',
+            dateOutputFormat: 'MMM do yyyy',
             sortable: true,
           },
+          
         ],
         contents: [],
         newFolder: {
