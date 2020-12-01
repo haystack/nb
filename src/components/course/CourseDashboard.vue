@@ -23,7 +23,9 @@
           :instructors="instructors"
           :students="students"
           :suggestions="allUsers"
-          @add-user="addUser">
+          :user="user"
+          @add-user="addUser"
+          @remove-users="removeUsers">
       </course-users>
     </div>
     <div v-if="showGradesTab" class="grades-tab">
@@ -43,7 +45,8 @@ export default {
   name: "course-dashboard",
   props:{
     course: Object,
-    userType: String
+    userType: String,
+    user: Object,
   },
   data() {
     return {
@@ -143,6 +146,17 @@ export default {
         axios.post(`/api/classes/instructor/${this.course.id}`, user)
           .then(() => this.loadInstructors())
       }
+    },
+    removeUsers: function(selectedRows) {
+      Array.prototype.forEach.call(selectedRows, user => {
+        if (user.role === 'student') {
+           axios.delete(`/api/classes/student/${this.course.id}/${user.id}`)
+          .then(() => this.loadStudents())
+        } else if (user.role === 'instructor') {
+          axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`)
+          .then(() => this.loadInstructors())
+        }
+      }) 
     },
     // openGrading: function(){
     //   this.$router.push("grading")
