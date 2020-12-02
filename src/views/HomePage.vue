@@ -96,8 +96,6 @@
         }
         return ''
       },
-<<<<<<< HEAD
-=======
       pathname: function() {
         return window.location.protocol + "//" + window.location.host
 
@@ -105,7 +103,6 @@
       bookmarklet: function() {
         return "javascript:(function(){let s = document.createElement('script'); s.src= '" + window.location.protocol + "//" + window.location.host + "/js/bundle.js'; document.body.append(s);})()"
       }
->>>>>>> dac99f3... bookmarklet
     },
     methods: {
       loadCourses: function() {
