@@ -30,7 +30,7 @@
       <code>
         javascript:(function(){
           let s = document.createElement('script');
-          s.src= 'http://nb-next.csail.mit.edu/js/bundle.js';
+          s.src= '{{pathname}}/js/bundle.js';
           document.body.append(s);
         })()
       </code>
