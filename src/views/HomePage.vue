@@ -24,11 +24,7 @@
         </button>
         <modal name="bookmarklet-modal" height="auto" width="70%" >
         <div class="bookmarklet-modal">
-<<<<<<< HEAD
-        <p>To enable the NB sidebar for a class reading, either drag (don't click) this <a href = "javascript:(function(){let s = document.createElement('script'); s.src= 'http://nb-next.csail.mit.edu/js/bundle.js'; document.body.append(s);})()">NB Bookmarklet</a> link to your bookmarks bar, or make a new bookmark with the code below as the URL.</p>
-=======
         <p>To enable the NB sidebar for a class reading, either drag (don't click) this <a :href = "bookmarklet">NB Bookmarklet</a> link to your bookmarks bar, or make a new bookmark with the code below as the URL.</p>
->>>>>>> dac99f3... bookmarklet
     <p>When on the class reading page, just click on the bookmark and the sidebar should appear.</p>
     <pre>
       <code>
