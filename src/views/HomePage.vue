@@ -182,8 +182,8 @@
     align-self: flex-end;
     padding: 6px 0;
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #8649af;
+    background-color: #8649af;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
@@ -193,7 +193,7 @@
     opacity: 0.5;
   }
   .sidebar button:enabled:hover {
-    background-color: #0069d9;
+    background-color: #45266C;
   }
 
   modal {
@@ -223,4 +223,6 @@
   .bookmarklet-modal {
   padding: 20px;
   }
+
+
 </style>
