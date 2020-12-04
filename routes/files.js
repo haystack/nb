@@ -88,9 +88,6 @@ router.post('/file/update/:id', (req, res) => {
     include: [{ association:'Assignment', required: false }],
   }]})
   .then((file) => {
-    console.log("DEADLINE:")
-    console.log(req.body.deadline)
-    
     let updateDeadline = ()=>{
       if (file.Source.Assignment) {
           file.Source.Assignment.update({
@@ -117,7 +114,7 @@ router.post('/file/update/:id', (req, res) => {
    
         file.Source.update({
           filepath: req.body.filepath, 
-          filename: req.body.filename, 
+          filename: req.body.filename,
         }).then(()=> {
    
           if(req.body.deadline) updateDeadline()

@@ -150,16 +150,16 @@
             label: 'Assignment Due',
             field: 'Source.Assignment.deadline',
             type: 'date',
-            dateInputFormat: 'yyyy-MM-dd',
-            dateOutputFormat: 'MMM do yyyy',
+            dateInputFormat: 'YYYY-MM-DD',
+            dateOutputFormat: 'MMM do YY',
             sortable: true,
           },
           {
             label: 'Last Updated',
             field: 'updatedAt',
             type: 'date',
-            dateInputFormat: 'yyyy-MM-dd',
-            dateOutputFormat: 'MMM do yyyy',
+            dateInputFormat: 'YYYY-MM-DD',
+            dateOutputFormat: 'MMM do YY',
             sortable: true,
           },
           
@@ -234,6 +234,7 @@
            
 	      let idx = file.updatedAt.indexOf('T')
 	      file.updatedAt = file.updatedAt.slice(0, idx)
+
 	      if (file.Source && file.Source.Assignment) {
                 idx = file.Source.Assignment.deadline.indexOf('T')
                 file.Source.Assignment.deadline = file.Source.Assignment.deadline.slice(0, idx)
@@ -250,6 +251,7 @@
       },
       editAssignment: function(file) {
         this.edittingFile.file = file
+        
         if (file.Source.Assignment) {
           this.edittingFile.newDeadline = file.Source.Assignment.deadline
         }
@@ -263,6 +265,7 @@
           .then(() =>{
             this.closeEdit()
             this.loadFiles()
+            
           })
       },
       closeEdit: function() {
