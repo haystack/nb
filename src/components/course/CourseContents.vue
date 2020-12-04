@@ -51,6 +51,9 @@
                 {{ props.row.Source.Assignment ?
                   props.formattedRow[props.column.field] : "N/A" }}
               </span>
+           
+            </span>
+            <span v-else-if="props.column.label === 'Edit'">
               <font-awesome-icon
                   v-if="userType === 'instructor'"
                   class="clickable"
@@ -167,6 +170,10 @@
             dateOutputFormat: 'MMM Do YY',
             sortable: true,
           },
+          {
+            label: 'Edit',
+            field: '()=>{}',
+          }
           
         ],
         contents: [],
