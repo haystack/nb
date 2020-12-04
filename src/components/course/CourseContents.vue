@@ -46,7 +46,7 @@
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
               <span>{{ props.row.filename }}</span>
             </span>
-            <span v-else-if="props.column.field === 'Source.Assignment.deadline'">
+            <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
                 {{ props.row.Source.Assignment ?
                   props.formattedRow[props.column.field] : "N/A" }}
@@ -81,11 +81,14 @@
         <div class="group">
           <div class="label"> Assignment Due: </div>
           <div class="field">
-            <datepicker
+            <Datetime
                 v-model="edittingFile.newDeadline"
+                type="datetime"
                 :inline="true"
+                minute-step="15"
+                use12-hour="true"
                 :bootstrap-styling="true">
-            </datepicker>
+            </Datetime>
           </div>
         </div>
         <div class="group form-buttons">
@@ -112,11 +115,13 @@
 
   import Vue from 'vue'
   import VModal from 'vue-js-modal'
+  import moment from 'moment'
   Vue.use(VModal)
 
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
-  import datepicker from 'vuejs-datepicker'
+  import { Datetime } from 'vue-datetime'
+  import 'vue-datetime/dist/vue-datetime.css'
 
   import axios from 'axios'
 
@@ -148,18 +153,18 @@
           },
           {
             label: 'Assignment Due',
-            field: 'Source.Assignment.deadline',
+            field: 'Source.Assignment.deadlineString',
             type: 'date',
-            dateInputFormat: 'YYYY-MM-DD',
-            dateOutputFormat: 'MMM do YY',
+            dateInputFormat: "MM/DD/YYYY hh:mm",
+            dateOutputFormat: 'ddd MMM Do hh:mm a',
             sortable: true,
           },
           {
             label: 'Last Updated',
-            field: 'updatedAt',
+            field: 'updatedAtString',
             type: 'date',
-            dateInputFormat: 'YYYY-MM-DD',
-            dateOutputFormat: 'MMM do YY',
+            dateInputFormat: "MM/DD/YYYY hh:mm",
+            dateOutputFormat: 'MMM Do YY',
             sortable: true,
           },
           
@@ -230,18 +235,20 @@
       loadFiles: function() {
         axios.get(`/api/files/folder/${this.currentDir.id}`)
           .then(res => {
+          
             for (let file of res.data) {
-           
-	      let idx = file.updatedAt.indexOf('T')
-	      file.updatedAt = file.updatedAt.slice(0, idx)
-
-	      if (file.Source && file.Source.Assignment) {
-                idx = file.Source.Assignment.deadline.indexOf('T')
-                file.Source.Assignment.deadline = file.Source.Assignment.deadline.slice(0, idx)
+              file.updatedAtString = moment(String(file.updatedAt)).format('MM/DD/YYYY HH:mm');
+              console.log(file.updatedAt)
+              if (file.Source && file.Source.Assignment) {
+              file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
+	      
+
+            
             this.contents = res.data
           })
+        
       },
       switchDirectory: function(directory) {
         this.$emit('switch-directory', directory)
@@ -283,7 +290,7 @@
     components: {
       FontAwesomeIcon,
       VueGoodTable,
-      datepicker,
+      Datetime,
     }
   }
 </script>
