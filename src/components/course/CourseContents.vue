@@ -170,13 +170,12 @@
             dateInputFormat: "MM/DD/YYYY hh:mm",
             dateOutputFormat: 'MMM Do YY',
             sortable: true,
-          },
-          {
+          },     
+          
+        ].concat(this.userType === 'instructor' ? [{
             label: 'Edit',
             field: '()=>{}',
-          }
-          
-        ],
+          }] : []),
         contents: [],
         newFolder: {
           name: "",
