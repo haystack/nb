@@ -371,7 +371,7 @@
     border-radius: 5px;
     text-align: left;
     overflow: hidden;
-    
+    white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
   }
@@ -468,7 +468,6 @@
   .edit-file-form .form-buttons button.delete {
     background-color: #ba000d;
     border: solid 1px ;
-    text-color: #FFFFFF;
   }
   .edit-file-form .form-buttons button.delete:hover {
     background-color: #ff7961;

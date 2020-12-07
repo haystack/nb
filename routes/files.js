@@ -109,14 +109,15 @@ router.post('/file/update/:id', (req, res) => {
           }).then(()=>{
             res.status(200).json(file);
           });
-        } else {
+      } 
+      else {
           Assignment.create({
             deadline: new Date(req.body.deadline),
             source_id: file.Source.id,
           }).then(()=>{
             res.status(200).json(file);
           });
-        }
+      }
         
     }
     
