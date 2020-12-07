@@ -74,7 +74,21 @@ router.post('/file/:id', (req, res) => {
   });
 });
 
-
+/**
+ * Delete of file
+ * @name POST/api/files/file/delete/:id
+ * @param id: id of file
+ */
+router.post('/file/delete/:id', (req, res) => {
+  FileSystemObject.findByPk(req.params.id, { include: [{
+    association: 'Source',
+    include: [{ association:'Assignment', required: false }],
+  }]}).then((file) => {
+    file.destroy().then(() => {
+      res.status(200).json({})
+    })
+  })
+})
 
 /**
  * Update fields of file

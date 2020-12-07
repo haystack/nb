@@ -95,6 +95,7 @@
           </div>
         </div>
         <div class="group form-buttons">
+        <button class="delete" @click="deleteEdit"> {{deleteText}} </button>
           <button class="cancel" @click="closeEdit"> Cancel </button>
           <button class="save" @click="saveEdit" :disabled="!editEnabled"> Save </button>
         </div>
@@ -189,6 +190,7 @@
           newFilename: "",
           newFilepath: ""
         },
+        deleteText: "Delete"
       }
     },
     computed:{
@@ -265,7 +267,7 @@
       },
       editAssignment: function(file) {
         this.edittingFile.file = file
-        
+        this.deleteText = "Delete"
         if (file.Source.Assignment) {
           this.edittingFile.newDeadline = file.Source.Assignment.deadline
         }
@@ -290,6 +292,19 @@
           newFilepath: ""
         }
       },
+      deleteEdit: function() {
+        if(this.deleteText == "Delete") {
+          this.deleteText = "Confirm Delete"
+          return
+        }
+        let req = {  }
+        axios.post(`/api/files/file/delete/${this.edittingFile.file.id}`, req)
+          .then(() =>{
+            this.closeEdit()
+            this.loadFiles()
+            this.deleteText = "Delete"
+          })
+      }
     },
     mounted: function() {
       this.loadFiles()
@@ -357,7 +372,7 @@
     border-radius: 5px;
     text-align: left;
     overflow: hidden;
-    white-space: nowrap;
+    
     text-overflow: ellipsis;
     cursor: pointer;
   }
@@ -451,9 +466,19 @@
     color: #fff;
     cursor: pointer;
   }
+  .edit-file-form .form-buttons button.delete {
+    background-color: #ba000d;
+    border: solid 1px ;
+    text-color: #FFFFFF;
+  }
+  .edit-file-form .form-buttons button.delete:hover {
+    background-color: #ff7961;
+  }
+
   .edit-file-form .form-buttons button.cancel {
     background-color: #6c757d;
     border: solid 1px #6c757d;
+    
   }
   .edit-file-form .form-buttons button.cancel:hover {
     background-color: #5a6268;
