@@ -23,7 +23,7 @@ module.exports = config;
     * Run backend using command `npm run dev`
     * run UI using command `npm run serve`
 
-5. access UI on https://localhost:8080/. Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. In Chrome type:  thisisunsafe. 
+5. Access UI on https://127.0.0.1:8080/ . Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. In Chrome type:  thisisunsafe. 
 
 
 
