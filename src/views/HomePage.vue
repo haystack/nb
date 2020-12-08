@@ -20,7 +20,7 @@
         <button class="bookmarklet-button"
           @click="openBookmarkletModal"
         >
-        NB Embed Code
+        Enable NB Sidebar
         </button>
         <modal name="bookmarklet-modal" height="auto" width="70%" >
         <div class="bookmarklet-modal">
