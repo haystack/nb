@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models').User;
+const Class = require('../models').Class;
 const Annotation = require('../models').Annotation;
 const Thread = require('../models').Thread;
 const Source = require('../models').Source;
@@ -7,6 +8,24 @@ const Location = require('../models').Location;
 const HtmlLocation = require('../models').HtmlLocation;
 const Tag = require('../models').Tag;
 const router = express.Router();
+
+
+
+/**
+ * Get my classes for a given source
+ * @name GET/api/annotations/myClasses
+ */
+router.get('/myClasses', async (req,res) => {    
+    const allSourcesByFilepath = await Source.findAll({where: {filepath: req.query.url}})
+    const user = await User.findByPk(req.session.userId)
+    const sections = await user.getMemberSections({raw: true})
+    const myClassesAsStudent = await Promise.all(sections.map((section) => Class.findByPk(section.class_id)))
+    const myClassesAsInstructor = await user.getInstructorClasses()
+    const myClasses = [...myClassesAsStudent, ...myClassesAsInstructor]
+    const myClassesBySource = myClasses.filter(myClass => allSourcesByFilepath.find(source => source.class_id == myClass.id))
+    res.status(200).send(myClassesBySource)   
+});
+
 
 /**
  * Get all users for a given source
