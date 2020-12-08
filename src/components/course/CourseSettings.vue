@@ -69,15 +69,14 @@
       }
     },
     mounted: function(){
-      console.log("hi")
         this.newCourse = this.course
     },
     methods: {
       edit: function() {
         axios.post("/api/classes/edit", {course: this.newCourse})
           .then(() => {
-            console.log("EDITED")
-           
+            location.reload();
+
           })
           .catch(err => {
             if (err.response.status === 401) {

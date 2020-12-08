@@ -8,7 +8,7 @@ module.exports = function(models){
 
   return {
     editClass: function(id, newData) {
-      Class.findByPk(id).then((course)=>{
+      return Class.findByPk(id).then((course)=>{
         if(newData) {
           course.update({
             class_name: newData.class_name,

@@ -74,25 +74,20 @@ export default {
       }
     },
     showContentsTab: function() {
-      console.log(this.currentTab)
       return this.currentTab === 'contents'
     },
     showUsersTab: function() {
-      console.log(this.currentTab)
       return this.userType === 'instructor' && this.currentTab === 'users'
     },
     showGradesTab: function() {
-      console.log(this.currentTab)
       return this.userType === 'instructor' && this.currentTab === 'grades'
     },
     showCourseSettingsTab: function() {
-       console.log(this.currentTab)
       return this.userType === 'instructor' && this.currentTab === 'courseSettings'
     },
   },
   watch: {
     course: function(){
-      console.log("WATCH")
       this.currentTab = 'contents'
       this.loadFiles()
       this.loadStudents()
@@ -116,8 +111,6 @@ export default {
       }
     },
     openTab: function(type) {
-      console.log("OPEN TAB")
-      console.log(type)
       this.currentTab = type
     },
     icon: (file) => {
