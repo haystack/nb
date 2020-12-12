@@ -11,7 +11,7 @@ router.get('/current', (req, res) => {
     res.status(200).json(null);
     return null;
   }
-  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name']}).then((user) => {
+  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name', 'email']}).then((user) => {
     res.status(200).json(user);
   });
 });
@@ -56,9 +56,58 @@ router.post('/register', (req, res) => {
     res.status(200).json({msg: "registered"});
   }).catch((err)=>{
     console.log("error:" + err);
-  });
+    res.status(400).json({msg: "Error registering"})
+  })
+});
 
-})
+router.put('/editPersonal', (req, res) => {
+  // find the current user first
+  if (!req.session.userId){
+    res.status(200).json(null);
+    return null;
+  }
+  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name']}).then((user) => {
+    if (!user) {
+      res.status(401).json({msg: "Cannot find user "})
+    } else {
+      console.log(req.body);
+      user.update({
+        first_name: req.body.first,
+        last_name: req.body.last,
+        email: req.body.email,
+        username: req.body.username,
+      }).then(() => {
+        res.status(200).json({msg: "editted person information"})
+      }).catch((err) => {
+        console.log("error: " + err);
+        res.status(400).json({msg: "Username or email already taken. Please provide another one."})
+      })
+    }
+  });
+});
+
+router.put('/editAuth', (req, res) => {
+  // find the current user first
+  console.log(req.body)
+  if (!req.session.userId){
+    res.status(200).json(null);
+    return null;
+  }
+  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name']}).then((user) => {
+    if (!user) {
+      res.status(401).json({msg: "Cannot find user "})
+    } else {
+      user.update({
+        password: req.body.newpassword
+      }).then(() => {
+        res.status(200).json({msg: "editted auth password"})
+      }).catch((err) => {
+    console.log("error:" + err);
+        res.status(400).json({msg: "Error editting password"})
+      })
+    }
+  });
+});
 
 router.post('/logout', (req, res) => {
   req.session.destroy();
