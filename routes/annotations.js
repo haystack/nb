@@ -8,7 +8,7 @@ const Location = require('../models').Location;
 const HtmlLocation = require('../models').HtmlLocation;
 const Tag = require('../models').Tag;
 const router = express.Router();
-
+const { Op } = require("sequelize");
 
 
 /**
@@ -32,7 +32,7 @@ router.get('/myClasses', async (req,res) => {
  * @name GET/api/annotations/allUsers
  */
 router.get('/allUsers', (req,res) => {
-  Source.findOne({where:{filepath: req.query.url}, include:[{association: 'Class',
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.query.class} ] }, include:[{association: 'Class',
     include: [
       {association:'GlobalSection', include:[{association: 'MemberStudents', attributes:['id', 'username', 'first_name', 'last_name']}]},
       {association: 'Instructors', attributes:['id', 'username', 'first_name', 'last_name']}]}]})
@@ -54,7 +54,7 @@ router.get('/allUsers', (req,res) => {
  * @name GET/api/annotations/allTagTypes
  */
 router.get('/allTagTypes', (req,res) => {
-  Source.findOne({where:{filepath: req.query.url}, include:[{association: 'Class',
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.query.class} ] }, include:[{association: 'Class',
     include: [{association:'TagTypes'}]}]})
     .then((source) =>
       {
@@ -70,6 +70,7 @@ router.get('/allTagTypes', (req,res) => {
  * Get all top-level annotation for a given source
  * @name GET/api/annotations/annotation
  * @param url: source url
+ * @param class: source class id
  * @return [{
  * id: id of annotation
  * content: text content of annotation,
@@ -84,7 +85,7 @@ router.get('/allTagTypes', (req,res) => {
  * }]
  */
 router.get('/annotation', (req, res)=> {
-  Source.findOne({where:{filepath: req.query.url},
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.query.class} ] },
     include:[{
       association: 'Class',
       include: [
@@ -182,6 +183,7 @@ router.get('/annotation', (req, res)=> {
  * Make new thread for a given annotation
  * @name POST/api/annotations/annotation
  * @param url: source url
+ * @param class: source class id
  * @param content: text content of annotation
  * @param range: json for location range
  * @param author: id of author
@@ -195,7 +197,7 @@ router.get('/annotation', (req, res)=> {
  */
 router.post('/annotation', (req, res)=> {
   let range = req.body.range;
-  Source.findOne({where:{filepath: req.body.url}})
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.body.url}, {class_id: req.body.class} ] } })
   .then(source => Location.create({source_id: source.id})
     .then(location => Promise.all(
       [HtmlLocation.create({
