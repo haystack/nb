@@ -40,7 +40,26 @@ sudo apt-get install -y nodejs` [Helpful resource](https://github.com/nodesource
 
 4. Follow steps 1 & 2 from Local Dev (see above).
 
-5. Configure HTTPS on the server. [Helpful resource](https://itnext.io/node-express-letsencrypt-generate-a-free-ssl-certificate-and-run-an-https-server-in-5-minutes-a730fbe528ca).
+5. Configure HTTPS on the server:
+    * Install certbot 
+    ```
+    $ sudo add-apt-repository ppa:certbot/certbot
+    $ sudo apt-get update
+    $ sudo apt-get install certbot
+    ```
+    * Generate an SSL certificate with certbot
+    `$ certbot certonly --manual`
+    * Part of the certbot configuration,  type your domain name without the protocol part. For instance: yourname-nb.csail.mit.edu.
+    * When asked "Are you ok with your IP being logged?", type Y then ENTER.
+    * Open a new connection to the server on a new terminal, don't close the previous one.
+    * In the new terminal, navigate to the nb projecat and inside the public folder create a folder and name it `.well-known`, inside .well-know create another folder and name it `acme-challenge`.
+    * In the directory acme-challenge, create an empty file and name it as instructed from the certbot in the first terminal.
+    * Paste the challenge from the certbot into the file created in the previous step.
+    * Run the nb server, and verify that you can access the challenge on the URL `http://[yourname]-nb.csail.mit.edu/.well-known/acme-challenge/[challenge file name]`
+    * If everything is okay, go back to the first terminal and type ENTER.
+    * Finally, you will find all the files that you need under this path `/etc/letsencrypt/live/[yourname]-nb.csail.mit.edu`
+
+[Helpful resource](https://itnext.io/node-express-letsencrypt-generate-a-free-ssl-certificate-and-run-an-https-server-in-5-minutes-a730fbe528ca).
 
 6. Create .env file with the following content
 ```
