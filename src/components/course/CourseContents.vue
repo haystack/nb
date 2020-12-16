@@ -10,8 +10,8 @@
     </div>
 
     <p v-if="contents.length === 0" class="empty"> This folder is empty </p>
-    <!-- directories.length > 0 || trashExists -->
-    <div v-if="directories.length > 0 || true" class="directories">
+   
+    <div v-if="directories.length > 0 || trashExists || showDeleted" class="directories">
       <div class="header"> Folders </div>
       <div class="listing">
         <div
@@ -22,8 +22,8 @@
           <font-awesome-icon :icon="folderIcon"></font-awesome-icon>
           <span>{{ dir.filename }}</span>
         </div>
-        <div class="item" :key="trash" @click="showDeleted = !showDeleted">
-          <!-- v-if="trashExists && userType==='instructor'" -->
+        <div v-if="(trashExists || showDeleted) && userType==='instructor'" class="item" :key="trash" @click="showDeleted = !showDeleted">
+        
           <font-awesome-icon :icon="trashIcon"></font-awesome-icon>
           <span>{{ showDeleted ? "Hide Trash" : "Show Trash"}}</span>
         </div>
@@ -58,7 +58,7 @@
               </span>
            
             </span>
-            <span v-else-if="props.column.label === 'Edit'">
+            <span v-else-if="props.column.label === 'Edit' && (userType === 'instructor' && !showDeleted)">
               <font-awesome-icon
                   v-if="userType === 'instructor'"
                   class="clickable"
@@ -66,7 +66,7 @@
                   @click="editAssignment(props.row)">
               </font-awesome-icon>
             </span>
-            <span v-else-if="props.column.label === 'Restore'">
+            <span v-else-if="props.column.label === 'Restore' && (userType === 'instructor' && showDeleted)">
               <font-awesome-icon
                   v-if="userType === 'instructor'"
                   class="clickable"
@@ -190,14 +190,11 @@
             dateOutputFormat: 'MMM Do YY',
             sortable: true,
           },     
-          
-        ].concat(this.userType === 'instructor' && !this.showDeleted ? [{
+          {
             label: 'Edit',
             field: '()=>{}',
-          }] : []).concat(this.userType === 'instructor' && this.showDeleted ? [{
-            label: 'Restore',
-            field: '()=>{}',
-          }] : []),
+          },
+        ],
         contents: [],
         newFolder: {
           name: "",
@@ -249,6 +246,10 @@
     watch:{
       currentDir: function() {
         this.loadFiles()
+      },
+      showDeleted: function() {
+        if(this.showDeleted) this.fileColumns[3].label = "Restore"
+        else this.fileColumns[3].label = "Edit"
       }
     },
     methods:{
@@ -344,10 +345,13 @@
         }
       },
       deleteEdit: function() {
+        /*
+        Confirm whether they want to delete
         if(this.deleteText == "Delete") {
           this.deleteText = "Confirm Delete"
           return
         }
+        */
         let req = {  }
         axios.post(`/api/files/file/delete/${this.edittingFile.file.id}`, req)
           .then(() =>{

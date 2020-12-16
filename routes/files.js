@@ -97,7 +97,7 @@ router.post('/file/delete/:id', (req, res) => {
  * @name POST/api/files/file/restore/:id
  * @param id: id of file
  */
-router.post('/file/delete/:id', (req, res) => {
+router.post('/file/restore/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id, { include: [{
     association: 'Source',
     include: [{ association:'Assignment', required: false }],
