@@ -2,7 +2,7 @@
   <div class="form">
     
     <div class="group">
-      <label for="course-settings-title"> Title: </label>
+      <label for="course-settings-title"> Class Title: </label>
       <input id="course-settings-title" type="text" v-model="newCourse.class_name">
     </div>
 
@@ -30,7 +30,7 @@
     <div v-if="message" class="message">{{ message }}</div>
 
     <button class="submit" :disabled="!submitEnabled" @click="edit">
-      Edit
+      Update
     </button>
   </div>
 </template>
