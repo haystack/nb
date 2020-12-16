@@ -20,7 +20,7 @@
         <button class="bookmarklet-button"
           @click="openBookmarkletModal"
         >
-        Enable NB Sidebar
+        NB Bookmarklet Instructions
         </button>
         <modal name="bookmarklet-modal" height="auto" width="70%" >
         <div class="bookmarklet-modal">
@@ -30,7 +30,7 @@
       <code>
         javascript:(function(){
           let s = document.createElement('script');
-          s.src= '{{pathname}}/js/bundle.js';
+          s.src= '{{pathname}}/client/js/bundle.js';
           document.body.append(s);
         })()
       </code>
@@ -97,7 +97,7 @@
 
       },
       bookmarklet: function() {
-        return "javascript:(function(){let s = document.createElement('script'); s.src= '" + window.location.protocol + "//" + window.location.host + "/js/bundle.js'; document.body.append(s);})()"
+        return "javascript:(function(){let s = document.createElement('script'); s.src= '" + window.location.protocol + "//" + window.location.host + "/client/js/bundle.js'; document.body.append(s);})()"
       }
     },
     methods: {
