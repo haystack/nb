@@ -67,15 +67,17 @@ router.post('/folder/:id', (req, res) => {
  * @param url: url of child file, if html
  */
 router.post('/file/:id', (req, res) => {
-  utils.createFile(req.params.id, req.body.name, req.body.url)
-  FileSystemObject.findByPk(req.params.id)
-  .then((child) => {
+  utils.createFile(req.params.id, req.body.name, req.body.url).then((child) => {
+    if(!child) console.log("NO CHILD!")
+    console.log(child)
     res.status(200).json(child);
   });
+  
+  
 });
 
 /**
- * Delete of file
+ * Mark file as deleted
  * @name POST/api/files/file/delete/:id
  * @param id: id of file
  */
@@ -84,11 +86,28 @@ router.post('/file/delete/:id', (req, res) => {
     association: 'Source',
     include: [{ association:'Assignment', required: false }],
   }]}).then((file) => {
-    file.destroy().then(() => {
+    file.update({deleted: true}).then(() => {
       res.status(200).json({})
     })
   })
 })
+
+/**
+ * Restore
+ * @name POST/api/files/file/restore/:id
+ * @param id: id of file
+ */
+router.post('/file/delete/:id', (req, res) => {
+  FileSystemObject.findByPk(req.params.id, { include: [{
+    association: 'Source',
+    include: [{ association:'Assignment', required: false }],
+  }]}).then((file) => {
+    file.update({deleted: false}).then(() => {
+      res.status(200).json({})
+    })
+  })
+})
+
 
 /**
  * Update fields of file

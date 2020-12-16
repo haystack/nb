@@ -69,15 +69,20 @@ module.exports = function(models){
 
     createFile: function(parentId, filename, filepath){
       return FileSystemObject.findByPk(parentId, {include:[{association: 'Class'}]})
-      .then((folder) =>
-        FileSystemObject.create({
+      .then((folder) => {
+        return FileSystemObject.create({
           filename: filename,
           is_directory: false,
           parent_id: folder.id,
           Source:{filepath: filepath, filename: filename, class_id: folder.Class.id}
         },
           {include: {model: Source, as: 'Source'}
-        })
+        }).then((newClass)=>{
+          return newClass
+        }).catch(function (err) {
+          return {error: true} // we should probably have better error handling (catch Sequelize.SequelizeForeignKeyConstraintError)
+        });
+        }
       );
     },
 

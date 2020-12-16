@@ -10,8 +10,8 @@
     </div>
 
     <p v-if="contents.length === 0" class="empty"> This folder is empty </p>
-
-    <div v-if="directories.length" class="directories">
+    <!-- directories.length > 0 || trashExists -->
+    <div v-if="directories.length > 0 || true" class="directories">
       <div class="header"> Folders </div>
       <div class="listing">
         <div
@@ -22,10 +22,15 @@
           <font-awesome-icon :icon="folderIcon"></font-awesome-icon>
           <span>{{ dir.filename }}</span>
         </div>
+        <div class="item" :key="trash" @click="showDeleted = !showDeleted">
+          <!-- v-if="trashExists && userType==='instructor'" -->
+          <font-awesome-icon :icon="trashIcon"></font-awesome-icon>
+          <span>{{ showDeleted ? "Hide Trash" : "Show Trash"}}</span>
+        </div>
       </div>
     </div>
 
-    <div v-if="userType === 'instructor'" class="add-folder">
+    <div v-if="userType === 'instructor' && !showDeleted" class="add-folder">
       <h3>New Folder</h3>
       <label for="new-folder-name">Name:</label>
       <input v-model='newFolder.name' type='text' id="new-folder-name">
@@ -59,6 +64,14 @@
                   class="clickable"
                   :icon="editIcon"
                   @click="editAssignment(props.row)">
+              </font-awesome-icon>
+            </span>
+            <span v-else-if="props.column.label === 'Restore'">
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="restoreIcon"
+                  @click="restoreFile(props.row)">
               </font-awesome-icon>
             </span>
             <span v-else>
@@ -102,7 +115,7 @@
       </div>
     </modal>
 
-    <div v-if="userType === 'instructor'" class="add-file">
+    <div v-if="userType === 'instructor' && !showDeleted" class="add-file">
       <h3>New File</h3>
       <label for="new-file-name">Name:</label>
       <input v-model='newFile.name' type='text' id="new-file-name">
@@ -110,17 +123,21 @@
       <input v-model='newFile.url' type='text' id="new-file-url">
       <button @click="addFile" :disabled="!newFileEnabled">Add</button>
     </div>
+    <notifications position="bottom right" group="addFile" />
   </div>
+  
 </template>
 
 <script>
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-  import { faFolder, faFile, faEdit } from '@fortawesome/free-solid-svg-icons'
+  import { faFolder, faFile, faEdit, faTrash, faTrashRestore } from '@fortawesome/free-solid-svg-icons'
 
   import Vue from 'vue'
   import VModal from 'vue-js-modal'
   import moment from 'moment'
+  import Notifications from 'vue-notification'
   Vue.use(VModal)
+  Vue.use(Notifications)
 
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
@@ -144,8 +161,10 @@
     data() {
       return {
         folderIcon: faFolder,
+        trashIcon: faTrash,
         fileIcon: faFile,
         editIcon: faEdit,
+        restoreIcon: faTrashRestore,
         fileColumns: [
           {
             label: 'Name',
@@ -172,8 +191,11 @@
             sortable: true,
           },     
           
-        ].concat(this.userType === 'instructor' ? [{
+        ].concat(this.userType === 'instructor' && !this.showDeleted ? [{
             label: 'Edit',
+            field: '()=>{}',
+          }] : []).concat(this.userType === 'instructor' && this.showDeleted ? [{
+            label: 'Restore',
             field: '()=>{}',
           }] : []),
         contents: [],
@@ -189,7 +211,8 @@
           newFilename: "",
           newFilepath: ""
         },
-        deleteText: "Delete"
+        deleteText: "Delete",
+        showDeleted: false
       }
     },
     computed:{
@@ -211,13 +234,16 @@
         return ans
       },
       directories: function() {
-        return this.contents.filter(item => item.is_directory)
+        return this.contents.filter(item => item.is_directory).filter((directory)=>{return this.showDeleted ? directory.deleted : !directory.deleted})
       },
       files: function() {
-        return this.contents.filter(item => !item.is_directory)
+        return this.contents.filter(item => !item.is_directory).filter((file)=>{return this.showDeleted ? file.deleted : !file.deleted})
       },
       currentDir: function() {
         return this.path[this.path.length - 1]
+      },
+      trashExists: function() {
+        return this.contents.filter((a)=>{return a.deleted}).length > 0
       }
     },
     watch:{
@@ -235,9 +261,27 @@
       },
       addFile: function() {
         axios.post(`/api/files/file/${this.currentDir.id}`, this.newFile)
-          .then(() =>{
+          .then((result) =>{
             this.newFile = { name: "", url: "" }
-            this.loadFiles()
+            //console.log(result)
+            if(!result.data.error) {
+              this.loadFiles();
+              Vue.notify({
+              group: 'addFile',
+              title: 'Your file was added',
+              type: 'success',
+              })
+            }
+            else {
+              console.log("NO FILE")
+              Vue.notify({
+              group: 'addFile',
+              title: 'Your file was not added',
+              type: 'error',
+              text: 'You have added this file in the past. Try looking through your files (or deleted files) for it!'
+              })
+
+            }
           })
       },
       loadFiles: function() {
@@ -273,6 +317,14 @@
         this.edittingFile.newFilename = file.filename
         this.edittingFile.newFilepath = file.Source.filepath
         this.$modal.show('edit-file-modal')
+      },
+      restoreFile: function(file) {
+   
+        axios.post(`/api/files/file/restore/${file.id}`, {})
+          .then(() =>{
+            this.loadFiles()
+            
+          })
       },
       saveEdit: function() {
         let req = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
