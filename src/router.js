@@ -16,6 +16,11 @@ export default new Router({
       props: { default: true },
       component: () => import('./views/HomePage.vue'),
     },
+    {
+      path: '/profile',
+      name: 'profile-page',
+      component: () => import('./views/ProfilePage.vue'),
+    },
     // {
     //   path: '/grading',
     //   name: 'grading',

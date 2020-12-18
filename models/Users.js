@@ -63,6 +63,12 @@ const user = (sequelize, DataTypes) => {
       beforeCreate: (user) => {
         const salt = bcrypt.genSaltSync();
         user.password = bcrypt.hashSync(user.password, salt);
+      },
+      beforeUpdate: (user) => {
+        if (user.password !== undefined && user.password.length > 0) {
+          const salt = bcrypt.genSaltSync();
+          user.password = bcrypt.hashSync(user.password, salt);
+        }
       }
     }
   }
