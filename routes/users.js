@@ -1,6 +1,8 @@
 const express = require('express');
 const User = require('../models').User;
 const router = express.Router();
+const transporter = require('../email-config');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * Get active user.
@@ -58,6 +60,39 @@ router.post('/register', (req, res) => {
     console.log("error:" + err);
     res.status(400).json({msg: "Error registering"})
   })
+});
+
+router.post('/forgotpassword', (req, res) => {
+  var reset_password_id = uuidv4();
+
+  var link = "http://localhost:8080/#/forgotpassword?id=" + reset_password_id;
+
+  User.findOne({ where: { email: req.body.email }}).then(function (user) {
+    if (!user) {
+      res.status(401).json({msg: "No user with email " + req.body.email});
+    } else {
+      user.update({
+        reset_password_id: reset_password_id
+      })
+      var mailOptions = {
+        from: 'helen.nbv2@gmail.com',
+        to: req.body.email,
+        subject: 'NB V2 - Forgot Your Password',
+        text: 'Hello ' + user.username + '!\n\nYou indicated that you have forgotten your password for NB V2.' + 
+        '\n\nPlease click on this link to reset your password: \n' + link + 
+        '\n\nIf you believe that this is a mistake, please contact us at nb@mit.edu or change your password on your user settings page.'
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+          res.status(200).json({email: req.body.email});
+        }
+      });
+    }
+  });
 });
 
 router.put('/editPersonal', (req, res) => {
