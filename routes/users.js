@@ -5,7 +5,7 @@ const transporter = require('../email-config');
 const { v4: uuidv4 } = require('uuid');
 
 /**
- * Get active user.
+ * Get active user
  * @name GET/api/users/current
  */
 router.get('/current', (req, res) => {
@@ -17,6 +17,26 @@ router.get('/current', (req, res) => {
     res.status(200).json(user);
   });
 });
+
+/**
+ * Get active user based on the id given in the request
+ * @name POST/api/users/getuser
+ */
+router.post('/getuser', (req, res) => {
+  if (!req.body.id) {
+    res.status(200).json(null);
+    return null;
+  } 
+  User.findOne({ where: { reset_password_id: req.body.id }}).then(function (user) {
+    if (!user) {
+      res.status(200).json(null);
+      return null;
+    } else {
+      req.session.userId = user.id;
+      res.status(200).json(user);
+    }
+  });
+})
 
 /**
  * Get all users.
@@ -65,7 +85,7 @@ router.post('/register', (req, res) => {
 router.post('/forgotpassword', (req, res) => {
   var reset_password_id = uuidv4();
 
-  var link = "http://localhost:8080/#/forgotpassword?id=" + reset_password_id;
+  var link = "https://localhost:8080/#/forgotpassword?id=" + reset_password_id;
 
   User.findOne({ where: { email: req.body.email }}).then(function (user) {
     if (!user) {
@@ -123,7 +143,6 @@ router.put('/editPersonal', (req, res) => {
 
 router.put('/editAuth', (req, res) => {
   // find the current user first
-  console.log(req.body)
   if (!req.session.userId){
     res.status(200).json(null);
     return null;
@@ -133,7 +152,8 @@ router.put('/editAuth', (req, res) => {
       res.status(401).json({msg: "Cannot find user "})
     } else {
       user.update({
-        password: req.body.newpassword
+        password: req.body.newpassword,
+        reset_password_id: null,
       }).then(() => {
         res.status(200).json({msg: "editted auth password"})
       }).catch((err) => {
