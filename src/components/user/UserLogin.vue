@@ -31,6 +31,7 @@
         user: {
           username: "",
           password: "",
+          email: "",
         },
         message: null,
       }

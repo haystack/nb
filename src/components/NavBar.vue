@@ -10,6 +10,7 @@
         <font-awesome-icon :icon="downArrow" class="arrow">
         </font-awesome-icon>
         <div class="content">
+          <div @click="redirect('profile-page')"> Your Profile </div>
           <div @click="logout"> Log out </div>
         </div>
       </div>
