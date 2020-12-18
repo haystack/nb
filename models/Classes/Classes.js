@@ -10,11 +10,30 @@ const nb_class = (sequelize, DataTypes) => {
       unique: true,
       allowNull: false
     },
+    /*
+    description: {
+      type: DataTypes.STRING,
+      defaultValue: ""
+    },
+    term: {
+      type: DataTypes.STRING,
+      defaultValue: ""
+    },
+    contact_email: {
+      type: DataTypes.STRING,
+      defaultValue: ""
+    },
+    institution: {
+      type: DataTypes.STRING,
+      defaultValue: ""
+    },*/
+
     is_archived:{
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false
     }
+    
   },
   {
     classMethods:{

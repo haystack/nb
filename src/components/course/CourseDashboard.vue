@@ -29,12 +29,16 @@
     <div v-if="showGradesTab" class="grades-tab">
       <Grader/>
     </div>
+    <div v-if="showCourseSettingsTab" class="course-settings-tab">
+      <CourseSettings :course="course" />
+    </div>
   </div>
 
 </template>
 
 <script>
 import CourseUsers from "./CourseUsers.vue"
+import CourseSettings from "./CourseSettings.vue"
 import CourseContents from "./CourseContents.vue"
 import Grader from "../grader/Grader.vue"
 import axios from 'axios'
@@ -61,6 +65,7 @@ export default {
           { label: "Contents", type: 'contents' },
           { label: "Users", type: 'users' },
           { label: "Grades", type: 'grades'},
+          { label: "Settings", type: 'courseSettings'}
         ]
       } else {
         return [
@@ -76,7 +81,10 @@ export default {
     },
     showGradesTab: function() {
       return this.userType === 'instructor' && this.currentTab === 'grades'
-    }
+    },
+    showCourseSettingsTab: function() {
+      return this.userType === 'instructor' && this.currentTab === 'courseSettings'
+    },
   },
   watch: {
     course: function(){
@@ -166,7 +174,8 @@ export default {
   components: {
     CourseContents,
     CourseUsers,
-    Grader
+    Grader,
+    CourseSettings
   },
 }
 </script>

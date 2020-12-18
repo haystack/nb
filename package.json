@@ -31,6 +31,7 @@
     "html2plaintext": "^2.1.2",
     "luxon": "^1.25.0",
     "morgan": "^1.9.1",
+    "mysql2": "^2.2.5",
     "nodemailer": "^6.4.15",
     "pg": "^8.3.0",
     "pg-hstore": "^2.3.3",
@@ -55,7 +56,6 @@
     "@vue/cli-service": "^3.7.0",
     "install-peers": "^1.0.3",
     "jest": "^24.7.0",
-    "mysql2": "^2.2.5",
     "sequelize-cli": "^6.2.0",
     "supertest-session": "^4.0.0",
     "vue-template-compiler": "^2.5.17"

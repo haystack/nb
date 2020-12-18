@@ -48,6 +48,22 @@ router.post('/create', (req, res) => {
 });
 
 /**
+ * Edit class.
+ * @name POST/api/classes/edit
+ * @param id: id of class
+ */
+router.post('/edit', (req, res) => {
+  const id = req.body.course ? req.body.course.id : undefined;
+  if (!id){
+    res.status(400).json({msg: "bad id"});
+    return;
+  }
+  utils.editClass(id, req.body.course).then(() => {
+    res.status(200).json({})
+  });
+});
+
+/**
  * Get all classes for which current user is an instructor.
  * @name GET/api/classes/create
  */
