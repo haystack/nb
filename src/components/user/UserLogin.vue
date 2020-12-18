@@ -9,7 +9,7 @@
 
     <div class="group">
       <label for="login-password"> Password: </label>
-      <input id="login-password" type="password" v-model="user.password">
+      <input id="login-password" type="password" v-model="user.password" v-on:keyup.enter="login">
     </div>
 
     <div v-if="message" class="message">{{ message }}</div>
@@ -31,6 +31,7 @@
         user: {
           username: "",
           password: "",
+          email: "",
         },
         message: null,
       }
@@ -42,6 +43,7 @@
     },
     methods: {
       login: function() {
+        if(!this.submitEnabled) return
         axios.post("/api/users/login", this.user)
           .then(() => {
             eventBus.$emit('signin-success')
