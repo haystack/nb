@@ -86,6 +86,14 @@ module.exports = function(models){
       );
     },
 
+    removeStudent: function(classId, userId){
+      return Class.findByPk(classId, {include:[{association: 'GlobalSection'}]})
+      .then((nb_class) =>
+        User.findByPk(userId).then((user) =>
+          nb_class.GlobalSection.removeMemberStudent(user)
+        )
+      );
+    },
     createFile: function(parentId, filename, filepath){
       return FileSystemObject.findByPk(parentId, {include:[{association: 'Class'}]})
       .then((folder) => {

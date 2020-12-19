@@ -42,7 +42,8 @@
         <course-dashboard
             v-if="selectedCourse"
             :course="selectedCourse"
-            :userType="userType">
+            :userType="userType"
+            :user="user">
         </course-dashboard>
       </div>
       
