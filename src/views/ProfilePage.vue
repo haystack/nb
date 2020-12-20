@@ -22,6 +22,9 @@
       NavBar,
       UserProfile,
     },
+    props: {
+      reset_password_id: String,
+    },
     data() {
       return {
         user: null,
@@ -53,17 +56,34 @@
       },
     },
     created: function() {
-      axios.get("/api/users/current")
+      axios.get("/api/users/current") 
         .then(res => {
           if (res.data.username && res.data.username.length > 0) {
             this.user = res.data
           } else {
-            this.user = null
-            this.redirect('top-page')
+            axios.post("api/users/getuser", {id: this.reset_password_id}) // pass in id to get that user is none is currently logged in
+              .then(res => {
+                this.user = res.data
+              })
+              .catch(() => {
+                this.user = null
+                this.redirect('top-page')
+              })
           }
         })
         .catch(() => {
-          this.redirect('top-page')
+          axios.post("api/users/getuser", {id: this.reset_password_id}) // pass in id to get that user is none is currently logged in
+            .then(res => {
+              if (res.data.username && res.data.username.length > 0) {
+                this.user = res.data
+              } else {
+                this.user = null
+                this.redirect('top-page')
+              }
+            })
+            .catch(() => {
+              this.redirect('top-page')
+            })
         })
       
     }

@@ -1,9 +1,11 @@
 const express = require('express');
 const User = require('../models').User;
 const router = express.Router();
+const transporter = require('../email-config');
+const { v4: uuidv4 } = require('uuid');
 
 /**
- * Get active user.
+ * Get active user
  * @name GET/api/users/current
  */
 router.get('/current', (req, res) => {
@@ -15,6 +17,26 @@ router.get('/current', (req, res) => {
     res.status(200).json(user);
   });
 });
+
+/**
+ * Get active user based on the id given in the request
+ * @name POST/api/users/getuser
+ */
+router.post('/getuser', (req, res) => {
+  if (!req.body.id) {
+    res.status(200).json(null);
+    return null;
+  } 
+  User.findOne({ where: { reset_password_id: req.body.id }}).then(function (user) {
+    if (!user) {
+      res.status(200).json(null);
+      return null;
+    } else {
+      req.session.userId = user.id;
+      res.status(200).json(user);
+    }
+  });
+})
 
 /**
  * Get all users.
@@ -60,6 +82,39 @@ router.post('/register', (req, res) => {
   })
 });
 
+router.post('/forgotpassword', (req, res) => {
+  var reset_password_id = uuidv4();
+
+  var link = "https://localhost:8080/#/forgotpassword?id=" + reset_password_id;
+
+  User.findOne({ where: { email: req.body.email }}).then(function (user) {
+    if (!user) {
+      res.status(401).json({msg: "No user with email " + req.body.email});
+    } else {
+      user.update({
+        reset_password_id: reset_password_id
+      })
+      var mailOptions = {
+        from: 'helen.nbv2@gmail.com',
+        to: req.body.email,
+        subject: 'NB V2 - Forgot Your Password',
+        text: 'Hello ' + user.username + '!\n\nYou indicated that you have forgotten your password for NB V2.' + 
+        '\n\nPlease click on this link to reset your password: \n' + link + 
+        '\n\nIf you believe that this is a mistake, please contact us at nb@mit.edu or change your password on your user settings page.'
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+          res.status(200).json({email: req.body.email});
+        }
+      });
+    }
+  });
+});
+
 router.put('/editPersonal', (req, res) => {
   // find the current user first
   if (!req.session.userId){
@@ -88,7 +143,6 @@ router.put('/editPersonal', (req, res) => {
 
 router.put('/editAuth', (req, res) => {
   // find the current user first
-  console.log(req.body)
   if (!req.session.userId){
     res.status(200).json(null);
     return null;
@@ -98,7 +152,8 @@ router.put('/editAuth', (req, res) => {
       res.status(401).json({msg: "Cannot find user "})
     } else {
       user.update({
-        password: req.body.newpassword
+        password: req.body.newpassword,
+        reset_password_id: null,
       }).then(() => {
         res.status(200).json({msg: "editted auth password"})
       }).catch((err) => {

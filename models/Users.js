@@ -35,6 +35,11 @@ const user = (sequelize, DataTypes) => {
         isEmail: true
       }
     },
+    reset_password_id: {
+      type: DataTypes.UUID,
+      unique: true,
+      allowNull: true
+    },
   },
   {
     classMethods:{
