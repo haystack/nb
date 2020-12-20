@@ -1,5 +1,5 @@
 {
-    "development": {
+    "dev": {
       "username": "NAME",
       "password": "PASSWORD",
       "database": "DBNAME",
