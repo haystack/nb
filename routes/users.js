@@ -95,7 +95,7 @@ router.post('/forgotpassword', (req, res) => {
         reset_password_id: reset_password_id
       })
       var mailOptions = {
-        from: 'helen.nbv2@gmail.com',
+        from: 'nbv2.mailer@gmail.com',
         to: req.body.email,
         subject: 'NB V2 - Forgot Your Password',
         text: 'Hello ' + user.username + '!\n\nYou indicated that you have forgotten your password for NB V2.' + 
