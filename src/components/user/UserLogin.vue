@@ -51,7 +51,7 @@
         return this.user.username.length > 0 && this.user.password.length > 0
       },
       forgotPasswordEnabled: function() {
-        return this.user.email.length > 0
+        return this.user.email && this.user.email.length > 0
       }
     },
     methods: {

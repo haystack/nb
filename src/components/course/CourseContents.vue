@@ -291,9 +291,9 @@
           
             for (let file of res.data) {
               file.updatedAtString = moment(String(file.updatedAt)).format('MM/DD/YYYY HH:mm');
-              console.log(file.updatedAt)
+
               if (file.Source && file.Source.Assignment) {
-              file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
+                file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
 	      
