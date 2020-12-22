@@ -48,6 +48,22 @@ router.post('/create', (req, res) => {
 });
 
 /**
+ * Edit class.
+ * @name POST/api/classes/edit
+ * @param id: id of class
+ */
+router.post('/edit', (req, res) => {
+  const id = req.body.course ? req.body.course.id : undefined;
+  if (!id){
+    res.status(400).json({msg: "bad id"});
+    return;
+  }
+  utils.editClass(id, req.body.course).then(() => {
+    res.status(200).json({})
+  });
+});
+
+/**
  * Get all classes for which current user is an instructor.
  * @name GET/api/classes/create
  */
@@ -141,6 +157,27 @@ router.post('/instructor/:id', (req, res) => {
 
 /**
  * Add a student to a given class
+ * @name DELETE/api/classes/instructor/:courseid/:userid
+ * @param courseid: id of the class
+ * @param userid: id of the user to remove
+ */
+router.delete('/instructor/:courseid/:userid', (req, res) => {
+  Class.findByPk(req.params.courseid, {include:[
+    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+  .then(nb_class => {
+    if (!nb_class){
+      res.status(401).json(null);
+    }
+    else{
+      User.findByPk(req.params.userid).then(user =>
+        nb_class.removeInstructor(user)
+      ).then(() => res.status(200).json(null));
+    }
+  });
+});
+
+/**
+ * Add a student to a given class
  * @name POST/api/classes/student/:id
  * @param id: id of the class
  */
@@ -156,7 +193,26 @@ router.post('/student/:id', (req, res) => {
       .then(() => res.status(200).json(null));
     }
   });
-  
+});
+
+/**
+ * Add a student to a given class
+ * @name DELETE/api/classes/student/:courseid/:userid
+ * @param courseid: id of the class
+ * @param userid: id of the user to remove 
+ * */
+router.delete('/student/:courseid/:userid', (req, res) => {
+  Class.findByPk(req.params.courseid, {include:[
+    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+  .then(nb_class => {
+    if (!nb_class){
+      res.status(401).json(null);
+    }
+    else{
+      utils.removeStudent(req.params.courseid, req.params.userid)
+      .then(() => res.status(200).json(null));
+    }
+  });
 });
 
 /**

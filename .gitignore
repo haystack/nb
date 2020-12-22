@@ -4,6 +4,7 @@ node_modules
 /public/js
 /public/style
 config.js
+email-config.js
 
 # local env files
 .env.local

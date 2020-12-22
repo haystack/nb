@@ -23,11 +23,16 @@
           :instructors="instructors"
           :students="students"
           :suggestions="allUsers"
-          @add-user="addUser">
+          :user="user"
+          @add-user="addUser"
+          @remove-users="removeUsers">
       </course-users>
     </div>
     <div v-if="showGradesTab" class="grades-tab">
       <Grader/>
+    </div>
+    <div v-if="showCourseSettingsTab" class="course-settings-tab">
+      <CourseSettings :course="course" />
     </div>
   </div>
 
@@ -35,6 +40,7 @@
 
 <script>
 import CourseUsers from "./CourseUsers.vue"
+import CourseSettings from "./CourseSettings.vue"
 import CourseContents from "./CourseContents.vue"
 import Grader from "../grader/Grader.vue"
 import axios from 'axios'
@@ -43,7 +49,8 @@ export default {
   name: "course-dashboard",
   props:{
     course: Object,
-    userType: String
+    userType: String,
+    user: Object,
   },
   data() {
     return {
@@ -61,6 +68,7 @@ export default {
           { label: "Contents", type: 'contents' },
           { label: "Users", type: 'users' },
           { label: "Grades", type: 'grades'},
+          { label: "Settings", type: 'courseSettings'}
         ]
       } else {
         return [
@@ -76,7 +84,10 @@ export default {
     },
     showGradesTab: function() {
       return this.userType === 'instructor' && this.currentTab === 'grades'
-    }
+    },
+    showCourseSettingsTab: function() {
+      return this.userType === 'instructor' && this.currentTab === 'courseSettings'
+    },
   },
   watch: {
     course: function(){
@@ -144,6 +155,17 @@ export default {
           .then(() => this.loadInstructors())
       }
     },
+    removeUsers: function(selectedRows) {
+      Array.prototype.forEach.call(selectedRows, user => {
+        if (user.role === 'student') {
+           axios.delete(`/api/classes/student/${this.course.id}/${user.id}`)
+          .then(() => this.loadStudents())
+        } else if (user.role === 'instructor') {
+          axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`)
+          .then(() => this.loadInstructors())
+        }
+      }) 
+    },
     // openGrading: function(){
     //   this.$router.push("grading")
     // },
@@ -166,7 +188,8 @@ export default {
   components: {
     CourseContents,
     CourseUsers,
-    Grader
+    Grader,
+    CourseSettings
   },
 }
 </script>
@@ -195,4 +218,6 @@ export default {
     font-weight: bold;
     text-align: left;
   }
+
+  
 </style>

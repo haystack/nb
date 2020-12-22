@@ -9,7 +9,7 @@
 
     <div class="group">
       <label for="login-password"> Password: </label>
-      <input id="login-password" type="password" v-model="user.password">
+      <input id="login-password" type="password" v-model="user.password" v-on:keyup.enter="login">
     </div>
 
     <div v-if="message" class="message">{{ message }}</div>
@@ -17,6 +17,15 @@
     <button class="submit" :disabled="!submitEnabled" @click="login">
       Sign in
     </button>
+    <br><br>
+    <h3 class="title">Forgot Your Password</h3>
+    <div class="group">
+      <label for="login-email"> Email: </label>
+      <input id="login-email" type="text" v-model="user.email">
+    </div>
+    <button class="password-submit" :disabled="!forgotPasswordEnabled" @click="forgotPassword">Forgot Password</button>
+    <span class="forgot-password-message"><br>{{forgotPasswordMessage}}<br></span>
+
   </div>
 </template>
 
@@ -31,17 +40,23 @@
         user: {
           username: "",
           password: "",
+          email: "",
         },
+        forgotPasswordMessage: "",
         message: null,
       }
     },
     computed: {
       submitEnabled: function() {
         return this.user.username.length > 0 && this.user.password.length > 0
+      },
+      forgotPasswordEnabled: function() {
+        return this.user.email && this.user.email.length > 0
       }
     },
     methods: {
       login: function() {
+        if(!this.submitEnabled) return
         axios.post("/api/users/login", this.user)
           .then(() => {
             eventBus.$emit('signin-success')
@@ -60,6 +75,21 @@
           password: "",
         },
         this.message = null
+      },
+      forgotPassword: function() {
+        axios.post("/api/users/forgotpassword", this.user)
+          .then(() => {
+            this.setForgotPasswordMessage("Email sent")
+          })
+          .catch(err => {
+            this.setForgotPasswordMessage("No user with that email. Please try again.")
+          })
+      },
+      setForgotPasswordMessage: function(msg, disappear=true) {
+        this.forgotPasswordMessage = msg;
+        if (disappear) {
+          setTimeout(() => this.forgotPasswordMessage = "", 2000);
+        }
       },
     },
   }
@@ -112,5 +142,20 @@
   }
   button.submit:enabled:hover {
     background-color: #0069d9;
+  }
+  button.password-submit {
+    width: 40%;
+    align-self: flex-end;
+    padding: 6px 0;
+    border-radius: 5px;
+    border: solid 1px #007bff;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button.password-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 </style>

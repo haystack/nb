@@ -29,7 +29,14 @@
     <vue-good-table
         :columns="columns"
         :rows="rows"
-        :sort-options="sortOptions">
+        :sort-options="sortOptions"
+        :select-options="{ enabled: true }"
+        @on-selected-rows-change="onSelectionChanged"
+    >  
+      <div class="selectUser" slot="selected-row-actions">
+        <button @click="showRemoveModal">Remove</button>
+      </div>
+       
     </vue-good-table>
   </div>
 </template>
@@ -44,6 +51,7 @@
   export default {
     name: 'course-users',
     props: {
+      user: Object,
       instructors: {
         type: Array,
         default: () => []
@@ -64,6 +72,7 @@
           role: "student",
           user: null
         },
+        selectedRows: [],
         columns: [
           {
             label: 'Name',
@@ -149,11 +158,29 @@
           role: "student",
           user: null
         }
-      }
+      },
+      showRemoveModal: function() {
+        const selectedValidUsers = this.selectedRows.filter(row => row.username !== this.user.username)
+        let removalPeople = ""
+        for (let row of selectedValidUsers) {
+          removalPeople += row.name + " (" + row.role + ")" + "\n"
+        }
+        if (selectedValidUsers.length > 0) {
+          var r = confirm("Note: You cannot remove yourself from the class.\n\nAre you sure you want to remove the selected users: \n" + removalPeople);
+          if (r == true) {
+            this.$emit('remove-users', selectedValidUsers);
+          } 
+        } else {
+          alert("You cannnot remove yourself from the class. Please select a list of other users you'd like to remove.")
+        }
+      },
+      onSelectionChanged(params) {
+        this.selectedRows = params.selectedRows;
+      },
     },
     components: {
       VueSimpleSuggest,
-      VueGoodTable
+      VueGoodTable,
     }
   }
 </script>
@@ -185,6 +212,7 @@
   .add-user label {
     margin-right: 5px;
   }
+
   .add-user button {
     padding: 6px 8px;
     margin-left: 5px;
@@ -202,4 +230,20 @@
   .add-user button:enabled:hover {
     background-color: #0069d9;
   }
+  
+  .selectUser button {
+    border-radius: 5px;
+    border: solid 1px #007bff;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+  }
+  .selectUser button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .selectUser button:enabled:hover {
+    background-color: #0069d9;
+  }
+
 </style>
