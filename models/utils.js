@@ -7,6 +7,24 @@ module.exports = function(models){
   const Source = models.Source;
 
   return {
+    editClass: function(id, newData) {
+      return Class.findByPk(id).then((course)=>{
+        if(newData) {
+          course.update({
+            class_name: newData.class_name,
+            /*description: newData.description,
+            term: newData.term,
+            contact_email: newData.contact_email,
+            institution: newData.institution*/
+          })
+          .then(() => {
+            console.log("Updated title to " + newData.class_name);
+          })
+        };
+        
+        //if(newData.description)
+      })
+    },
     createClass: function (name, userId){
       return Class.create({
         class_name: name
@@ -19,6 +37,7 @@ module.exports = function(models){
           Promise.all([
             nb_class.setCreator(user),
             nb_class.setInstructors(user),
+            // nb_class.update({contact_email: user.email}) (This field does not exist yet in Class)
           ])
         )
         .then(() => FileSystemObject.create({filename: name, is_directory: true})
@@ -67,18 +86,33 @@ module.exports = function(models){
       );
     },
 
+    removeStudent: function(classId, userId){
+      return Class.findByPk(classId, {include:[{association: 'GlobalSection'}]})
+      .then((nb_class) =>
+        User.findByPk(userId).then((user) =>
+          nb_class.GlobalSection.removeMemberStudent(user)
+        )
+      );
+    },
     createFile: function(parentId, filename, filepath){
       return FileSystemObject.findByPk(parentId, {include:[{association: 'Class'}]})
-      .then((folder) =>
-        FileSystemObject.create({
+      .then((folder) => {
+        return FileSystemObject.create({
           filename: filename,
           is_directory: false,
           parent_id: folder.id,
           Source:{filepath: filepath, filename: filename, class_id: folder.Class.id}
         },
           {include: {model: Source, as: 'Source'}
-        })
+        }).then((newClass)=>{
+          return newClass
+        }).catch(function (err) {
+          return {error: true} // we should probably have better error handling (catch Sequelize.SequelizeForeignKeyConstraintError)
+        });
+        }
       );
-    }
+    },
+
+    
   };
 };

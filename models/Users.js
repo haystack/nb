@@ -36,6 +36,11 @@ const user = (sequelize, DataTypes) => {
         isEmail: true
       }
     },
+    reset_password_id: {
+      type: DataTypes.UUID,
+      unique: true,
+      allowNull: true
+    },
   },
   {
     classMethods:{
@@ -64,6 +69,12 @@ const user = (sequelize, DataTypes) => {
       beforeCreate: (user) => {
         const salt = bcrypt.genSaltSync();
         user.password = bcrypt.hashSync(user.password, salt);
+      },
+      beforeUpdate: (user) => {
+        if (user.password !== undefined && user.password.length > 0) {
+          const salt = bcrypt.genSaltSync();
+          user.password = bcrypt.hashSync(user.password, salt);
+        }
       }
     }
   }

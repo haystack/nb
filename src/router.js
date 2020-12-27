@@ -16,6 +16,18 @@ export default new Router({
       props: { default: true },
       component: () => import('./views/HomePage.vue'),
     },
+    {
+      path: '/forgotpassword',
+      name: 'profile-page',
+      component: () => import('./views/ProfilePage.vue'),
+      props: route => ({ reset_password_id: route.query.id })
+
+    },
+    {
+      path: '/profile',
+      name: 'profile-page',
+      component: () => import('./views/ProfilePage.vue'),
+    },
     // {
     //   path: '/grading',
     //   name: 'grading',

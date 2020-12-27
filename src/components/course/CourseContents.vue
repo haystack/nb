@@ -10,8 +10,8 @@
     </div>
 
     <p v-if="contents.length === 0" class="empty"> This folder is empty </p>
-
-    <div v-if="directories.length" class="directories">
+   
+    <div v-if="directories.length > 0 || trashExists || showDeleted" class="directories">
       <div class="header"> Folders </div>
       <div class="listing">
         <div
@@ -22,10 +22,15 @@
           <font-awesome-icon :icon="folderIcon"></font-awesome-icon>
           <span>{{ dir.filename }}</span>
         </div>
+        <div v-if="(trashExists || showDeleted) && userType==='instructor'" class="item" :key="trash" @click="showDeleted = !showDeleted">
+        
+          <font-awesome-icon :icon="trashIcon"></font-awesome-icon>
+          <span>{{ showDeleted ? "Hide Trash" : "Show Trash"}}</span>
+        </div>
       </div>
     </div>
 
-    <div v-if="userType === 'instructor'" class="add-folder">
+    <div v-if="userType === 'instructor' && !showDeleted" class="add-folder">
       <h3>New Folder</h3>
       <label for="new-folder-name">Name:</label>
       <input v-model='newFolder.name' type='text' id="new-folder-name">
@@ -46,16 +51,27 @@
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
               <span>{{ props.row.filename }}</span>
             </span>
-            <span v-else-if="props.column.field === 'Source.Assignment.deadline'">
+            <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
                 {{ props.row.Source.Assignment ?
                   props.formattedRow[props.column.field] : "N/A" }}
               </span>
+           
+            </span>
+            <span v-else-if="props.column.label === 'Edit' && (userType === 'instructor' && !showDeleted)">
               <font-awesome-icon
                   v-if="userType === 'instructor'"
                   class="clickable"
                   :icon="editIcon"
                   @click="editAssignment(props.row)">
+              </font-awesome-icon>
+            </span>
+            <span v-else-if="props.column.label === 'Restore' && (userType === 'instructor' && showDeleted)">
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="restoreIcon"
+                  @click="restoreFile(props.row)">
               </font-awesome-icon>
             </span>
             <span v-else>
@@ -71,23 +87,35 @@
       <div v-if="edittingFile.file" class="edit-file-form">
         <h3>{{ edittingFile.file.filename }}</h3>
         <div class="group">
+        <label for="edit-filename"> Name: </label>
+        <input id="edit-filename" type="text" v-model="edittingFile.newFilename">
+        </div>
+        <div class="group">
+        <label for="edit-filepath"> URL: </label>
+        <input id="edit-filepath" type="text" v-model="edittingFile.newFilepath">
+        </div>
+        <div class="group">
           <div class="label"> Assignment Due: </div>
           <div class="field">
-            <datepicker
+            <Datetime
                 v-model="edittingFile.newDeadline"
+                type="datetime"
                 :inline="true"
+                minute-step="15"
+                use12-hour="true"
                 :bootstrap-styling="true">
-            </datepicker>
+            </Datetime>
           </div>
         </div>
         <div class="group form-buttons">
+        <button class="delete" @click="deleteEdit"> {{deleteText}} </button>
           <button class="cancel" @click="closeEdit"> Cancel </button>
-          <button class="save" @click="saveEdit"> Save </button>
+          <button class="save" @click="saveEdit" :disabled="!editEnabled"> Save </button>
         </div>
       </div>
     </modal>
 
-    <div v-if="userType === 'instructor'" class="add-file">
+    <div v-if="userType === 'instructor' && !showDeleted" class="add-file">
       <h3>New File</h3>
       <label for="new-file-name">Name:</label>
       <input v-model='newFile.name' type='text' id="new-file-name">
@@ -95,20 +123,26 @@
       <input v-model='newFile.url' type='text' id="new-file-url">
       <button @click="addFile" :disabled="!newFileEnabled">Add</button>
     </div>
+    <notifications position="bottom right" group="addFile" />
   </div>
+  
 </template>
 
 <script>
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-  import { faFolder, faFile, faEdit } from '@fortawesome/free-solid-svg-icons'
+  import { faFolder, faFile, faEdit, faTrash, faTrashRestore } from '@fortawesome/free-solid-svg-icons'
 
   import Vue from 'vue'
   import VModal from 'vue-js-modal'
+  import moment from 'moment'
+  import Notifications from 'vue-notification'
   Vue.use(VModal)
+  Vue.use(Notifications)
 
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
-  import datepicker from 'vuejs-datepicker'
+  import { Datetime } from 'vue-datetime'
+  import 'vue-datetime/dist/vue-datetime.css'
 
   import axios from 'axios'
 
@@ -127,8 +161,10 @@
     data() {
       return {
         folderIcon: faFolder,
+        trashIcon: faTrash,
         fileIcon: faFile,
         editIcon: faEdit,
+        restoreIcon: faTrashRestore,
         fileColumns: [
           {
             label: 'Name',
@@ -140,19 +176,23 @@
           },
           {
             label: 'Assignment Due',
-            field: 'Source.Assignment.deadline',
+            field: 'Source.Assignment.deadlineString',
             type: 'date',
-            dateInputFormat: 'yyyy-MM-dd',
-            dateOutputFormat: 'MMM do yyyy',
+            dateInputFormat: "MM/dd/yyyy HH:mm",
+            dateOutputFormat: 'iii MMM do hh:mm a',
             sortable: true,
           },
           {
             label: 'Last Updated',
-            field: 'updatedAt',
+            field: 'updatedAtString',
             type: 'date',
-            dateInputFormat: 'yyyy-MM-dd',
-            dateOutputFormat: 'MMM do yyyy',
+            dateInputFormat: "MM/dd/yyyy HH:mm",
+            dateOutputFormat: 'MMM do yy',
             sortable: true,
+          },     
+          {
+            label: 'Edit',
+            field: '()=>{}',
           },
         ],
         contents: [],
@@ -165,8 +205,11 @@
         },
         edittingFile: {
           file: null,
-          newDeadline: "",
+          newFilename: "",
+          newFilepath: ""
         },
+        deleteText: "Delete",
+        showDeleted: false
       }
     },
     computed:{
@@ -176,19 +219,37 @@
       newFileEnabled: function() {
         return this.newFile.name.length > 0 && this.newFile.url.length > 0
       },
+      editEnabled: function() {
+        let ans = this.edittingFile.newFilename.length > 0 && this.edittingFile.newFilepath.length > 0
+        try {
+          let url = new URL(this.edittingFile.newFilepath)
+         
+        }
+        catch (_) {
+          ans = false
+        }
+        return ans
+      },
       directories: function() {
-        return this.contents.filter(item => item.is_directory)
+        return this.contents.filter(item => item.is_directory).filter((directory)=>{return this.showDeleted ? directory.deleted : !directory.deleted})
       },
       files: function() {
-        return this.contents.filter(item => !item.is_directory)
+        return this.contents.filter(item => !item.is_directory).filter((file)=>{return this.showDeleted ? file.deleted : !file.deleted})
       },
       currentDir: function() {
         return this.path[this.path.length - 1]
+      },
+      trashExists: function() {
+        return this.contents.filter((a)=>{return a.deleted}).length > 0
       }
     },
     watch:{
       currentDir: function() {
         this.loadFiles()
+      },
+      showDeleted: function() {
+        if(this.showDeleted) this.fileColumns[3].label = "Restore"
+        else this.fileColumns[3].label = "Edit"
       }
     },
     methods:{
@@ -201,24 +262,46 @@
       },
       addFile: function() {
         axios.post(`/api/files/file/${this.currentDir.id}`, this.newFile)
-          .then(() =>{
+          .then((result) =>{
             this.newFile = { name: "", url: "" }
-            this.loadFiles()
+            //console.log(result)
+            if(!result.data.error) {
+              this.loadFiles();
+              Vue.notify({
+              group: 'addFile',
+              title: 'Your file was added',
+              type: 'success',
+              })
+            }
+            else {
+              console.log("NO FILE")
+              Vue.notify({
+              group: 'addFile',
+              title: 'Your file was not added',
+              type: 'error',
+              text: 'You have added this file in the past. Try looking through your files (or deleted files) for it!'
+              })
+
+            }
           })
       },
       loadFiles: function() {
         axios.get(`/api/files/folder/${this.currentDir.id}`)
           .then(res => {
+          
             for (let file of res.data) {
-	      let idx = file.updatedAt.indexOf('T')
-	      file.updatedAt = file.updatedAt.slice(0, idx)
-	      if (file.Source && file.Source.Assignment) {
-                idx = file.Source.Assignment.deadline.indexOf('T')
-                file.Source.Assignment.deadline = file.Source.Assignment.deadline.slice(0, idx)
+              file.updatedAtString = moment(String(file.updatedAt)).format('MM/DD/YYYY HH:mm');
+
+              if (file.Source && file.Source.Assignment) {
+                file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
+	      
+
+            
             this.contents = res.data
           })
+        
       },
       switchDirectory: function(directory) {
         this.$emit('switch-directory', directory)
@@ -228,26 +311,55 @@
       },
       editAssignment: function(file) {
         this.edittingFile.file = file
+        this.deleteText = "Delete"
         if (file.Source.Assignment) {
           this.edittingFile.newDeadline = file.Source.Assignment.deadline
         }
+        this.edittingFile.newFilename = file.filename
+        this.edittingFile.newFilepath = file.Source.filepath
         this.$modal.show('edit-file-modal')
       },
+      restoreFile: function(file) {
+   
+        axios.post(`/api/files/file/restore/${file.id}`, {})
+          .then(() =>{
+            this.loadFiles()
+            
+          })
+      },
       saveEdit: function() {
-        let req = { deadline: this.edittingFile.newDeadline }
+        let req = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
         axios.post(`/api/files/file/update/${this.edittingFile.file.id}`, req)
           .then(() =>{
             this.closeEdit()
             this.loadFiles()
+            
           })
       },
       closeEdit: function() {
         this.$modal.hide('edit-file-modal')
         this.edittingFile = {
           file: null,
-          newDeadline: "",
+          newFilename: "",
+          newFilepath: ""
         }
       },
+      deleteEdit: function() {
+        /*
+        Confirm whether they want to delete
+        if(this.deleteText == "Delete") {
+          this.deleteText = "Confirm Delete"
+          return
+        }
+        */
+        let req = {  }
+        axios.post(`/api/files/file/delete/${this.edittingFile.file.id}`, req)
+          .then(() =>{
+            this.closeEdit()
+            this.loadFiles()
+            this.deleteText = "Delete"
+          })
+      }
     },
     mounted: function() {
       this.loadFiles()
@@ -255,7 +367,7 @@
     components: {
       FontAwesomeIcon,
       VueGoodTable,
-      datepicker,
+      Datetime,
     }
   }
 </script>
@@ -388,6 +500,7 @@
     align-items: center;
     flex-direction: column;
   }
+  
   .edit-file-form .group {
     padding: 8px;
     display: flex;
@@ -408,9 +521,18 @@
     color: #fff;
     cursor: pointer;
   }
+  .edit-file-form .form-buttons button.delete {
+    background-color: #ba000d;
+    border: solid 1px ;
+  }
+  .edit-file-form .form-buttons button.delete:hover {
+    background-color: #ff7961;
+  }
+
   .edit-file-form .form-buttons button.cancel {
     background-color: #6c757d;
     border: solid 1px #6c757d;
+    
   }
   .edit-file-form .form-buttons button.cancel:hover {
     background-color: #5a6268;
@@ -421,6 +543,26 @@
   }
   .edit-file-form .form-buttons button.save:hover {
     background-color: #0069d9;
+  }
+
+  .edit-file-form .form-buttons button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .edit-file-form .group label {
+    margin-right: 5px;
+  }
+  .edit-file-form .group input {
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: solid 1px #aaa;
+    font-size: 16px;
+    flex-grow: 1;
+  }
+  .edit-file-form .message {
+    color: #cf000f;
+    font-size: 14px;
   }
 
   .add-file {
@@ -457,4 +599,6 @@
   .add-file button:enabled:hover {
     background-color: #0069d9;
   }
+
+  
 </style>
