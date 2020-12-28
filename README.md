@@ -48,7 +48,7 @@ sudo apt-get install -y nodejs` [Helpful resource](https://github.com/nodesource
     $ sudo apt-get install certbot
     ```
     * Generate an SSL certificate with certbot
-    `$ certbot certonly --manual`
+    `$ sudo certbot certonly --manual`
     * Part of the certbot configuration,  type your domain name without the protocol part. For instance: yourname-nb.csail.mit.edu.
     * When asked "Are you ok with your IP being logged?", type Y then ENTER.
     * Open a new connection to the server on a new terminal, don't close the previous one.
