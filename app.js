@@ -24,6 +24,7 @@ app.use(cors({
   origin: function(origin, callback){
     if (
       !origin
+      || origin == 'https://nb2.csail.mit.edu'
       || origin == 'https://127.0.0.1:8080'
       || origin == 'https://jumana-nb.csail.mit.edu'
       || origin == 'https://akshahk-nb.csail.mit.edu'
