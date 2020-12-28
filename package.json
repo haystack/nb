@@ -5,6 +5,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node ./bin/www",
     "dev": "cross-env NODE_ENV=dev node ./bin/www",
+    "http": "node ./bin/wwwhttp",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
