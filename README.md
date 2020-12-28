@@ -55,7 +55,7 @@ sudo apt-get install -y nodejs` [Helpful resource](https://github.com/nodesource
     * In the new terminal, navigate to the nb projecat and inside the public folder create a folder and name it `.well-known`, inside .well-know create another folder and name it `acme-challenge`.
     * In the directory acme-challenge, create an empty file and name it as instructed from the certbot in the first terminal.
     * Paste the challenge from the certbot into the file created in the previous step.
-    * Run the nb server, and verify that you can access the challenge on the URL `http://[yourname]-nb.csail.mit.edu/.well-known/acme-challenge/[challenge file name]`
+    * Run the nb server using `sudo npm run http`, and verify that you can access the challenge on the URL `http://[yourname]-nb.csail.mit.edu/.well-known/acme-challenge/[challenge file name]`
     * If everything is okay, go back to the first terminal and type ENTER.
     * Finally, you will find all the files that you need under this path `/etc/letsencrypt/live/[yourname]-nb.csail.mit.edu`
 
@@ -71,7 +71,7 @@ PORT=443
 
 7. To generate UI bundle, run `npm run build`.
 
-8. To start NB, run the following command `sudo pm2 start npm --name "NB" -- start`.
+8. To start NB, run the following command `sudo pm2 start npm --name "NB" --time -- start`.
 
 9. You should be able to access NB using `[HOST].csail.mit.edu`.
 
