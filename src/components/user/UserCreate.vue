@@ -30,6 +30,8 @@
     <button class="submit" :disabled="!submitEnabled" @click="createUser">
       Sign up
     </button>
+    <span class="register-message"><br>{{registerMessage}}<br></span>
+
   </div>
 </template>
 
@@ -48,6 +50,7 @@
           email: "",
           password: "",
         },
+        registerMessage: "",
       }
     },
     computed: {
@@ -68,6 +71,8 @@
           })
           .catch(err => {
             console.error(`Signup failed: ${err.response.data.error}`)
+            this.setRegisterMessage("Your username has already been taken, or there's an existing account with this email. Please enter a unique username/email.")
+
           })
           .then(() => this.resetForm())
       },
@@ -78,6 +83,12 @@
           last: "",
           email: "",
           password: "",
+        }
+      },
+      setRegisterMessage: function(msg, disappear=true) {
+        this.registerMessage = msg;
+        if (disappear) {
+          setTimeout(() => this.registerMessage = "", 10000);
         }
       },
     },
