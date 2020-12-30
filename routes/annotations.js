@@ -92,19 +92,23 @@ router.get('/annotation', (req, res)=> {
         {association: 'Instructors', attributes: ['id']},
         {association: 'GlobalSection', include: [{
           association: 'MemberStudents', attributes: ['id']
+        }]},
+        {association: 'Sections', include: [{
+            association: 'MemberStudents', attributes: ['id']
         }]}
       ]
     }]})
   .then(source => {
     let instructors = source.Class.Instructors.map(user => user.id);
     let isUserInstructor = instructors.indexOf(req.session.userId) >= 0;
-    let isUserStudent = source.Class.GlobalSection.MemberStudents
-      .find(user => user.id === req.session.userId);
+    let isUserStudent = source.Class.GlobalSection.MemberStudents.find(user => user.id === req.session.userId);
+    
     if (!isUserInstructor && !isUserStudent) {
       res.status(200).json([]);
       return;
     }
 
+    // TODO: change here to limit annotations for only global section & logged in user section
     source.getLocations({include:
       [
         {association:'HtmlLocation'},
@@ -124,7 +128,17 @@ router.get('/annotation', (req, res)=> {
           {association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
         ]}
       ]})
-      .then(locations => {
+      .then(locations => {          
+          let usersICanSee = []
+          
+          source.Class.Sections.forEach( section => {
+            if (isUserInstructor && section.is_global) {
+                usersICanSee = section.MemberStudents.map(user => user.id)
+            } else if (section.MemberStudents.find(user => user.id === req.session.userId) && !section.is_global) {
+                usersICanSee = section.MemberStudents.map(user => user.id)
+            }
+          })
+          
         let annotations = locations
           .filter((location) => {
             let head = location.Thread.HeadAnnotation;
@@ -134,6 +148,8 @@ router.get('/annotation', (req, res)=> {
             }
             if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
               return false;
+            } if (isUserStudent && head.Author.id !== req.session.userId && !usersICanSee.includes(head.Author.id) && !instructors.includes(head.Author.id)) {
+                return false;
             }
             return true;
           })
@@ -233,6 +249,7 @@ router.post('/annotation', (req, res)=> {
         });
         annotation.setThread(thread).then(() => res.status(200).json(annotation));
       })
+
       ])
     )
   );
