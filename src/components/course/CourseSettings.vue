@@ -6,6 +6,11 @@
       <input id="course-settings-title" type="text" v-model="newCourse.class_name">
     </div>
 
+    <div v-if="false" class="group">
+      <label for="course-settings-sections"> Section Names: </label>
+      <input id="course-settings-sections" type="text" v-model="sections">
+    </div>
+
     <div v-if="false">
     <div class="group">
       <label for="course-settings-description"> Description: </label>
@@ -53,11 +58,13 @@
         
         newCourse: {
           class_name: "",
+          id: "",
           /* institution: "",
           contact_email: "",
           term: "",
           description: "" */
         },
+        sections: "",
         message: null
       
       }
@@ -73,7 +80,7 @@
     },
     methods: {
       edit: function() {
-        axios.post("/api/classes/edit", {course: this.newCourse})
+        axios.post("/api/classes/edit", {course: this.newCourse, sections: this.sections})
           .then(() => {
             location.reload();
 
@@ -84,6 +91,7 @@
             }
             console.error(`Edit failed: ${err.response.data.error}`)
           })
+        
       }
     },
     components: {
