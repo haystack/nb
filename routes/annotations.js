@@ -130,9 +130,10 @@ router.get('/annotation', (req, res)=> {
       ]})
       .then(locations => {          
           let usersICanSee = []
-          
+          let isSingleSectionClass = source.Class.Sections.length === 1
+
           source.Class.Sections.forEach( section => {
-            if (isUserInstructor && section.is_global) {
+            if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
                 usersICanSee = section.MemberStudents.map(user => user.id)
             } else if (section.MemberStudents.find(user => user.id === req.session.userId) && !section.is_global) {
                 usersICanSee = section.MemberStudents.map(user => user.id)
