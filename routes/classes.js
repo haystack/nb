@@ -137,6 +137,11 @@ router.get('/studentList/:id', (req,res) =>{
       if(nb_class){
         let ret = [];
         let counter = 0;
+         
+        if (nb_class.GlobalSection.MemberStudents.length === 0){
+            res.status(200).json([])
+        }
+        
         nb_class.GlobalSection.MemberStudents.forEach((student) => { // find the section assoc. w/ each student
             Section.findOne({ where: {class_id: nb_class.id, is_global: false}, 
                 include: [{
