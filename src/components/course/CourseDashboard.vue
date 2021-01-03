@@ -36,7 +36,8 @@
           :suggestions="allUsers"
           :user="user"
           @add-user="addUser"
-          @remove-users="removeUsers">
+          @remove-users="removeUsers"
+          @upload-users-file="uploadUsersFile">
       </course-users>
     </div>
     <div v-if="showGradesTab" class="grades-tab">
@@ -176,6 +177,18 @@ export default {
           .then(() => this.loadInstructors())
         }
       }) 
+    },
+    uploadUsersFile: function(formData) {
+      axios.post( `/api/classes/upload/${this.course.id}`,
+        formData,
+        {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+          }
+        }
+      ).then(function(){
+        location.reload(); //TODO: this is a short fix for refreshing because the line below is not working for some reason..
+      })
     },
     // openGrading: function(){
     //   this.$router.push("grading")

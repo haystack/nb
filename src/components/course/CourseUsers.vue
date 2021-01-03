@@ -1,6 +1,14 @@
 <template>
   <div class="course-users">
-    <div class="add-user">
+   <div class="csv">
+    <h3>Upload Students CSV
+    (Include headers: First, Last, Email, Section)
+    </h3>
+    <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
+    <button @click="submitFile">Submit</button>
+    </div>
+    <br>
+    <div class="add-user">      
       <h3>Enroll User:</h3>
       <vue-simple-suggest
         v-model="newUser.query"
@@ -73,6 +81,7 @@
           user: null
         },
         selectedRows: [],
+        file: "",
         columns: [
           {
             label: 'Name',
@@ -93,6 +102,14 @@
           {
             label: 'Email',
             field: 'email',
+            sortable: true,
+            filterOptions: {
+              enabled: true,
+            },
+          },
+          {
+            label: 'Section',
+            field: 'section',
             sortable: true,
             filterOptions: {
               enabled: true,
@@ -131,7 +148,8 @@
         for (let user of this.students) {
           merged.push(Object.assign(user, {
             role: 'student',
-            name: `${user.first_name} ${user.last_name}`
+            name: `${user.first_name} ${user.last_name}`,
+            section: `${user.section}`
           }))
         }
         return merged
@@ -177,6 +195,15 @@
       onSelectionChanged(params) {
         this.selectedRows = params.selectedRows;
       },
+      handleFileUpload(){
+        this.file = this.$refs.file.files[0];
+      },
+      submitFile() {
+        let formData = new FormData();
+        formData.append('file', this.file);
+        this.$emit('upload-users-file', formData);
+
+      },
     },
     components: {
       VueSimpleSuggest,
@@ -190,6 +217,12 @@
     padding-top: 20px
   }
 
+  .csv h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+  }
+
   .add-user {
     display: flex;
     align-items: center;
@@ -200,6 +233,7 @@
     font-weight: bold;
     margin: 0;
   }
+
   .add-user .vue-simple-suggest {
     margin: 0 10px;
     flex-grow: 1;

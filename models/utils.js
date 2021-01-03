@@ -1,3 +1,5 @@
+const nb_class = require("./Classes/Classes");
+
 module.exports = function(models){
   const User = models.User;
   const Class = models.Class;
@@ -7,7 +9,7 @@ module.exports = function(models){
   const Source = models.Source;
 
   return {
-    editClass: function(id, newData) {
+    editClass: function(id, newData, sections) {
       return Class.findByPk(id).then((course)=>{
         if(newData) {
           course.update({
@@ -21,6 +23,22 @@ module.exports = function(models){
             console.log("Updated title to " + newData.class_name);
           })
         };
+
+        // adding new sections (not currently being used on frontend)
+        let sectionsList = sections.replace(/\s/g, '').split(",")
+        sectionsList.forEach((sectionName) => {
+          if (sectionName !== "") {
+            Section.findOne({where: {section_name: sectionName}}).then((sectionFound) => { // ensure uniqueness
+              if (sectionFound){
+                console.log("section " + sectionName + " already exists")
+              } else {
+                Section.create({section_name: sectionName, is_global: false, class_id: newData.id})
+                .then((section) => nb_class.addSection(section))
+              }
+            });
+          }
+        })
+          
         
         //if(newData.description)
       })
@@ -75,6 +93,42 @@ module.exports = function(models){
 
         )
       .then(() => nb_class));
+    },
+
+    addStudentToSection: function(classId, user, sectionName) {
+      return Class.findByPk(classId, {include:[{association: 'GlobalSection'}]})
+      .then((nb_class) => {
+
+        // add to global section (if not there yet?)
+        nb_class.GlobalSection.addMemberStudent(user);
+        // }
+
+        // remove student from existing non-global section, and then add to new section
+        Section.findOne({ where: {class_id: nb_class.id, is_global: false}, 
+          include: [{
+            model: models.User,    
+            as: 'MemberStudents',
+            where: { id: user.id }, // filter to find a section with this student
+          }]
+        })
+        .then(function (section) {
+          if (section) {
+            section.removeMemberStudent(user);
+            console.log("removed " + user.username + " " + section.section_name)
+          }
+          Section.findOrCreate({
+            where: { section_name: sectionName, class_id: nb_class.id },
+            defaults: {
+              is_global: false
+            }
+          })
+          .then(([section, createdBool]) => {
+            section.addMemberStudent(user)
+            console.log("added " + user.username + " " + section.section_name)
+
+          });
+        })
+      })
     },
 
     addStudent: function(classId, userId){
