@@ -84,8 +84,7 @@ router.post('/register', (req, res) => {
 
 router.post('/forgotpassword', (req, res) => {
   var reset_password_id = uuidv4();
-
-  var link = "https://localhost:8080/#/forgotpassword?id=" + reset_password_id;
+  var link = req.headers.origin + "/#/forgotpassword?id=" + reset_password_id;
 
   User.findOne({ where: { email: req.body.email }}).then(function (user) {
     if (!user) {

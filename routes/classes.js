@@ -86,8 +86,9 @@ router.get('/student', (req,res) =>{
     return Promise.all(sections.map((section) => Class.findByPk(section.class_id)));
   }
   ).then(classes => {
-    res.status(200).json(classes.filter((value, index, self) => {
-      return self.indexOf(value) === index;
+    const classesIDs = classes.map(classObj => classObj["id"])
+    res.status(200).json(classes.filter((value, index) => {
+        return classesIDs.indexOf(value["id"]) === index
     }));
   });
 });
