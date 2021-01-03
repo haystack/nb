@@ -166,6 +166,10 @@
         editIcon: faEdit,
         restoreIcon: faTrashRestore,
         fileColumns: [
+        {
+            label: 'Edit',
+            field: '()=>{}',
+          },
           {
             label: 'Name',
             field: 'filename',
@@ -189,11 +193,8 @@
             dateInputFormat: "MM/dd/yyyy HH:mm",
             dateOutputFormat: 'MMM do yy',
             sortable: true,
-          },     
-          {
-            label: 'Edit',
-            field: '()=>{}',
-          },
+          }    
+          
         ],
         contents: [],
         newFolder: {
@@ -248,8 +249,8 @@
         this.loadFiles()
       },
       showDeleted: function() {
-        if(this.showDeleted) this.fileColumns[3].label = "Restore"
-        else this.fileColumns[3].label = "Edit"
+        if(this.showDeleted) this.fileColumns[0].label = "Restore"
+        else this.fileColumns[0].label = "Edit"
       }
     },
     methods:{
