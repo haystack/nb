@@ -1,5 +1,16 @@
 <template>
   <div class="dashboard">
+    <div class="course-info">
+    <div v-if="course.description.length > 0">
+    <h3> <b>Description:</b> {{course.description}} </h3>
+    </div>
+    <div v-if="course.term.length > 0">
+     <h3> <b>Term:</b> {{course.term}} </h3>
+    </div>
+    <div v-if="course.contact_email.length > 0">
+     <h3> <b>Contact Email:</b> {{course.contact_email}} </h3>
+    </div>
+    </div>
     <div class="tabs">
       <div
           v-for="tab in tabs"
@@ -217,6 +228,13 @@ export default {
     font-size: 18px;
     font-weight: bold;
     text-align: left;
+  }
+
+  .course-info h3 {
+    margin: 0;
+    padding: 5px 0;
+    font-size: 16px;
+    font-weight: normal;
   }
 
   

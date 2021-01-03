@@ -1,22 +1,22 @@
 {
     "development": {
-      "username": "NAME",
-      "password": "PASSWORD",
-      "database": "DBNAME",
+      "username": "akshajk",
+      "password": "akkad1$",
+      "database": "nb",
       "host": "127.0.0.1",
       "dialect": "postgres"
     },
     "test": {
-      "username": "NAME",
-      "password": "PASSWORD",
-      "database": "DBNAME",
+      "username": "akshajk",
+      "password": "akkad1$",
+      "database": "nb",
       "host": "127.0.0.1",
       "dialect": "postgres"
     },
     "production": {
-       "username": "NAME",
-      "password": "PASSWORD",
-      "database": "DBNAME",
+      "username": "akshajk",
+      "password": "akkad1$",
+      "database": "nb",
       "host": "127.0.0.1",
       "dialect": "postgres"
     }
