@@ -20,8 +20,12 @@ router.get('/myClasses', async (req,res) => {
     const user = await User.findByPk(req.session.userId)
     const sections = await user.getMemberSections({raw: true})
     const myClassesAsStudent = await Promise.all(sections.map((section) => Class.findByPk(section.class_id)))
+    const myClassesIDsAsStudent = myClassesAsStudent.map(classObj => classObj["id"])
+    const uniqueMyClassesAsStudent = myClassesAsStudent.filter((value, index) => {
+        return myClassesIDsAsStudent.indexOf(value["id"]) === index
+    });
     const myClassesAsInstructor = await user.getInstructorClasses()
-    const myClasses = [...myClassesAsStudent, ...myClassesAsInstructor]
+    const myClasses = [...uniqueMyClassesAsStudent, ...myClassesAsInstructor]
     const myClassesBySource = myClasses.filter(myClass => allSourcesByFilepath.find(source => source.class_id == myClass.id))
     res.status(200).send(myClassesBySource)   
 });
@@ -108,7 +112,6 @@ router.get('/annotation', (req, res)=> {
       return;
     }
 
-    // TODO: change here to limit annotations for only global section & logged in user section
     source.getLocations({include:
       [
         {association:'HtmlLocation'},
