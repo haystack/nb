@@ -253,7 +253,6 @@ router.post('/upload/:id', upload.single("file"), function(req, res) {
       .on('end', () => {
         Promise.all(results.forEach(student_entry => {
           if (student_entry["Email"] !== "") {
-            console.log(student_entry)
             User.create({
               username: student_entry["Email"],
               first_name: student_entry["First"],
