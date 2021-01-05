@@ -117,7 +117,6 @@ module.exports = function(models){
         .then(function (section) {
           if (section) {
             section.removeMemberStudent(user);
-            console.log("removed " + user.username + " " + section.section_name)
           }
           Section.findOrCreate({
             where: { section_name: sectionName, class_id: nb_class.id },
@@ -127,8 +126,6 @@ module.exports = function(models){
           })
           .then(([section, createdBool]) => {
             section.addMemberStudent(user)
-            console.log("added " + user.username + " " + section.section_name)
-
           });
         })
       })

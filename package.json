@@ -51,6 +51,7 @@
     "vue-visible": "^1.0.2",
     "vuejs-datepicker": "^1.5.4",
     "vuejs-datetimepicker": "^1.1.13",
+    "vuejs-loading-screen": "^1.0.9",
     "weekstart": "^1.0.1"
   },
   "devDependencies": {

@@ -40,11 +40,20 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import loading from 'vuejs-loading-screen'
 import CourseUsers from "./CourseUsers.vue"
 import CourseSettings from "./CourseSettings.vue"
 import CourseContents from "./CourseContents.vue"
 import Grader from "../grader/Grader.vue"
 import axios from 'axios'
+
+Vue.use(loading, {
+  bg: '#4a2270ad',
+  icon: 'refresh',
+  size: 3,
+  icon_color: 'white',
+})
 
 export default {
   name: "course-dashboard",
@@ -168,14 +177,15 @@ export default {
       }) 
     },
     uploadUsersFile: function(formData) {
-      axios.post( `/api/classes/upload/${this.course.id}`,
+        this.$isLoading(true) // show loading screen      
+        axios.post( `/api/classes/upload/${this.course.id}`,
         formData,
         {
           headers: {
               'Content-Type': 'multipart/form-data'
           }
         }
-      ).then(function(){
+      ).then((response) => {
         location.reload(); //TODO: this is a short fix for refreshing because the line below is not working for some reason..
       })
     },
