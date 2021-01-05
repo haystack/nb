@@ -81,14 +81,17 @@ sequelize.sync().then(() => {
   global.db.Class.findAll().then(nb_classes =>
     nb_classes.forEach(nb_class => {
       const tagDefaults = [
-        {value: "curious", emoji: "1F914"},
-        {value: "confused", emoji: "1F616"},
-        {value: "useful", emoji: "1F600"},
-        {value: "interested", emoji: "1F9D0"},
-        {value: "frustrated", emoji: "1F621"},
-        {value: "help", emoji: "1F61F"},
-        {value: "question", emoji: "2753"},
-        {value: "idea",emoji: "1F4A1"}
+        {value: "lightbulb-moment", emoji: "11_lightbulb-moment"},
+        {value: "learning-goal", emoji: "9_learning-goal"},
+        {value: "just-curious", emoji: "3_just-curious"},
+        {value: "lost", emoji: "4_lost"},
+        {value: "interesting-topic", emoji: "1_interesting-topic"},
+        {value: "question", emoji: "7_question"},
+        {value: "i-think", emoji: "6_i-think"},
+        {value: "surprised",emoji: "2_surprised"},
+        {value: "lets-discuss",emoji: "5_lets-discuss"},
+        {value: "important",emoji: "8_important"},
+        {value: "real-world-application",emoji: "10_real-world-application"}
       ];
       Promise.all(tagDefaults.map(tagDefault =>
         global.db.TagType.findOrCreate({where: tagDefault}).then(res => res[0])
