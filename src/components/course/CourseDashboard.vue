@@ -24,6 +24,7 @@
           :students="students"
           :suggestions="allUsers"
           :user="user"
+          :course="course"
           @add-user="addUser"
           @remove-users="removeUsers"
           @upload-users-file="uploadUsersFile">
