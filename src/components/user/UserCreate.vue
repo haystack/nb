@@ -71,7 +71,7 @@
           })
           .catch(err => {
             console.error(`Signup failed: ${err.response.data.error}`)
-            this.setRegisterMessage("Your username has already been taken, or there's an existing account with this email. Please enter a unique username/email.")
+            this.setRegisterMessage("There is already any account configured for this username/email. If you don't know the password, please use the password reset option.")
 
           })
           .then(() => this.resetForm())

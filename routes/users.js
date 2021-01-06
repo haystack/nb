@@ -124,7 +124,6 @@ router.put('/editPersonal', (req, res) => {
     if (!user) {
       res.status(401).json({msg: "Cannot find user "})
     } else {
-      console.log(req.body);
       user.update({
         first_name: req.body.first,
         last_name: req.body.last,
