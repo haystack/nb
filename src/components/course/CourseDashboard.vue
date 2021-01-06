@@ -10,6 +10,9 @@
     <div v-if="course.contact_email.length > 0">
      <h3> <b>Contact Email:</b> {{course.contact_email}} </h3>
     </div>
+    <div v-if="course.institution && course.institution.institution_name">
+     <h3> <b>Institution:</b> {{course.institution.institution_name}} </h3>
+    </div>
     </div>
     <div class="tabs">
       <div
@@ -249,6 +252,8 @@ export default {
     font-size: 16px;
     font-weight: normal;
   }
-
+  .course-info {
+    column-count: 2;
+  }
   
 </style>

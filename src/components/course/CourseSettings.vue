@@ -11,7 +11,7 @@
       <input id="course-settings-sections" type="text" v-model="sections">
     </div>
 
-    <div v-if="false">
+    
     <div class="group">
       <label for="course-settings-description"> Description: </label>
       <input id="course-settings-description" type="text" v-model="newCourse.description">
