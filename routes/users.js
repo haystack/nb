@@ -99,7 +99,7 @@ router.post('/forgotpassword', (req, res) => {
         subject: 'NB V2 - Forgot Your Password',
         text: 'Hello ' + user.username + '!\n\nYou indicated that you have forgotten your password for NB V2.' + 
         '\n\nPlease click on this link to reset your password: \n' + link + 
-        '\n\nIf you believe that this is a mistake, please contact us at nb@mit.edu or change your password on your user settings page.'
+        '\n\nIf you believe that this is a mistake, please contact us or change your password on your user settings page.'
       };
 
       transporter.sendMail(mailOptions, function(error, info){
