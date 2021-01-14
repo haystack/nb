@@ -166,15 +166,23 @@ export default {
       }
     },
     removeUsers: function(selectedRows) {
-      Array.prototype.forEach.call(selectedRows, user => {
-        if (user.role === 'student') {
-           axios.delete(`/api/classes/student/${this.course.id}/${user.id}`)
-          .then(() => this.loadStudents())
-        } else if (user.role === 'instructor') {
-          axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`)
-          .then(() => this.loadInstructors())
-        }
-      }) 
+      this.$isLoading(true); // show loading screen
+      let requests = selectedRows.map((user) => {
+        return new Promise((resolve) => {
+          if (user.role === 'student') {
+            axios.delete(`/api/classes/student/${this.course.id}/${user.id}`)
+            .then(() => resolve("success"))
+          } else if (user.role === 'instructor') {
+            axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`)
+            .then(() => resolve("success"))
+          }
+        });
+      })
+      Promise.all(requests).then(() => {
+        this.loadStudents();
+        this.loadInstructors();
+        this.$isLoading(false);
+      })
     },
     uploadUsersFile: function(formData) {
         this.$isLoading(true) // show loading screen      
