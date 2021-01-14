@@ -252,23 +252,29 @@ router.post('/upload/:id', upload.single("file"), function(req, res) {
       .on('data', (data) => results.push(data))
       .on('end', () => {
         Promise.all(results.forEach(student_entry => {
-          if (student_entry["Email"] !== "") {
+          let section = student_entry['Section']
+          let email = student_entry['Email']
+          if (email) {
             User.create({
-              username: student_entry["Email"],
+              username: email,
               first_name: student_entry["First"],
               last_name: student_entry["Last"],
-              email: student_entry["Email"],
+              email: email,
               password: randomstring.generate(),
             }).then((user) => {
-              utils.addStudentToSection(req.params.id, user, student_entry['Section']);
+              if (section) {
+                utils.addStudentToSection(req.params.id, user, section);
+              } 
             }).catch((err)=>{
-              User.findOne({ where: { email: student_entry["Email"] }}).then(function (user) {
-                if (user) {
-                  utils.addStudentToSection(req.params.id, user, student_entry['Section'])
-                } 
-              });
+              if (section) {
+                User.findOne({ where: { email: email }}).then(function (user) {
+                  if (user) {
+                    utils.addStudentToSection(req.params.id, user, section)
+                  } 
+                });
+              } 
             })
-          }
+          } 
         }))
         .then(() => {res.status(200).json(null);})
         .catch((err) => { res.status(200).json(null);}); 
