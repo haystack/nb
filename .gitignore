@@ -3,6 +3,7 @@ node_modules
 /dist
 /public/js
 /public/style
+/uploads
 config.js
 email-config.js
 
