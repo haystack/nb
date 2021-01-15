@@ -27,7 +27,8 @@
           :course="course"
           @add-user="addUser"
           @remove-users="removeUsers"
-          @upload-users-file="uploadUsersFile">
+          @upload-users-file="uploadUsersFile"
+          @refresh="refreshUsers">
       </course-users>
     </div>
     <div v-if="showGradesTab" class="grades-tab">
@@ -145,9 +146,11 @@ export default {
     },
     loadStudents: function(){
       if (this.userType == "instructor") {
+        this.$isLoading(true) // show loading screen since this can take a while      
         axios.get(`/api/classes/studentList/${this.course.id}`)
           .then((res) => {
             this.students = res.data
+            this.$isLoading(false) // show loading screen      
           })
       }
     },
@@ -173,9 +176,11 @@ export default {
           if (user.role === 'student') {
             axios.delete(`/api/classes/student/${this.course.id}/${user.id}`)
             .then(() => resolve("success"))
+            .catch(() => resolve())
           } else if (user.role === 'instructor') {
             axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`)
             .then(() => resolve("success"))
+            .catch(() => resolve())
           }
         });
       })
@@ -197,6 +202,10 @@ export default {
       ).then((response) => {
         location.reload(); //TODO: this is a short fix for refreshing because the line below is not working for some reason..
       })
+    },
+    refreshUsers: function() {
+      this.loadStudents();
+      this.loadInstructors();
     },
     // openGrading: function(){
     //   this.$router.push("grading")
