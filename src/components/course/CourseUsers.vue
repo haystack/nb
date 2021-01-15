@@ -6,6 +6,19 @@
     </h3>
     <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
     <button @click="submitFile">Submit</button>
+
+    <br><br>
+
+    <h3>Download Students CSV
+    </h3>
+    <button>
+      <download-csv
+        :data = "studentsCSV"
+        :name = "csvFileName"
+        separator-excel="true">
+        Download Students
+      </download-csv>   
+    </button>
     </div>
     <br>
     <div class="add-user">      
@@ -50,11 +63,15 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   import 'vue-simple-suggest/dist/styles.css'
   import VueSimpleSuggest from 'vue-simple-suggest'
 
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
+
+  import JsonCSV from 'vue-json-csv'
+  Vue.component('downloadCsv', JsonCSV)
 
   export default {
     name: 'course-users',
@@ -68,6 +85,7 @@
         type: Array,
         default: () => []
       },
+      course: Object,
       suggestions: {
         type: Array,
         default: () => []
@@ -153,6 +171,21 @@
           }))
         }
         return merged
+      },
+      studentsCSV: function() {
+        let students = []
+        for (let user of this.students) {
+          students.push({
+            First: `${user.first_name}`,
+            Last: `${user.last_name}`,
+            Email: `${user.email}`,
+            Section: `${user.section}`
+          })
+        }
+        return students
+      },
+      csvFileName: function() {
+        return this.course.class_name + "_students.csv"
       }
     },
     methods: {

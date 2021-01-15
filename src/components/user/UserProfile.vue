@@ -1,12 +1,6 @@
 <template>
   <div class="form">
     <h1 class="title">User Profile & Settings</h1>
-    <div id="profile-info-box">    
-      <h2>Your current profile information</h2>
-      <p><b>Username:</b> {{user.username}}</p>    
-      <p><b>Email:</b> {{user.email}}</p>    
-      <p><b>Name:</b> {{user.first_name}} {{user.last_name}}</p>    
-    </div>
     <div class="profile-row">
       <h2>Personal Details</h2>
       <div class="group">
@@ -57,7 +51,6 @@
     name: "user-profile",
     props: {
       user: Object,
-      default: null,
     },
     data() {
       return {
@@ -71,6 +64,14 @@
         },
         personalMessage: "",
         authMessage: "",
+      }
+    },
+    watch: { // need to watch because the parent component takes some time to get the user before propogating here
+      user: function (newVal) {
+        this.newUser.username = newVal.username;
+        this.newUser.email = newVal.email;
+        this.newUser.first = newVal.first_name;
+        this.newUser.last = newVal.last_name;
       }
     },
     computed: {
@@ -97,7 +98,7 @@
           this.setPersonalMessage("Success: Personal Details saved");
         })
         .catch(() => {
-          this.setPersonalMessage("Error: This username is already taken. Please try another username.", false)
+          this.setPersonalMessage("Error: This username or email is already taken. Please try again.", false)
         })
       },
       editAuth: function() {
