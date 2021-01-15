@@ -31,7 +31,16 @@
 
 <script>
   import axios from "axios"
+  import Vue from 'vue'
+  import loading from 'vuejs-loading-screen'
   import { eventBus } from "../../main"
+
+  Vue.use(loading, {
+    bg: '#4a2270ad',
+    icon: 'refresh',
+    size: 3,
+    icon_color: 'white',
+  })
 
   export default {
     name: "user-login",
@@ -77,11 +86,14 @@
         this.message = null
       },
       forgotPassword: function() {
+        this.$isLoading(true) // show loading screen      
         axios.post("/api/users/forgotpassword", this.user)
           .then(() => {
+            this.$isLoading(false) // hide loading screen      
             this.setForgotPasswordMessage("Email sent")
           })
-          .catch(err => {
+          .catch(err => {            
+            this.$isLoading(false) // hide loading screen      
             this.setForgotPasswordMessage("No user with that email. Please try again.")
           })
       },
