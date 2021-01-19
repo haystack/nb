@@ -1,26 +1,26 @@
 <template>
   <div class="course-users">
-   <div class="csv">
-    <h3>Upload Students CSV
-    (Include headers: First, Last, Email, Section)
-    </h3>
-    <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
-    <button @click="submitFile">Submit</button>
+    <div class="csv">
+      <div class="csv-child upload">
+        <h3>Upload Students CSV
+        (Include headers: First, Last, Email, Section)
+        </h3>
+        <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
+        <button @click="submitFile">Submit</button>
+      </div>
 
-    <br><br>
-
-    <h3>Download Students CSV
-    </h3>
-    <button>
-      <download-csv
-        :data = "studentsCSV"
-        :name = "csvFileName"
-        separator-excel="true">
-        Download Students
-      </download-csv>   
-    </button>
+      <div class="csv-child download">
+        <h3>Download Students CSV</h3>
+        <button>
+          <download-csv
+            :data = "studentsCSV"
+            :name = "csvFileName">
+            Download Students
+          </download-csv>   
+        </button>
+      </div>
     </div>
-    <br>
+    <br><br>
     <div class="add-user">      
       <h3>Enroll User:</h3>
       <vue-simple-suggest
@@ -46,7 +46,10 @@
       </div>
       <button @click="addUser" :disabled="!this.newUser.user">Add</button>
     </div>
-
+    <div class="reload">
+      <button @click="refresh">&#x21bb; Reload Table (if users not all loaded)
+      </button>
+    </div>
     <vue-good-table
         :columns="columns"
         :rows="rows"
@@ -57,7 +60,11 @@
       <div class="selectUser" slot="selected-row-actions">
         <button @click="showRemoveModal">Remove</button>
       </div>
-       
+      <template slot="table-header-row" slot-scope="props">
+        <span class="my-fancy-class">
+          {{ props.row.label }}
+        </span>
+      </template>
     </vue-good-table>
   </div>
 </template>
@@ -69,7 +76,6 @@
 
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
-
   import JsonCSV from 'vue-json-csv'
   Vue.component('downloadCsv', JsonCSV)
 
@@ -164,10 +170,14 @@
           }))
         }
         for (let user of this.students) {
+          let section = user.section
+          if (section == undefined) {
+            section = ""
+          }
           merged.push(Object.assign(user, {
             role: 'student',
             name: `${user.first_name} ${user.last_name}`,
-            section: `${user.section}`
+            section: `${section}`
           }))
         }
         return merged
@@ -175,11 +185,15 @@
       studentsCSV: function() {
         let students = []
         for (let user of this.students) {
+          let section = user.section
+          if (section == undefined) {
+            section = ""
+          }
           students.push({
             First: `${user.first_name}`,
             Last: `${user.last_name}`,
             Email: `${user.email}`,
-            Section: `${user.section}`
+            Section: `${section}`
           })
         }
         return students
@@ -230,6 +244,9 @@
       },
       handleFileUpload(){
         this.file = this.$refs.file.files[0];
+      },
+      refresh() {
+        this.$emit('refresh')
       },
       submitFile() {
         let formData = new FormData();
@@ -311,6 +328,46 @@
   }
   .selectUser button:enabled:hover {
     background-color: #0069d9;
+  }
+
+  .reload {
+    text-align: right;
+    font-family: Lucida Sans Unicode;
+  }
+  .reload button {
+    border-radius: 5px;
+    border: solid 1px #aaa;
+    background-color: #eee; 
+    /* color: #fff; */
+    cursor: pointer;
+  }
+  .reload button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .reload button:enabled:hover {
+    background-color: #aaa;
+  }
+
+  .csv {
+    display: flex; 
+    justify-content: space-between;
+  }
+  .download button {
+    padding: 6px 8px;
+    margin-left: 5px;
+    border-radius: 5px;
+    border: solid 1px #aaa;
+    background-color: #eee;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .download button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .download button:enabled:hover {
+    background-color: #aaa;
   }
 
 </style>
