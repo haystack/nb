@@ -15,11 +15,11 @@ const h2p = require('html2plaintext');
  * @name GET/api/grades/gradingSystems
  */
 router.get('/gradingSystems', (req, res) => {
-  if (!req.session.classId){
+  if (!req.query.classId){
     res.status(200).json(null);
     return null;
   }
-  Class.findByPk(req.session.classId,{include: [{
+  Class.findByPk(req.query.classId,{include: [{
       association: 'GradingSystems',
       include: [{
         association: 'GradingThresholds',
@@ -172,7 +172,7 @@ router.delete('/criteria/:id', (req, res) => {
  * @param gradingSystemId: id of gradingSystem
  */
 router.get('/grades', (req, res) => {
-  Class.findByPk(req.session.classId, {include:
+  Class.findByPk(req.query.classId, {include:
     [{
       association: 'GlobalSection',
       include:[{

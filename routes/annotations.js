@@ -17,7 +17,7 @@ const { Op } = require("sequelize");
  */
 router.get('/myClasses', async (req,res) => {    
     const allSourcesByFilepath = await Source.findAll({where: {filepath: req.query.url}})
-    const user = await User.findByPk(req.session.userId)
+    const user = await User.findByPk(req.user.id)
     const sections = await user.getMemberSections({raw: true})
     const myClassesAsStudent = await Promise.all(sections.map((section) => Class.findByPk(section.class_id)))
     const myClassesIDsAsStudent = myClassesAsStudent.map(classObj => classObj["id"])
@@ -104,8 +104,8 @@ router.get('/annotation', (req, res)=> {
     }]})
   .then(source => {
     let instructors = source.Class.Instructors.map(user => user.id);
-    let isUserInstructor = instructors.indexOf(req.session.userId) >= 0;
-    let isUserStudent = source.Class.GlobalSection.MemberStudents.find(user => user.id === req.session.userId);
+    let isUserInstructor = instructors.indexOf(req.user.id) >= 0;
+    let isUserStudent = source.Class.GlobalSection.MemberStudents.find(user => user.id === req.user.id);
     
     if (!isUserInstructor && !isUserStudent) {
       res.status(200).json([]);
@@ -138,7 +138,7 @@ router.get('/annotation', (req, res)=> {
           source.Class.Sections.forEach( section => {
             if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
                 usersICanSee = section.MemberStudents.map(user => user.id)
-            } else if (section.MemberStudents.find(user => user.id === req.session.userId) && !section.is_global) {
+            } else if (section.MemberStudents.find(user => user.id === req.user.id) && !section.is_global) {
                 usersICanSee = section.MemberStudents.map(user => user.id)
             }
           })
@@ -147,12 +147,12 @@ router.get('/annotation', (req, res)=> {
           .filter((location) => {
             let head = location.Thread.HeadAnnotation;
             if (head.visibility === 'MYSELF'
-              && head.Author.id !== req.session.userId) {
+              && head.Author.id !== req.user.id) {
               return false;
             }
             if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
               return false;
-            } if (isUserStudent && head.Author.id !== req.session.userId && !usersICanSee.includes(head.Author.id) && !instructors.includes(head.Author.id)) {
+            } if (isUserStudent && head.Author.id !== req.user.id && !usersICanSee.includes(head.Author.id) && !instructors.includes(head.Author.id)) {
                 return false;
             }
             return true;
@@ -181,15 +181,15 @@ router.get('/annotation', (req, res)=> {
             annotation.visibility = head.visibility;
             annotation.anonymity = head.anonymity;
             annotation.replyRequestedByMe = head.ReplyRequesters
-              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
             annotation.replyRequestCount = head.ReplyRequesters.length;
             annotation.starredByMe = head.Starrers
-              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
             annotation.starCount = head.Starrers.length;
             annotation.seenByMe = location.Thread.SeenUsers
-              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
             annotation.bookmarked = head.Bookmarkers
-              .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
             return annotation;
           });
         res.status(200).json(annotations);
@@ -233,7 +233,7 @@ router.post('/annotation', (req, res)=> {
           content: req.body.content,
           visibility: req.body.visibility,
           anonymity: req.body.anonymity,
-          author_id: req.session.userId
+          author_id: req.user.id
         }},
         {
           include: [{association: 'HeadAnnotation'}]
@@ -244,7 +244,7 @@ router.post('/annotation', (req, res)=> {
 
         req.body.tags.forEach((tag) => Tag.create({annotation_id: annotation.id, tag_type_id: tag}));
         req.body.userTags.forEach((user_id) => User.findByPk(user_id).then(user => annotation.addTaggedUser(user)));
-        User.findByPk(req.session.userId).then(user => {
+        User.findByPk(req.user.id).then(user => {
           if (req.body.replyRequest) annotation.addReplyRequester(user);
           if (req.body.star) annotation.addStarrer(user);
           if (req.body.bookmark) annotation.addBookmarker(user);
@@ -303,11 +303,11 @@ router.get('/reply/:id', (req, res)=> {
       ]
     })
     .then(annotations => {
-      let isUserInstructor = instructors.indexOf(req.session.userId) >= 0;
+      let isUserInstructor = instructors.indexOf(req.user.id) >= 0;
       return annotations
         .filter(annotation => {
           if (annotation.visibility === 'MYSELF'
-            && annotation.Author.id !== req.session.userId) {
+            && annotation.Author.id !== req.user.id) {
             return false;
           }
           if (annotation.visibility === 'INSTRUCTORS' && !isUserInstructor) {
@@ -330,15 +330,15 @@ router.get('/reply/:id', (req, res)=> {
           reply.visibility = annotation.visibility;
           reply.anonymity = annotation.anonymity;
           reply.replyRequestedByMe = annotation.ReplyRequesters
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            .reduce((bool, user)=> bool || user.id == req.user.id, false);
           reply.replyRequestCount = annotation.ReplyRequesters.length;
           reply.starredByMe = annotation.Starrers
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            .reduce((bool, user)=> bool || user.id == req.user.id, false);
           reply.starCount = annotation.Starrers.length;
           reply.seenByMe = annotation.Thread.SeenUsers
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            .reduce((bool, user)=> bool || user.id == req.user.id, false);
           reply.bookmarked = annotation.Bookmarkers
-            .reduce((bool, user)=> bool || user.id == req.session.userId, false);
+            .reduce((bool, user)=> bool || user.id == req.user.id, false);
           return reply;
         });
     })
@@ -370,14 +370,14 @@ router.post('/reply/:id', (req, res)=>{
       visibility: req.body.visibility,
       anonymity: req.body.anonymity,
       thread_id: parent.Thread.id,
-      author_id: req.session.userId,
+      author_id: req.user.id,
       Tags: req.body.tags.map(tag_type => {return {tag_type_id: tag_type};}),
     },{
       include: [{association: 'Tags'}]
     }).then((child) => {
       req.body.userTags.forEach(user_id =>
         User.findByPk(user_id).then(user => child.addTaggedUser(user)));
-      User.findByPk(req.session.userId).then(user => {
+      User.findByPk(req.user.id).then(user => {
         if (req.body.replyRequest) child.addReplyRequester(user);
         if (req.body.star) child.addStarrer(user);
         if (req.body.bookmark) child.addBookmarker(user);
@@ -419,7 +419,7 @@ router.put('/annotation/:id', (req, res) => {
           Promise.all(req.body.tags.map(tag => Tag.create({annotation_id: annotation.id, tag_type_id: tag})))
             .then(tags => annotation.setTags(tags));
         }
-        return User.findByPk(req.session.userId).then(user => {
+        return User.findByPk(req.user.id).then(user => {
           if (req.body.replyRequest) annotation.addReplyRequester(user);
           else annotation.removeReplyRequester(user);
         });
@@ -456,7 +456,7 @@ router.delete('/annotation/:id', (req, res) => {
  */
 router.post('/seen/:id', (req, res) => {
   Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation =>
-    User.findByPk(req.session.userId).then(user => {
+    User.findByPk(req.user.id).then(user => {
       annotation.Thread.addSeenUser(user);
     }).then(() => res.status(200))
   );
@@ -469,7 +469,7 @@ router.post('/seen/:id', (req, res) => {
  */
 router.post('/star/:id', (req, res) => {
   Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation =>
-    User.findByPk(req.session.userId).then(user => {
+    User.findByPk(req.user.id).then(user => {
       if (req.body.star) {annotation.addStarrer(user);}
       else {annotation.removeStarrer(user);}
       annotation.Thread.addSeenUser(user);
@@ -485,7 +485,7 @@ router.post('/star/:id', (req, res) => {
  */
 router.post('/replyRequest/:id', (req, res) => {
   Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation =>
-    User.findByPk(req.session.userId).then(user => {
+    User.findByPk(req.user.id).then(user => {
       if (req.body.replyRequest) {annotation.addReplyRequester(user);}
       else {annotation.removeReplyRequester(user);}
       annotation.Thread.addSeenUser(user);
@@ -501,7 +501,7 @@ router.post('/replyRequest/:id', (req, res) => {
  */
 router.post('/bookmark/:id', (req, res) => {
   Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation =>
-    User.findByPk(req.session.userId).then(user => {
+    User.findByPk(req.user.id).then(user => {
       if (req.body.bookmark) {annotation.addBookmarker(user);}
       else {annotation.removeBookmarker(user);}
       annotation.Thread.addSeenUser(user);

@@ -14,32 +14,6 @@ var upload = multer({ dest: 'uploads/' });
 const router = express.Router();
 
 /**
- * Set current class.
- * @name POST/api/classes/current
- * @param id: id of class
- */
-router.post('/current', (req, res) => {
-  req.session.classId = req.body.id;
-  res.status(200).json(req.body.id);
-});
-
-/**
- * Get current class.
- * @name GET/api/classes/current
- */
-router.get('/current', (req, res) => {
-  if(!req.session.classId){
-    res.status(200).json(null);
-  }
-  else{
-    Class.findByPk(req.session.classId).then(nb_class => {
-      res.status(200).json(nb_class);
-    });
-  }
-
-});
-
-/**
  * Create a new class.
  * @name POST/api/classes/create
  * @param name: name of class
@@ -49,7 +23,7 @@ router.post('/create', (req, res) => {
   if (!name){
     res.status(400).json({msg: "bad name"});
   }
-  utils.createClass(name, req.session.userId)
+  utils.createClass(name, req.user.id)
   .then((nb_class) =>{
     res.status(200).json(nb_class);
   });
@@ -76,7 +50,7 @@ router.post('/edit', (req, res) => {
  * @name GET/api/classes/create
  */
 router.get('/instructor',(req,res) =>{
-  User.findByPk(req.session.userId).then((user) =>
+  User.findByPk(req.user.id).then((user) =>
     user.getInstructorClasses()
   ).then((classes) => {
     res.status(200).json(classes);
@@ -88,7 +62,7 @@ router.get('/instructor',(req,res) =>{
  * @name GET/api/classes/student
  */
 router.get('/student', (req,res) =>{
-  User.findByPk(req.session.userId).then((user) =>
+  User.findByPk(req.user.id).then((user) =>
     user.getMemberSections({raw: true})
   ).then((sections) => {
     return Promise.all(sections.map((section) => Class.findByPk(section.class_id)));
@@ -110,7 +84,7 @@ router.get('/instructorList/:id', (req,res) =>{
   Class.findByPk(req.params.id,
     {include:[{association: 'Instructors', attributes:['id','username','first_name','last_name','email']}]})
     .then((nb_class) =>{
-      if(nb_class.Instructors.filter(instructor => instructor.id == req.session.userId).length < 1){
+      if(nb_class.Instructors.filter(instructor => instructor.id == req.user.id).length < 1){
         res.status(401).json(null);
       }
       else{
@@ -132,7 +106,7 @@ router.get('/studentList/:id', (req,res) =>{
     ]},
     {association: 'Instructors',
     required: true,
-    where:{id: req.session.userId}}
+    where:{id: req.user.id}}
   ]})
     .then((nb_class) =>{
       if(nb_class){
@@ -179,7 +153,7 @@ router.get('/studentList/:id', (req,res) =>{
  */
 router.post('/instructor/:id', (req, res) => {
   Class.findByPk(req.params.id, {include:[
-    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
   .then(nb_class => {
     if (!nb_class){
       res.status(401).json(null);
@@ -200,7 +174,7 @@ router.post('/instructor/:id', (req, res) => {
  */
 router.delete('/instructor/:courseid/:userid', (req, res) => {
   Class.findByPk(req.params.courseid, {include:[
-    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
   .then(nb_class => {
     if (!nb_class){
       res.status(401).json(null);
@@ -220,7 +194,7 @@ router.delete('/instructor/:courseid/:userid', (req, res) => {
  */
 router.post('/student/:id', (req, res) => {
   Class.findByPk(req.params.id, {include:[
-    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
   .then(nb_class => {
     if (!nb_class){
       res.status(401).json(null);
@@ -240,7 +214,7 @@ router.post('/student/:id', (req, res) => {
 
 router.post('/upload/:id', upload.single("file"), function(req, res) {
   Class.findByPk(req.params.id, {include:[
-    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
   .then(nb_class => {
     if (!nb_class){
       res.status(401).json(null);
@@ -291,7 +265,7 @@ router.post('/upload/:id', upload.single("file"), function(req, res) {
  * */
 router.delete('/student/:courseid/:userid', (req, res) => {
   Class.findByPk(req.params.courseid, {include:[
-    {association: 'Instructors', required:true, where:{id: req.session.userId}}]})
+    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
   .then(nb_class => {
     if (!nb_class){
       res.status(401).json(null);
@@ -308,7 +282,7 @@ router.delete('/student/:courseid/:userid', (req, res) => {
  * @name GET/api/classes/sourceList
  */
 router.get('/sourceList', (req, res) => {
-  Source.findAll({where:{class_id: req.session.classId}})
+  Source.findAll({where:{class_id: req.query.classId}})
     .then(sources => res.status(200).json(sources));
 });
 

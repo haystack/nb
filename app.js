@@ -1,7 +1,7 @@
 const express = require('express');
+const passport = require('passport');
 const path = require('path');
 const logger = require('morgan');
-const session = require('express-session');
 const cors = require('cors');
 const Source = require('./models').Source;
 
@@ -11,6 +11,8 @@ const classesRouter = require('./routes/classes');
 const filesRouter = require('./routes/files');
 const annotationsRouter = require('./routes/annotations');
 const gradesRouter = require('./routes/grades');
+
+require('./auth/auth');
 
 const app = express();
 
@@ -46,27 +48,18 @@ app.use(cors({
   },
   credentials: true}));
 
-//Need to make dynamic function that reads from url sources and checks origin.
-
-app.use(session({ 
-    secret: 'super-secret-password',
-    name: 'nb.user.id',
-    cookie:{
-      secure: true,
-      httpOnly: false,
-      sameSite: 'none'
-    },
-    saveUninitialized: false, 
-    resave: true,
-    rolling: true
-}));
-
 app.use('/', express.static('public'));
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
-app.use('/api/classes', classesRouter);
-app.use('/api/files', filesRouter);
-app.use('/api/annotations', annotationsRouter);
-app.use('/api/grades', gradesRouter);
+app.use('/api/classes',     passport.authenticate('jwt', { session: false }), classesRouter);
+app.use('/api/files',       passport.authenticate('jwt', { session: false }), filesRouter);
+app.use('/api/annotations', passport.authenticate('jwt', { session: false }), annotationsRouter);
+app.use('/api/grades',      passport.authenticate('jwt', { session: false }), gradesRouter);
+
+// Handle errors.
+app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.json({ success: false, error: err });
+});
 
 module.exports = app;
