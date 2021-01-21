@@ -287,7 +287,9 @@
           })
       },
       loadFiles: function() {
-        axios.get(`/api/files/folder/${this.currentDir.id}`)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/files/folder/${this.currentDir.id}`, headers)
           .then(res => {
           
             for (let file of res.data) {

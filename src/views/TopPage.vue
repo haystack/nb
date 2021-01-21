@@ -15,7 +15,8 @@
   import NavBar from '../components/NavBar.vue'
   import UserCreate from "../components/user/UserCreate.vue"
   import UserLogin from "../components/user/UserLogin.vue"
-
+  import VueJwtDecode from "vue-jwt-decode";
+  
   export default {
     name: "top-page",
     data() {
@@ -24,19 +25,31 @@
         messages: null,
       }
     },
-    mounted:  function() {
-      axios.get("/api/users/current/").then(res => {
-        if (res.data) {
-          this.user = res.data
-          this.$router.push('home')
+    mounted: function() {
+        try {
+            const token = localStorage.getItem("nb.user");
+            if (token) {
+                const decoded = VueJwtDecode.decode(token);
+                if (decoded.user.username && decoded.user.username !== '') {
+                    this.user = decoded.user
+                    this.$router.push('home')
+                }   
+            }
+        } catch (error) {
+            console.error(error, 'error from decoding token')
+        }
+      
+      eventBus.$on("signin-success", () => {
+        try {
+            const token = localStorage.getItem("nb.user");
+            const decoded = VueJwtDecode.decode(token);
+            this.user = decoded.user
+            this.$router.push('home')
+        } catch (error) {
+            console.error(error, 'error from decoding token')
         }
       })
-      eventBus.$on("signin-success", () => {
-        axios.get("/api/users/current/").then(res => {
-          this.user = res.data
-          this.$router.push('home')
-        })
-      })
+      
       eventBus.$on("signout-success", () => { this.user = null })
     },
     components: {

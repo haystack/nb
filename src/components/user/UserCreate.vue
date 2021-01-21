@@ -63,34 +63,34 @@
       },
     },
     methods: {
-      createUser: function() {
-        axios.post("api/users/register", this.newUser)
-          .then(() => {
-            axios.post("/api/users/login", this.newUser)
-            .then(() => eventBus.$emit('signin-success'))
-          })
-          .catch(err => {
-            console.error(`Signup failed: ${err.response.data.error}`)
-            this.setRegisterMessage("There is already any account configured for this username/email. If you don't know the password, please use the password reset option.")
-
-          })
-          .then(() => this.resetForm())
-      },
-      resetForm: function() {
-        this.newUser = {
-          username: "",
-          first: "",
-          last: "",
-          email: "",
-          password: "",
-        }
-      },
-      setRegisterMessage: function(msg, disappear=true) {
-        this.registerMessage = msg;
-        if (disappear) {
-          setTimeout(() => this.registerMessage = "", 10000);
-        }
-      },
+        createUser: async function() {
+            try {
+                await axios.post("api/users/register", this.newUser)
+                const res = await axios.post("/api/users/login", this.newUser)
+                const token = res.data.token
+                localStorage.setItem("nb.user", token);
+                eventBus.$emit('signin-success')
+                this.resetForm()
+            } catch (error) {
+                console.error(`Signup failed: ${error.response.data.msg}`)
+                this.setRegisterMessage("There is already any account configured for this username/email. If you don't know the password, please use the password reset option.")
+            }
+        },
+        resetForm: function() {
+            this.newUser = {
+            username: "",
+            first: "",
+            last: "",
+            email: "",
+            password: "",
+            }
+        },
+        setRegisterMessage: function(msg, disappear=true) {
+            this.registerMessage = msg;
+            if (disappear) {
+            setTimeout(() => this.registerMessage = "", 10000);
+            }
+        },
     },
   }
 </script>

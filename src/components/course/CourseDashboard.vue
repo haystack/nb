@@ -138,7 +138,9 @@ export default {
     },
     loadInstructors: function(){
       if (this.userType == "instructor") {
-        axios.get(`/api/classes/instructorList/${this.course.id}`)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/classes/instructorList/${this.course.id}`, headers)
           .then((res) => {
             this.instructors = res.data
           })
@@ -146,16 +148,20 @@ export default {
     },
     loadStudents: function(){
       if (this.userType == "instructor") {
-        this.$isLoading(true) // show loading screen since this can take a while      
-        axios.get(`/api/classes/studentList/${this.course.id}`)
+        this.$isLoading(true) // show loading screen since this can take a while    
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}  
+        axios.get(`/api/classes/studentList/${this.course.id}`, headers)
           .then((res) => {
             this.students = res.data
-            this.$isLoading(false) // show loading screen      
+            this.$isLoading(false) // close loading screen      
           })
       }
     },
     loadUsers: function(){
-      axios.get(`/api/users/all`)
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.get(`/api/users/all`, headers)
         .then(res => {
           this.allUsers = res.data
         })
@@ -211,7 +217,9 @@ export default {
     //   this.$router.push("grading")
     // },
     loadFiles: function(){
-      axios.get(`/api/files/class/${this.course.id}`)
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.get(`/api/files/class/${this.course.id}`, headers)
         .then(res => {
           this.filePath = [res.data]
         })

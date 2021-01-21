@@ -64,45 +64,47 @@
       }
     },
     methods: {
-      login: function() {
-        if(!this.submitEnabled) return
-        axios.post("/api/users/login", this.user)
-          .then(() => {
-            eventBus.$emit('signin-success')
-            this.resetForm()
-          })
-          .catch(err => {
-            if (err.response.status === 401) {
-              this.message = "Invalid username and password. Try again!"
+        login: async function() {
+            try {
+                if(!this.submitEnabled) return
+                const res = await axios.post("/api/users/login", this.user)
+                const token = res.data.token
+                localStorage.setItem("nb.user", token);
+                eventBus.$emit('signin-success')
+                this.resetForm()
+            } catch (error) {
+                if (error.response.status === 401) {
+                    this.message = "Invalid username and password. Try again!"
+                }
+
+                console.error(`Signin failed: ${err.response.data.error}`)
             }
-            console.error(`Signin failed: ${err.response.data.error}`)
-          })
-      },
-      resetForm: function() {
-        this.user = {
-          username: "",
-          password: "",
         },
-        this.message = null
-      },
-      forgotPassword: function() {
-        this.$isLoading(true) // show loading screen      
-        axios.post("/api/users/forgotpassword", this.user)
-          .then(() => {
-            this.$isLoading(false) // hide loading screen      
-            this.setForgotPasswordMessage("Email sent")
-          })
-          .catch(err => {            
-            this.$isLoading(false) // hide loading screen      
-            this.setForgotPasswordMessage("No user with that email. Please try again.")
-          })
-      },
-      setForgotPasswordMessage: function(msg, disappear=true) {
-        this.forgotPasswordMessage = msg;
-        if (disappear) {
-          setTimeout(() => this.forgotPasswordMessage = "", 2000);
-        }
-      },
+        resetForm: function() {
+            this.user = {
+            username: "",
+            password: "",
+            },
+            this.message = null
+        },
+        forgotPassword: function() {
+            this.$isLoading(true) // show loading screen      
+            axios.post("/api/users/forgotpassword", this.user)
+            .then(() => {
+                this.$isLoading(false) // hide loading screen      
+                this.setForgotPasswordMessage("Email sent")
+            })
+            .catch(err => {            
+                this.$isLoading(false) // hide loading screen      
+                this.setForgotPasswordMessage("No user with that email. Please try again.")
+            })
+        },
+        setForgotPasswordMessage: function(msg, disappear=true) {
+            this.forgotPasswordMessage = msg;
+            if (disappear) {
+            setTimeout(() => this.forgotPasswordMessage = "", 2000);
+            }
+        },
     },
   }
 </script>

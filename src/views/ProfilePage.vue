@@ -16,6 +16,8 @@
   import axios from "axios"
   import NavBar from '../components/NavBar.vue'
   import UserProfile from '../components/user/UserProfile.vue'
+  import VueJwtDecode from "vue-jwt-decode";
+
   export default {
     name: 'profile-page',
     components: {
@@ -55,37 +57,31 @@
         this.$router.push({ name: page, params: { class: null } })
       },
     },
-    created: function() {
-      axios.get("/api/users/current") 
-        .then(res => {
-          if (res.data.username && res.data.username.length > 0) {
-            this.user = res.data
-          } else {
-            axios.post("api/users/getuser", {id: this.reset_password_id}) // pass in id to get that user is none is currently logged in
-              .then(res => {
-                this.user = res.data
-              })
-              .catch(() => {
+    created: async function() {
+        try {
+            const token = localStorage.getItem("nb.user");
+            if (token) {
+                const decoded = VueJwtDecode.decode(token);
+                if (decoded.user.username && decoded.user.username !== '') {
+                    this.user = decoded.user
+                } 
+            } else if (this.reset_password_id) {
+                const res = await axios.post("api/users/getuser", {id: this.reset_password_id}) // pass in id to get that user is none is currently logged in
+                const token = res.data.token
+                localStorage.setItem("nb.user", token);
+                const decoded = VueJwtDecode.decode(token);
+                this.user = decoded.user
+            } else {
                 this.user = null
+                localStorage.removeItem("nb.user");
+                localStorage.removeItem("nb.current.course");
                 this.redirect('top-page')
-              })
-          }
-        })
-        .catch(() => {
-          axios.post("api/users/getuser", {id: this.reset_password_id}) // pass in id to get that user is none is currently logged in
-            .then(res => {
-              if (res.data.username && res.data.username.length > 0) {
-                this.user = res.data
-              } else {
-                this.user = null
-                this.redirect('top-page')
-              }
-            })
-            .catch(() => {
-              this.redirect('top-page')
-            })
-        })
-      
+            }
+        } catch (error) {
+            console.error(error, 'error from decoding token')
+            this.user = null
+            this.redirect('top-page')
+        }
     }
   }
 </script>

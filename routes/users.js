@@ -7,6 +7,28 @@ const transporter = require('../email-config');
 const { v4: uuidv4 } = require('uuid');
 
 /**
+ * Get active user based on the id given in the request
+ * @name POST/api/users/getuser
+ */
+router.post('/getuser', (req, res) => {
+    if (!req.body.id) {
+      res.status(200).json(null);
+      return null;
+    } 
+    User.findOne({ where: { reset_password_id: req.body.id }}).then(function (user) {
+      if (!user) {
+        res.status(200).json(null);
+        return null;
+      } else {
+        //req.session.userId = user.id;
+        //res.status(200).json(user);
+        const token = jwt.sign({ user: user }, 'TOP_SECRET');
+        res.status(200).json({ token });
+      }
+    });
+})
+
+/**
  * Get all users.
  * @name POST/api/users/all
  */
@@ -20,33 +42,36 @@ router.get('/all', passport.authenticate('jwt', { session: false }), (req, res) 
  * Set username of active user.
  * @name POST/api/users/signin
  */
-router.post('/login', async (req, res, next) => {
-    passport.authenticate('login', async (err, user, info) => {
-        try {
-            if (err || !user) {
-                const error = new Error('An error occurred.');
-                return next(error);
-            }
+router.post('/login', async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+    
+    const user = await User.findOne({ where: { username: username }})
 
-            req.login(user, { session: false }, async (error) => {
-                if (error) return next(error);
-                const body = { username: user.username, id: user.id, name: user.name };
-                const token = jwt.sign({ user: body }, 'TOP_SECRET');
-                return res.json({ token });
-            })
-        } catch (error) {
-            return next(error);
-        }
-    })(req, res, next);
-});
-  
-router.post(
-    '/register',
-    passport.authenticate('register', { session: false }),
-    async (req, res, next) => {
-        res.status(200).json({msg: "registered", user: req.user});
+    if (!user) {
+        res.status(401).json({msg: "No user with username " + username});
+    } else if (!user.validPassword(password)) {
+        res.status(401).json({msg: "Incorrect password"});
+    } else {
+        const token = jwt.sign({ user: user }, 'TOP_SECRET');
+        res.status(200).json({ token });
     }
-)
+});
+
+router.post('/register', (req, res) => {
+    User.create({
+        username: req.body.username,
+        first_name: req.body.first,
+        last_name: req.body.last,
+        email: req.body.email,
+        password: req.body.password
+    }).then(() => {
+      res.status(200).json({msg: "registered"});
+    }).catch((err)=>{
+      console.log("error:" + err);
+      res.status(400).json({msg: "Error registering"})
+    })
+});
 
 router.post('/forgotpassword', (req, res) => {
   var reset_password_id = uuidv4();
