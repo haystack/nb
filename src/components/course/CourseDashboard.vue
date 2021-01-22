@@ -167,24 +167,28 @@ export default {
         })
     },
     addUser: function(user, role) {
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
       if (role === 'student') {
-        axios.post(`/api/classes/student/${this.course.id}`, user)
+        axios.post(`/api/classes/student/${this.course.id}`, user, headers)
           .then(() => this.loadStudents())
       } else if (role === 'instructor') {
-        axios.post(`/api/classes/instructor/${this.course.id}`, user)
+        axios.post(`/api/classes/instructor/${this.course.id}`, user, headers)
           .then(() => this.loadInstructors())
       }
     },
     removeUsers: function(selectedRows) {
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
       this.$isLoading(true); // show loading screen
       let requests = selectedRows.map((user) => {
         return new Promise((resolve) => {
           if (user.role === 'student') {
-            axios.delete(`/api/classes/student/${this.course.id}/${user.id}`)
+            axios.delete(`/api/classes/student/${this.course.id}/${user.id}`, headers)
             .then(() => resolve("success"))
             .catch(() => resolve())
           } else if (user.role === 'instructor') {
-            axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`)
+            axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`, headers)
             .then(() => resolve("success"))
             .catch(() => resolve())
           }
@@ -197,12 +201,14 @@ export default {
       })
     },
     uploadUsersFile: function(formData) {
+        const token = localStorage.getItem("nb.user");
         this.$isLoading(true) // show loading screen      
         axios.post( `/api/classes/upload/${this.course.id}`,
         formData,
         {
           headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': 'multipart/form-data',
+              'Authorization': 'Bearer ' + token 
           }
         }
       ).then((response) => {

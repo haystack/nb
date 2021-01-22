@@ -40,16 +40,10 @@
         this.$router.push({ name: page })
       },
       logout: function() {
-        axios.post('api/users/logout')
-          .then(() => {
-            eventBus.$emit('signout-success', true);
-          })
-          .catch((err) => {
-            console.error(`Logout failed: ${err.response.data.error}`)
-          })
-          .then(() => {
-            this.$router.push({ name: 'top-page' })
-          })
+        localStorage.removeItem("nb.user")
+        localStorage.removeItem("nb.current.course")
+        eventBus.$emit('signout-success', true)
+        this.$router.push({ name: 'top-page' })
       }
     },
     components: {

@@ -80,8 +80,11 @@
     },
     methods: {
       edit: function() {
-        axios.post("/api/classes/edit", {course: this.newCourse, sections: this.sections})
-          .then(() => {
+        const token = localStorage.getItem("nb.user")
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post("/api/classes/edit", {course: this.newCourse, sections: this.sections}, headers)
+          .then((res) => {
+            localStorage.setItem("nb.current.course", JSON.stringify(res.data))
             location.reload();
 
           })

@@ -40,8 +40,8 @@ router.post('/edit', (req, res) => {
     res.status(400).json({msg: "bad id"});
     return;
   }
-  utils.editClass(id, req.body.course).then(() => {
-    res.status(200).json({})
+  utils.editClass(id, req.body.course, "").then(() => {
+    res.status(200).json(req.body.course)
   });
 });
 
