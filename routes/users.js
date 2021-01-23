@@ -20,8 +20,6 @@ router.post('/getuser', (req, res) => {
         res.status(200).json(null);
         return null;
       } else {
-        //req.session.userId = user.id;
-        //res.status(200).json(user);
         const token = jwt.sign({ user: user }, 'TOP_SECRET');
         res.status(200).json({ token });
       }

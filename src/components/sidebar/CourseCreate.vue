@@ -27,11 +27,12 @@
     },
     methods: {
       createCourse: function() {
-        axios.post("/api/classes/create", this.newCourse).then(res => {
-          this.newCourse = { name: "" }
-          axios.post("/api/classes/current", { id: res.data.id }).then(() => {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post("/api/classes/create", this.newCourse, headers).then(res => {
+            this.newCourse = { name: "" }
+            localStorage.setItem("nb.current.course",JSON.stringify(res.data))
             this.$emit("create-course")
-          })
         })
       },
     }

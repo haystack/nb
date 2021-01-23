@@ -93,7 +93,9 @@
     },
     methods: {
       editPersonal: function() {
-        axios.put("api/users/editPersonal", this.newUser)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.put("api/users/editPersonal", this.newUser, headers)
         .then(() => {
           this.setPersonalMessage("Success: Personal Details saved");
         })
@@ -102,7 +104,9 @@
         })
       },
       editAuth: function() {
-        axios.put("api/users/editAuth", this.newUser)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.put("api/users/editAuth", this.newUser, headers)
         .then(() => {
           this.setAuthMessage("Success: New password saved", true)
         })
