@@ -73,7 +73,9 @@ PORT=443
 
 8. To start NB, run the following command `sudo pm2 start npm --name "NB" --time -- start`.
 
-9. You should be able to access NB using `[HOST].csail.mit.edu`.
+9. To make PM2 run automatically after reboot, run the following command `sudo pm2 startup` then run `sudo pm2 save`. 
+
+10. You should be able to access NB using `[HOST].csail.mit.edu`.
 
 ### Useful PM2 Commands
 ```
