@@ -97,21 +97,37 @@ router.get('/annotation', (req, res)=> {
         {association: 'GlobalSection', include: [{
           association: 'MemberStudents', attributes: ['id']
         }]},
-        {association: 'Sections', include: [{
+        {association: 'Sections', separate: true, include: [{ // with the hasMany Sections association, add a "separate: true" to make this join happen separately so that there are no duplicate joins
             association: 'MemberStudents', attributes: ['id']
         }]}
       ]
     }]})
   .then(source => {
-    let instructors = source.Class.Instructors.map(user => user.id);
-    let isUserInstructor = instructors.indexOf(req.user.id) >= 0;
-    let isUserStudent = source.Class.GlobalSection.MemberStudents.find(user => user.id === req.user.id);
-    
+    let instructors = new Set(source.Class.Instructors.map(user => user.id))
+    let globalSectionStudents = new Set(source.Class.GlobalSection.MemberStudents.map(user => user.id))
+    let isUserInstructor = instructors.has(req.user.id);
+    let isUserStudent = globalSectionStudents.has(req.user.id);
+
     if (!isUserInstructor && !isUserStudent) {
       res.status(200).json([]);
       return;
     }
 
+    let usersICanSee = new Set([])
+    let isSingleSectionClass = source.Class.Sections.length === 1
+
+    for (const section of source.Class.Sections) {
+      let memberIds = section.MemberStudents.map(user => user.id)
+      if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
+        usersICanSee = new Set(memberIds)
+        break;
+      } else {
+        if (memberIds.indexOf(req.user.id >= 0 && !section.is_global) {
+          usersICanSee = new Set(memberIds)
+          break
+        }
+      }
+    }
     source.getLocations({include:
       [
         {association:'HtmlLocation'},
@@ -131,18 +147,7 @@ router.get('/annotation', (req, res)=> {
           {association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
         ]}
       ]})
-      .then(locations => {          
-          let usersICanSee = []
-          let isSingleSectionClass = source.Class.Sections.length === 1
-
-          source.Class.Sections.forEach( section => {
-            if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
-                usersICanSee = section.MemberStudents.map(user => user.id)
-            } else if (section.MemberStudents.find(user => user.id === req.user.id) && !section.is_global) {
-                usersICanSee = section.MemberStudents.map(user => user.id)
-            }
-          })
-          
+      .then(locations => {        
         let annotations = locations
           .filter((location) => {
             let head = location.Thread.HeadAnnotation;
@@ -152,7 +157,7 @@ router.get('/annotation', (req, res)=> {
             }
             if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
               return false;
-            } if (isUserStudent && head.Author.id !== req.user.id && !usersICanSee.includes(head.Author.id) && !instructors.includes(head.Author.id)) {
+            } if (isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id)) {
                 return false;
             }
             return true;
@@ -174,7 +179,7 @@ router.get('/annotation', (req, res)=> {
             annotation.timestamp = head.dataValues.created_at;
             annotation.author = head.Author.id;
             annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
-            annotation.instructor = instructors.indexOf(head.Author.id) >= 0;
+            annotation.instructor = instructors.has(head.Author.id);
             annotation.html = head.content;
             annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
             annotation.people = head.TaggedUsers.map(userTag => userTag.id);
