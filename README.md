@@ -67,6 +67,7 @@ SSL_KEY=PATH_TO/privkey.pem
 SSL_CERT=PATH_TO/cert.pem
 SSL_CA=PATH_TO/chain.pem
 PORT=443
+JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
 ```
 
 7. To generate UI bundle, run `npm run build`.

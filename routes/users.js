@@ -5,6 +5,9 @@ const User = require('../models').User;
 const router = express.Router();
 const transporter = require('../email-config');
 const { v4: uuidv4 } = require('uuid');
+const donenv = require('dotenv');
+
+donenv.config();
 
 /**
  * Get active user based on the id given in the request
@@ -20,7 +23,7 @@ router.post('/getuser', (req, res) => {
         res.status(200).json(null);
         return null;
       } else {
-        const token = jwt.sign({ user: user }, 'TOP_SECRET');
+        const token = jwt.sign({ user: user }, process.env.JWT_SECRET);
         res.status(200).json({ token });
       }
     });
@@ -51,7 +54,7 @@ router.post('/login', async (req, res) => {
     } else if (!user.validPassword(password)) {
         res.status(401).json({msg: "Incorrect password"});
     } else {
-        const token = jwt.sign({ user: user }, 'TOP_SECRET');
+        const token = jwt.sign({ user: user }, process.env.JWT_SECRET);
         res.status(200).json({ token });
     }
 });
