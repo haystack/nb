@@ -45,6 +45,8 @@
   import VTooltip from 'v-tooltip'
   import VModal from 'vue-js-modal'
   import Datepicker from 'vuejs-datepicker';
+  import VueJwtDecode from "vue-jwt-decode";
+
   Vue.use(VTooltip)
   Vue.use(VModal)
 
@@ -67,23 +69,33 @@
       }
     },
     created: function() {
-      axios.get("/api/users/current").then(res => {
-        if (!(res.data.username !== undefined && res.data.username !== "")) {
-          this.$router.push('/')
+        try {
+            const token = localStorage.getItem("nb.user");
+            if (token) {
+                const decoded = VueJwtDecode.decode(token);
+                if (!(decoded.user.username !== undefined && decoded.user.username !== "")) {
+                    this.$router.push('/')
+                }   
+            }
+        } catch (error) {
+            this.$router.push('/')
+            console.log(error, 'error from decoding token')
         }
-      })
-      .catch(() => {
-        this.$router.push('/')
-      })
     },
     mounted: function() {
-      axios.get('/api/grades/gradingSystems').then(res => {
+      const token = localStorage.getItem("nb.user");
+      const course = JSON.parse(localStorage.getItem('nb.current.course'))
+      const config = { 
+          headers: { Authorization: 'Bearer ' + token },
+          params: { classId: course.id }
+      }
+      axios.get('/api/grades/gradingSystems', config).then(res => {
         this.gradingSystems = res.data
         if (this.gradingSystems.length > 0) {
           this.selectedGrading = 0 // defaults to the first one
         }
       })
-      axios.get('/api/classes/sourceList').then(res => {
+      axios.get('/api/classes/sourceList', config).then(res => {
         this.sources = res.data
         if (this.sources.length > 0) {
           this.selectedSource = 0 // defaults to the first one
@@ -92,11 +104,18 @@
     },
     methods: {
       createGrades: function() {
-        axios.get("/api/grades/grades",{params:{
-          gradingSystemId: this.gradingSystems[this.selectedGrading].id,
-          sourceId: this.sources[this.selectedSource].id,
-          date: this.date
-        }})
+        const token = localStorage.getItem("nb.user");
+        const course = JSON.parse(localStorage.getItem('nb.current.course'))
+        const config = { 
+            headers: { Authorization: 'Bearer ' + token }, 
+            params:{
+                gradingSystemId: this.gradingSystems[this.selectedGrading].id,
+                sourceId: this.sources[this.selectedSource].id,
+                date: this.date,
+                classId: course.id
+            }
+        }
+        axios.get("/api/grades/grades", config)
         .then(res => {
           var csv = 'Name,Email,Username,Total Comments,Total Words,Total Characters,Total Tags,Grade\n';
           res.data.forEach(function(row) {
@@ -144,7 +163,7 @@
   .vdp-datepicker {
     display: inline-block;
   }
-  /deep/ .vdp-datepicker .vdp-datepicker__calendar {
+  .vdp-datepicker .vdp-datepicker__calendar {
     bottom: 0;
     right: 0;
   }

@@ -1,48 +1,39 @@
 const express = require('express');
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
 const User = require('../models').User;
 const router = express.Router();
 const transporter = require('../email-config');
 const { v4: uuidv4 } = require('uuid');
+const donenv = require('dotenv');
 
-/**
- * Get active user
- * @name GET/api/users/current
- */
-router.get('/current', (req, res) => {
-  if (!req.session.userId){
-    res.status(200).json(null);
-    return null;
-  }
-  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name', 'email']}).then((user) => {
-    res.status(200).json(user);
-  });
-});
+donenv.config();
 
 /**
  * Get active user based on the id given in the request
  * @name POST/api/users/getuser
  */
 router.post('/getuser', (req, res) => {
-  if (!req.body.id) {
-    res.status(200).json(null);
-    return null;
-  } 
-  User.findOne({ where: { reset_password_id: req.body.id }}).then(function (user) {
-    if (!user) {
+    if (!req.body.id) {
       res.status(200).json(null);
       return null;
-    } else {
-      req.session.userId = user.id;
-      res.status(200).json(user);
-    }
-  });
+    } 
+    User.findOne({ where: { reset_password_id: req.body.id }}).then(function (user) {
+      if (!user) {
+        res.status(200).json(null);
+        return null;
+      } else {
+        const token = jwt.sign({ user: user }, process.env.JWT_SECRET);
+        res.status(200).json({ token });
+      }
+    });
 })
 
 /**
  * Get all users.
  * @name POST/api/users/all
  */
-router.get('/all', (req, res) => {
+router.get('/all', passport.authenticate('jwt', { session: false }), (req, res) => {
   User.findAll({attributes:['id','username','name','email']}).then((users) => {
     res.status(200).json(users);
   });
@@ -52,34 +43,35 @@ router.get('/all', (req, res) => {
  * Set username of active user.
  * @name POST/api/users/signin
  */
-router.post('/login', (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  User.findOne({ where: { username: username }}).then(function (user) {
+router.post('/login', async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+    
+    const user = await User.findOne({ where: { username: username }})
+
     if (!user) {
-      res.status(401).json({msg: "No user with username " + username});
+        res.status(401).json({msg: "No user with username " + username});
     } else if (!user.validPassword(password)) {
-      res.status(401).json({msg: "Incorrect password"});
+        res.status(401).json({msg: "Incorrect password"});
     } else {
-      req.session.userId = user.id;
-      res.status(200).json({username: user.username, id: user.id, name: user.name});
+        const token = jwt.sign({ user: user }, process.env.JWT_SECRET);
+        res.status(200).json({ token });
     }
-  });
 });
 
 router.post('/register', (req, res) => {
-  User.create({
-    username: req.body.username,
-    first_name: req.body.first,
-    last_name: req.body.last,
-    email: req.body.email,
-    password: req.body.password
-  }).then(() => {
-    res.status(200).json({msg: "registered"});
-  }).catch((err)=>{
-    console.log("error:" + err);
-    res.status(400).json({msg: "Error registering"})
-  })
+    User.create({
+        username: req.body.username,
+        first_name: req.body.first,
+        last_name: req.body.last,
+        email: req.body.email,
+        password: req.body.password
+    }).then(() => {
+      res.status(200).json({msg: "registered"});
+    }).catch((err)=>{
+      console.log("error:" + err);
+      res.status(400).json({msg: "Error registering"})
+    })
 });
 
 router.post('/forgotpassword', (req, res) => {
@@ -114,13 +106,13 @@ router.post('/forgotpassword', (req, res) => {
   });
 });
 
-router.put('/editPersonal', (req, res) => {
+router.put('/editPersonal', passport.authenticate('jwt', { session: false }), (req, res) => {
   // find the current user first
-  if (!req.session.userId){
+  if (!req.user.id){
     res.status(200).json(null);
     return null;
   }
-  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name']}).then((user) => {
+  User.findByPk(req.user.id,{attributes: ['id', 'username', 'name']}).then((user) => {
     if (!user) {
       res.status(401).json({msg: "Cannot find user "})
     } else {
@@ -139,13 +131,13 @@ router.put('/editPersonal', (req, res) => {
   });
 });
 
-router.put('/editAuth', (req, res) => {
+router.put('/editAuth', passport.authenticate('jwt', { session: false }), (req, res) => {
   // find the current user first
-  if (!req.session.userId){
+  if (!req.user.id){
     res.status(200).json(null);
     return null;
   }
-  User.findByPk(req.session.userId,{attributes: ['id', 'username', 'name']}).then((user) => {
+  User.findByPk(req.user.id,{attributes: ['id', 'username', 'name']}).then((user) => {
     if (!user) {
       res.status(401).json({msg: "Cannot find user "})
     } else {
@@ -162,9 +154,10 @@ router.put('/editAuth', (req, res) => {
   });
 });
 
-router.post('/logout', (req, res) => {
-  req.session.destroy();
-  res.status(200).json({ msg: "signed out" }).end();
+router.post('/logout', passport.authenticate('jwt', { session: false }), (req, res) => {
+    console.log(req.user);
+    req.logout();
+    res.status(200).json({ msg: "signed out" }).end();
 });
 
 module.exports = router;

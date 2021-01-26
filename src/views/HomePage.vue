@@ -60,6 +60,7 @@
   import CourseCreate from '../components/sidebar/CourseCreate.vue'
   import CourseList from '../components/sidebar/CourseList.vue'
   import CourseDashboard from '../components/course/CourseDashboard.vue'
+  import VueJwtDecode from "vue-jwt-decode";
 
   export default {
     name: 'home-page',
@@ -103,20 +104,24 @@
     },
     methods: {
       loadCourses: function() {
-        axios.get(`/api/classes/instructor`).then((res) => {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+
+        axios.get(`/api/classes/instructor`, headers).then((res) => {
           this.courses.instructor = res.data
         })
-        axios.get(`/api/classes/student`).then((res) => {
+        axios.get(`/api/classes/student`, headers).then((res) => {
           this.courses.student = res.data
         })
-        axios.get("/api/classes/current").then(res => {
-          this.selectedCourse = res.data
-        })
+
+        const currentCourse = localStorage.getItem('nb.current.course')
+        if (currentCourse) {
+            this.selectedCourse = JSON.parse(currentCourse)
+        }
       },
       onSelectCourse: function(course) {
-        axios.post("/api/classes/current", { id: course.id }).then(() => {
+          localStorage.setItem('nb.current.course', JSON.stringify(course))
           this.selectedCourse = course
-        })
       },
       onCreateCourse: function() {
         this.loadCourses()
@@ -133,19 +138,24 @@
       },
     },
     created: function() {
-      axios.get("/api/users/current")
-        .then(res => {
-          if (res.data.username && res.data.username.length > 0) {
-            this.user = res.data
-          } else {
+        try {
+            const token = localStorage.getItem("nb.user");
+            const decoded = VueJwtDecode.decode(token);
+            if (decoded.user.username && decoded.user.username !== '') {
+                this.user = decoded.user
+                this.loadCourses()
+            } else {
+                localStorage.removeItem("nb.user");
+                localStorage.removeItem("nb.current.course");
+                this.user = null
+                this.redirect('top-page')
+            }
+        } catch (error) {
+            localStorage.removeItem("nb.user");
+            localStorage.removeItem("nb.current.course");
             this.user = null
             this.redirect('top-page')
-          }
-        })
-        .catch(() => {
-          this.redirect('top-page')
-        })
-      this.loadCourses()
+        }
     }
   }
 </script>

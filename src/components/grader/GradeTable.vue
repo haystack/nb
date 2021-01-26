@@ -95,7 +95,9 @@
     },
     methods: {
       addGrade: function(grade) {
-        axios.post(`/api/grades/threshold/${this.gradingSystem.id}`, grade)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/grades/threshold/${this.gradingSystem.id}`, grade, headers)
         .then(res => {
           grade.id = res.data.id;
           this.grades.push(grade)
@@ -110,14 +112,18 @@
             (grade.label ? grade.label : "[ no label ]") +
             " (" + grade.points + "pts) ?\n"
         if (confirm(message)) {
-          axios.delete(`/api/grades/threshold/${grade.id}`).then(() => {
-            let idx = this.grades.indexOf(grade)
-            if (idx >= 0) { this.grades.splice(idx, 1) }
+            const token = localStorage.getItem("nb.user");
+            const headers = { headers: { Authorization: 'Bearer ' + token }}
+            axios.delete(`/api/grades/threshold/${grade.id}`, headers).then(() => {
+                let idx = this.grades.indexOf(grade)
+                if (idx >= 0) { this.grades.splice(idx, 1) }
           })
         }
       },
       saveGrade: function(grade) {
-        axios.put(`/api/grades/threshold/${grade.id}`, grade)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.put(`/api/grades/threshold/${grade.id}`, grade, headers)
         .then(() => {
           let idx = this.edittingGrades.indexOf(grade)
           if (idx >= 0) { this.edittingGrades.splice(idx, 1) }
@@ -135,20 +141,26 @@
         this.showForm = false
       },
       saveCriterion: function(criterion) {
-        axios.put(`/api/grades/criteria/${criterion.id}`, criterion).then(() => {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.put(`/api/grades/criteria/${criterion.id}`, criterion, headers).then(() => {
           this.edittingCriterion = null
           this.showForm = false
         })
       },
       newCriterion: function(criterion) {
-        axios.post(`/api/grades/criteria/${this.gradingSystem.id}`, criterion).then(res => {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/grades/criteria/${this.gradingSystem.id}`, criterion, headers).then(res => {
           criterion.id = res.data.id;
           this.customCriteria.push(criterion)
           this.showForm = false
         })
       },
       deleteCriterion: function(criterion) {
-        axios.delete(`/api/grades/criteria/${criterion.id}`).then(() => {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.delete(`/api/grades/criteria/${criterion.id}`, headers).then(() => {
           let idx = this.customCriteria.indexOf(criterion)
           if (idx >= 0) { this.customCriteria.splice(idx, 1) }
           for (let grade of this.grades) {

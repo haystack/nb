@@ -255,14 +255,18 @@
     },
     methods:{
       addFolder: function() {
-        axios.post(`/api/files/folder/${this.currentDir.id}`, this.newFolder)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/folder/${this.currentDir.id}`, this.newFolder, headers)
           .then(() =>{
             this.newFolder = { name: "" }
             this.loadFiles()
           })
       },
       addFile: function() {
-        axios.post(`/api/files/file/${this.currentDir.id}`, this.newFile)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/${this.currentDir.id}`, this.newFile, headers)
           .then((result) =>{
             this.newFile = { name: "", url: "" }
             //console.log(result)
@@ -287,7 +291,9 @@
           })
       },
       loadFiles: function() {
-        axios.get(`/api/files/folder/${this.currentDir.id}`)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/files/folder/${this.currentDir.id}`, headers)
           .then(res => {
           
             for (let file of res.data) {
@@ -321,16 +327,19 @@
         this.$modal.show('edit-file-modal')
       },
       restoreFile: function(file) {
-   
-        axios.post(`/api/files/file/restore/${file.id}`, {})
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/restore/${file.id}`, {}, headers)
           .then(() =>{
             this.loadFiles()
             
           })
       },
       saveEdit: function() {
-        let req = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
-        axios.post(`/api/files/file/update/${this.edittingFile.file.id}`, req)
+        const body = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/update/${this.edittingFile.file.id}`, body, headers)
           .then(() =>{
             this.closeEdit()
             this.loadFiles()
@@ -353,8 +362,9 @@
           return
         }
         */
-        let req = {  }
-        axios.post(`/api/files/file/delete/${this.edittingFile.file.id}`, req)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/delete/${this.edittingFile.file.id}`, {}, headers)
           .then(() =>{
             this.closeEdit()
             this.loadFiles()

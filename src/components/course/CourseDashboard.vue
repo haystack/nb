@@ -138,7 +138,9 @@ export default {
     },
     loadInstructors: function(){
       if (this.userType == "instructor") {
-        axios.get(`/api/classes/instructorList/${this.course.id}`)
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/classes/instructorList/${this.course.id}`, headers)
           .then((res) => {
             this.instructors = res.data
           })
@@ -146,39 +148,47 @@ export default {
     },
     loadStudents: function(){
       if (this.userType == "instructor") {
-        this.$isLoading(true) // show loading screen since this can take a while      
-        axios.get(`/api/classes/studentList/${this.course.id}`)
+        this.$isLoading(true) // show loading screen since this can take a while    
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}  
+        axios.get(`/api/classes/studentList/${this.course.id}`, headers)
           .then((res) => {
             this.students = res.data
-            this.$isLoading(false) // show loading screen      
+            this.$isLoading(false) // close loading screen      
           })
       }
     },
     loadUsers: function(){
-      axios.get(`/api/users/all`)
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.get(`/api/users/all`, headers)
         .then(res => {
           this.allUsers = res.data
         })
     },
     addUser: function(user, role) {
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
       if (role === 'student') {
-        axios.post(`/api/classes/student/${this.course.id}`, user)
+        axios.post(`/api/classes/student/${this.course.id}`, user, headers)
           .then(() => this.loadStudents())
       } else if (role === 'instructor') {
-        axios.post(`/api/classes/instructor/${this.course.id}`, user)
+        axios.post(`/api/classes/instructor/${this.course.id}`, user, headers)
           .then(() => this.loadInstructors())
       }
     },
     removeUsers: function(selectedRows) {
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
       this.$isLoading(true); // show loading screen
       let requests = selectedRows.map((user) => {
         return new Promise((resolve) => {
           if (user.role === 'student') {
-            axios.delete(`/api/classes/student/${this.course.id}/${user.id}`)
+            axios.delete(`/api/classes/student/${this.course.id}/${user.id}`, headers)
             .then(() => resolve("success"))
             .catch(() => resolve())
           } else if (user.role === 'instructor') {
-            axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`)
+            axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`, headers)
             .then(() => resolve("success"))
             .catch(() => resolve())
           }
@@ -191,12 +201,14 @@ export default {
       })
     },
     uploadUsersFile: function(formData) {
+        const token = localStorage.getItem("nb.user");
         this.$isLoading(true) // show loading screen      
         axios.post( `/api/classes/upload/${this.course.id}`,
         formData,
         {
           headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': 'multipart/form-data',
+              'Authorization': 'Bearer ' + token 
           }
         }
       ).then((response) => {
@@ -211,7 +223,9 @@ export default {
     //   this.$router.push("grading")
     // },
     loadFiles: function(){
-      axios.get(`/api/files/class/${this.course.id}`)
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.get(`/api/files/class/${this.course.id}`, headers)
         .then(res => {
           this.filePath = [res.data]
         })
