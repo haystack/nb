@@ -86,3 +86,5 @@ sudo pm2 del <ID|NAME>          # delete process by id or name
 sudo pm2 log < |NAME>           # show log for all or by name
 sudo pm2 log all                # show all logs
 ```
+### Other
+to update certificate, run `sudo certbot renew`, if this doesn't work try `certbot certonly --manual -d $DOMAIN.com` then recreate the challange.
