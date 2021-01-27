@@ -10,6 +10,8 @@ const Tag = require('../models').Tag;
 const router = express.Router();
 const { Op } = require("sequelize");
 const utils = require('../models/utils')(require('../models'));
+let socketapi = require("../socketapi"); // used for socket.io
+const { v4: uuidv4 } = require('uuid');
 
 
 /**
@@ -31,7 +33,20 @@ router.get('/myClasses', async (req,res) => {
     res.status(200).send(myClassesBySource)   
 });
 
+router.get('/myCurrentSection', (req, res) => {
+  User.findByPk(req.user.id).then((user) => {
+    user.getMemberSections({raw: true}).then((sections) => {
+      for (const section of sections) {
+        if (section.class_id === req.query.class && !section.is_global ) {
+          res.status(200).send(section.id)
+          return;
+        }
+      }
+      res.status(200).send("")
+    })
+  })  
 
+})
 /**
  * Get all users for a given source
  * @name GET/api/annotations/allUsers
@@ -200,7 +215,7 @@ router.get('/annotation', (req, res)=> {
 });
 
 /**
- * Get all top-level annotation for a given source
+ * Get all top-level annotation (+ replies) for a given source
  * @name GET/api/annotations/new_annotation
  * @param url: source url
  * @param class: source class id
@@ -330,7 +345,6 @@ router.get('/new_annotation', (req, res)=> {
   });
 });
 
-
 /**
  * Make new thread for a given annotation
  * @name POST/api/annotations/annotation
@@ -376,6 +390,7 @@ router.post('/annotation', (req, res)=> {
 
         req.body.tags.forEach((tag) => Tag.create({annotation_id: annotation.id, tag_type_id: tag}));
         req.body.userTags.forEach((user_id) => User.findByPk(user_id).then(user => annotation.addTaggedUser(user)));
+    
         User.findByPk(req.user.id).then(user => {
           if (req.body.replyRequest) annotation.addReplyRequester(user);
           if (req.body.star) annotation.addStarrer(user);
@@ -383,13 +398,203 @@ router.post('/annotation', (req, res)=> {
           thread.setSeenUsers([user]);
           thread.setRepliedUsers([user]);
         });
-        annotation.setThread(thread).then(() => res.status(200).json(annotation));
+        annotation.setThread(thread).then(() => {
+          res.status(200).json(annotation)
+        });
       })
 
       ])
     )
   );
 });
+
+
+/**
+ * Make new thread for a given annotation (and tell users with visbility permissions to query for this specific thread w/ socketio)
+ * @name POST/api/annotations/new_annotation
+ * @param url: source url
+ * @param class: source class id
+ * @param content: text content of annotation
+ * @param range: json for location range
+ * @param author: id of author
+ * @param tags: list of ids of tag types
+ * @param userTags: list of ids of users tagged
+ * @param visibility: string enum
+ * @param anonymity: string enum
+ * @param replyRequest: boolean
+ * @param star: boolean
+ * @param bookmark: boolean
+ */
+router.post('/new_annotation', (req, res)=> {
+  let range = req.body.range;
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.body.url}, {class_id: req.body.class} ] } ,
+    include:[{
+      association: 'Class',
+      include: [
+        {association: 'Instructors', attributes: ['id']},
+        {association: 'GlobalSection', include: [{
+          association: 'MemberStudents', attributes: ['id']
+        }]},
+        {association: 'Sections', separate: true, include: [{ // with the hasMany Sections association, add a "separate: true" to make this join happen separately so that there are no duplicate joins
+            association: 'MemberStudents', attributes: ['id']
+        }]}
+      ]
+    }]}    
+    )
+  .then(source => {
+    let instructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+    let globalSectionStudents = new Set(source.Class.GlobalSection.MemberStudents.map(user => user.id)) // convert to set so faster to check if a user is in this set
+    let isUserInstructor = instructors.has(req.user.id);
+    let isUserStudent = globalSectionStudents.has(req.user.id);
+
+    if (!isUserInstructor && !isUserStudent) {
+      res.status(200).json([]);
+      return;
+    }
+
+    let usersICanSee = [] // convert to set so faster to check if a user is in this set
+    let isSingleSectionClass = source.Class.Sections.length === 1
+
+    for (const section of source.Class.Sections) {
+      let memberIds = section.MemberStudents.map(user => user.id)
+      if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
+        usersICanSee = memberIds
+        break;
+      } else {
+        if (memberIds.indexOf(req.user.id) >= 0 && !section.is_global) {
+          usersICanSee = memberIds
+          break
+        }
+      }
+    }
+    
+    Location.create({source_id: source.id})
+    .then(location => Promise.all(
+      [HtmlLocation.create({
+        start_node: range.start,
+        end_node: range.end,
+        start_offset: range.startOffset,
+        end_offset: range.endOffset,
+        location_id: location.id
+      }),
+      Thread.create({
+        location_id: location.id,
+        HeadAnnotation:{
+          content: req.body.content,
+          visibility: req.body.visibility,
+          anonymity: req.body.anonymity,
+          author_id: req.user.id
+        }},
+        {
+          include: [{association: 'HeadAnnotation'}]
+        }
+      )
+      .then(thread => {
+        let annotation = thread.HeadAnnotation;
+
+        req.body.tags.forEach((tag) => Tag.create({annotation_id: annotation.id, tag_type_id: tag}));
+        req.body.userTags.forEach((user_id) => User.findByPk(user_id).then(user => annotation.addTaggedUser(user)));
+    
+        User.findByPk(req.user.id).then(user => {
+          if (req.body.replyRequest) annotation.addReplyRequester(user);
+          if (req.body.star) annotation.addStarrer(user);
+          if (req.body.bookmark) annotation.addBookmarker(user);
+          thread.setSeenUsers([user]);
+          thread.setRepliedUsers([user]);
+        });
+        annotation.setThread(thread).then(() => {
+          res.status(200).json(annotation)
+          var io = socketapi.io
+          if (annotation.visibility === 'INSTRUCTORS') {
+            io.emit('new_thread', {sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags]})
+          }
+          if (annotation.visibility === 'EVERYONE') {
+            io.emit('new_thread', {sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags]})
+          }
+
+        });
+      })
+
+      ])
+    )
+  });
+});
+
+/**
+ * Get a specific thread (+ respective reply annotations) for a given source
+ * Assume that the user requesting is authorized to view the thread (part of the section, and nt only visible to instructors/myself)
+ * @name GET/api/annotations/specific_thread
+ * @param source_url: source url
+ * @param class_id: source class id
+ * @param id: id of thread
+ */
+router.get('/specific_thread', (req, res)=> {
+  let classInstructors = new Set([])
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.query.source_url}, {class_id: req.query.class_id} ] } ,
+    include:[{
+      association: 'Class',
+      include: [
+        {association: 'Instructors', attributes: ['id']},
+      ]
+    }]
+  })
+  .then(source => {
+    classInstructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+    Thread.findOne({where: {id: req.query.thread_id},
+      include:[
+        {association: 'Location', include: [{association:'HtmlLocation'}],
+      },
+        {association: 'HeadAnnotation', attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
+          include:[
+            {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'TaggedUsers', attributes: ['id']},
+            {association: 'Tags', attributes: ['tag_type_id']},
+            {association: 'Bookmarkers', attributes: ['id']}
+          ]
+        },
+        {association: 'AllAnnotations', separate: true, attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
+          include:[
+            {association: 'Parent', attributes: ['id']},
+            {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'TaggedUsers', attributes: ['id']},
+            {association: 'Tags', attributes: ['tag_type_id']},
+            {association: 'Bookmarkers', attributes: ['id']}
+          ]
+        },
+        {association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
+        {association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
+      ]
+    })
+    .then(thread => {
+      let annotations = {}
+      let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, req.user.id)
+  
+      thread.AllAnnotations.forEach((annotation) => {
+        if (annotation.Parent) {
+          if (!(annotation.Parent.id in annotations)) {
+            annotations[annotation.Parent.id] = []
+          }
+          annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, req.user.id ))
+        }
+      })
+      res.status(200).json({'headAnnotation': headAnnotation, 'annotationsData': annotations});
+    })
+    .catch(function (err) {
+      console.log(err)
+      res.status(res.status(400).json({msg: "Error fetching specific thread"}))
+    })
+  })
+  .catch(function (err) {
+    console.log(err)
+    res.status(res.status(400).json({msg: "Error fetching specific thread"}))
+  })
+})
+
+
 
 /**
  * Get all reply annotation for a given parent
@@ -513,6 +718,62 @@ router.post('/reply/:id', (req, res)=>{
         if (req.body.bookmark) child.addBookmarker(user);
         parent.Thread.setSeenUsers([user]);
         parent.Thread.setRepliedUsers([user]);
+      });
+      parent.addChild(child);
+      res.status(200).json(child);
+    })
+  );
+});
+
+
+/**
+ * Make new reply for a given annotation and emit socket io message
+ * @name POST/api/annotations/new_reply/:id
+ * @param id: id of parent annotation
+ * @param content: text content of annotation
+ * @param author: id of author
+ * @param tags: list of ids of tag types
+ * @param userTags: list of ids of users tagged
+ * @param visibility: string enum
+ * @param anonymity: string enum
+ * @param replyRequest: boolean
+ * @param star: boolean
+ */
+router.post('/new_reply/:id', (req, res)=>{
+  let username = ""
+  Annotation.findByPk(req.params.id,
+    {include:[{association: 'Thread',
+      include:[{association: 'HeadAnnotation', attributes:['id']}]
+    }]}
+  ).then((parent) =>
+    Annotation.create({
+      content: req.body.content,
+      visibility: req.body.visibility,
+      anonymity: req.body.anonymity,
+      thread_id: parent.Thread.id,
+      author_id: req.user.id,
+      Tags: req.body.tags.map(tag_type => {return {tag_type_id: tag_type};}),
+    },{
+      include: [{association: 'Tags'}]
+    }).then((child) => {
+      req.body.userTags.forEach(user_id =>
+        User.findByPk(user_id).then(user => child.addTaggedUser(user)));
+      User.findByPk(req.user.id).then(user => {
+        if (req.body.replyRequest) child.addReplyRequester(user);
+        if (req.body.star) child.addStarrer(user);
+        if (req.body.bookmark) child.addBookmarker(user);
+        parent.Thread.setSeenUsers([user]);
+        parent.Thread.setRepliedUsers([user]);
+        username = user.username;
+        var io = socketapi.io
+        io.emit('new_reply', 
+          { sourceUrl: req.body.url, 
+            classId: req.body.class, 
+            authorId: req.user.id, 
+            threadId: parent.Thread.id, 
+            headAnnotationId: parent.Thread.HeadAnnotation.id, 
+            taggedUsers: [...req.body.userTags]
+          })
       });
       parent.addChild(child);
       res.status(200).json(child);
