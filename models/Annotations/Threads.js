@@ -23,6 +23,7 @@ const thread = (sequelize, DataTypes) => {
         Thread.belongsTo(models.Annotation, {as: 'HeadAnnotation', foreignKey:{allowNull: false}, constraints: false});
         Thread.belongsToMany(models.User, {as: 'SeenUsers', through: 'user_seen'});
         Thread.belongsToMany(models.User, {as: 'RepliedUsers', through: 'user_replied'});
+        Thread.hasMany(models.Annotation, {as: 'AllAnnotations', foreignKey:{name: 'thread_id', allowNull: false}});
       }
     }
   });
