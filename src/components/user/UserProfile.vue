@@ -46,6 +46,7 @@
 <script>
   import axios from "axios"
   import { eventBus } from "../../main"
+  import VueJwtDecode from "vue-jwt-decode";
 
   export default {
     name: "user-profile",
@@ -65,6 +66,19 @@
         personalMessage: "",
         authMessage: "",
       }
+    },
+    created: function() {
+        const token = localStorage.getItem("nb.user");
+        if (token) {
+            const decoded = VueJwtDecode.decode(token);
+            if (decoded.user.username && decoded.user.username !== '') {
+                    this.newUser.username = decoded.user.username
+                    this.newUser.first = decoded.user.first_name
+                    this.newUser.last = decoded.user.last_name
+                    this.newUser.email = decoded.user.email
+
+            } 
+        }
     },
     watch: { // need to watch because the parent component takes some time to get the user before propogating here
       user: function (newVal) {
@@ -96,7 +110,8 @@
         const token = localStorage.getItem("nb.user");
         const headers = { headers: { Authorization: 'Bearer ' + token }}
         axios.put("api/users/editPersonal", this.newUser, headers)
-        .then(() => {
+        .then((res) => {
+          localStorage.setItem("nb.user", res.data.token)
           this.setPersonalMessage("Success: Personal Details saved");
         })
         .catch(() => {

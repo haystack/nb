@@ -121,8 +121,11 @@ router.put('/editPersonal', passport.authenticate('jwt', { session: false }), (r
         last_name: req.body.last,
         email: req.body.email,
         username: req.body.username,
-      }).then(() => {
-        res.status(200).json({msg: "editted person information"})
+      }).then((updatedUser) => {
+        console.log("UPDATED USER");
+        console.log(updatedUser);
+        const token = jwt.sign({ user: updatedUser }, process.env.JWT_SECRET);
+        res.status(200).json({ token });
       }).catch((err) => {
         console.log("error: " + err);
         res.status(400).json({msg: "Username or email already taken. Please provide another one."})
