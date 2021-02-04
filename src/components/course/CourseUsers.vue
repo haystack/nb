@@ -44,10 +44,10 @@
             v-model="newUser.role">
         <label for="add-instr">Instructor</label>
       </div>
-      <button @click="addUser" :disabled="!this.newUser.user">Add</button>
+      <button @click="addUser">Add</button>
     </div>
     <div class="reload">
-      <button @click="refresh">&#x21bb; Reload Table (if users not all loaded)
+      <button @click="refresh">&#x21bb; Reload Table (if sections not all loaded)
       </button>
     </div>
     <vue-good-table
@@ -66,6 +66,41 @@
         </span>
       </template>
     </vue-good-table>
+
+    <modal name="add-new-user-modal" height="auto" width="70%" >
+      <div class="add-new-user-modal">
+        <div class="form">
+          <h1 class="title"> Register & Add a new user to your class</h1>
+          <div class="group">
+            <label for="add-new-user-first"> Role Selected: {{this.newUser.role}} </label>
+          </div>
+
+          <div class="group">
+            <label for="add-new-user-first"> First name: </label>
+            <input id="add-new-user-first" type="text" v-model="newUser.first" >
+          </div>
+
+          <div class="group">
+            <label for="add-new-user-last"> Last name: </label>
+            <input id="add-new-user-last" type="text" v-model="newUser.last">
+          </div>
+
+          <div class="group">
+            <label for="add-new-user-email"> Email: </label>
+            <input id="add-new-user-email" type="text" v-model="newUser.email">
+          </div>
+
+          <div class="group" v-if="this.newUser.role !== 'instructor'">
+            <label for="add-new-user-section"> Section: </label>
+            <input id="add-new-user-section" type="text" v-model="newUser.section">
+          </div>
+
+          <button :disabled="!addUserEnabled" @click="addNewUser">
+            Save
+          </button>
+        </div>
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -77,6 +112,10 @@
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
   import JsonCSV from 'vue-json-csv'
+
+  import VModal from 'vue-js-modal'
+  Vue.use(VModal)
+
   Vue.component('downloadCsv', JsonCSV)
 
   export default {
@@ -102,7 +141,11 @@
         newUser: {
           query: "",
           role: "student",
-          user: null
+          user: null,
+          first: "",
+          last: "",
+          email: "",
+          section: ""
         },
         selectedRows: [],
         file: "",
@@ -200,6 +243,11 @@
       },
       csvFileName: function() {
         return this.course.class_name + "_students.csv"
+      },
+      addUserEnabled: function() {
+        return this.newUser.first.length > 0
+          && this.newUser.last.length > 0
+          && this.newUser.email.length > 0
       }
     },
     methods: {
@@ -217,12 +265,40 @@
         this.newUser.user = user
       },
       addUser: function() {
-        this.$emit('add-user', this.newUser.user, this.newUser.role)
-        this.newUser = {
-          query: "",
-          role: "student",
-          user: null
+        if (this.newUser.user) {
+          this.$emit('add-user', this.newUser.user, this.newUser.role)
+          this.newUser = {
+            query: "",
+            role: "student",
+            user: null,
+            first: "",
+            last: "",
+            email: "",
+            section: ""
+          }
+        } else {
+          this.openNewUserModal()
         }
+      },
+      addNewUser: function() { // register/add a user that currently doesn't exist in the class
+        this.$emit('add-new-user', this.newUser)
+        this.newUser = {
+            query: "",
+            role: "student",
+            user: null,
+            first: "",
+            last: "",
+            email: "",
+            section: ""
+          }
+        this.closeNewUserModal()
+      },
+      openNewUserModal: function() {
+        this.newUser.email = this.newUser.query
+        this.$modal.show('add-new-user-modal')
+      },
+      closeNewUserModal: function() {
+        this.$modal.hide('add-new-user-modal')
       },
       showRemoveModal: function() {
         const selectedValidUsers = this.selectedRows.filter(row => row.username !== this.user.username)
@@ -330,6 +406,24 @@
     background-color: #0069d9;
   }
 
+  .add-new-user-modal button {
+    padding: 6px 8px;
+    margin-left: 5px;
+    border-radius: 5px;
+    border: solid 1px #007bff;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .add-new-user-modal button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .add-new-user-modal button:enabled:hover {
+    background-color: #0069d9;
+  }
+
   .reload {
     text-align: right;
     font-family: Lucida Sans Unicode;
@@ -368,6 +462,50 @@
   }
   .download button:enabled:hover {
     background-color: #aaa;
+  }
+
+  modal {
+    height: 100%;
+    overflow: scroll;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  modal p {
+  margin-left: 50px;
+  margin-right: 50px;
+  }
+
+  .add-new-user-modal {
+  padding: 20px;
+  }
+
+  .form {
+    width: 420px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin: auto;
+  }
+  .form .title {
+    margin: 0;
+    padding: 10px 0 20px 0;
+  }
+  .form .group {
+    display: flex;
+    align-items: center;
+    padding-bottom: 15px;
+  }
+  .form .group label {
+    margin-right: 5px;
+  }
+  .form .group input {
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: solid 1px #aaa;
+    font-size: 16px;
+    flex-grow: 1;
   }
 
 </style>
