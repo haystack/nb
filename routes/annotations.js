@@ -98,6 +98,134 @@ router.get('/annotation', (req, res)=> {
         {association: 'GlobalSection', include: [{
           association: 'MemberStudents', attributes: ['id']
         }]},
+        {association: 'Sections', include: [{
+            association: 'MemberStudents', attributes: ['id']
+        }]}
+      ]
+    }]})
+  .then(source => {
+    let instructors = source.Class.Instructors.map(user => user.id);
+    let isUserInstructor = instructors.indexOf(req.user.id) >= 0;
+    let isUserStudent = source.Class.GlobalSection.MemberStudents.find(user => user.id === req.user.id);
+    
+    if (!isUserInstructor && !isUserStudent) {
+      res.status(200).json([]);
+      return;
+    }
+
+    source.getLocations({include:
+      [
+        {association:'HtmlLocation'},
+        {association: 'Thread',
+        required: true,
+        include:[
+          {association: 'HeadAnnotation', attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
+          include:[
+            {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
+            {association: 'TaggedUsers', attributes: ['id']},
+            {association: 'Tags', attributes: ['tag_type_id']},
+            {association: 'Bookmarkers', attributes: ['id']}
+          ]},
+          {association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
+          {association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
+        ]}
+      ]})
+      .then(locations => {          
+          let usersICanSee = []
+          let isSingleSectionClass = source.Class.Sections.length === 1
+
+          source.Class.Sections.forEach( section => {
+            if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
+                usersICanSee = section.MemberStudents.map(user => user.id)
+            } else if (section.MemberStudents.find(user => user.id === req.user.id) && !section.is_global) {
+                usersICanSee = section.MemberStudents.map(user => user.id)
+            }
+          })
+          
+        let annotations = locations
+          .filter((location) => {
+            let head = location.Thread.HeadAnnotation;
+            if (head.visibility === 'MYSELF'
+              && head.Author.id !== req.user.id) {
+              return false;
+            }
+            if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
+              return false;
+            } if (isUserStudent && head.Author.id !== req.user.id && !usersICanSee.includes(head.Author.id) && !instructors.includes(head.Author.id)) {
+                return false;
+            }
+            return true;
+          })
+          .map((location) => {
+            let annotation = {};
+
+            let range = location.HtmlLocation;
+            let head = location.Thread.HeadAnnotation;
+
+            annotation.id = head.id;
+            annotation.range = {
+              start: range.start_node,
+              end: range.end_node,
+              startOffset: range.start_offset,
+              endOffset: range.end_offset
+            };
+            annotation.parent = null;
+            annotation.timestamp = head.dataValues.created_at;
+            annotation.author = head.Author.id;
+            annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
+            annotation.instructor = instructors.indexOf(head.Author.id) >= 0;
+            annotation.html = head.content;
+            annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
+            annotation.people = head.TaggedUsers.map(userTag => userTag.id);
+            annotation.visibility = head.visibility;
+            annotation.anonymity = head.anonymity;
+            annotation.replyRequestedByMe = head.ReplyRequesters
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
+            annotation.replyRequestCount = head.ReplyRequesters.length;
+            annotation.starredByMe = head.Starrers
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
+            annotation.starCount = head.Starrers.length;
+            annotation.seenByMe = location.Thread.SeenUsers
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
+            annotation.bookmarked = head.Bookmarkers
+              .reduce((bool, user)=> bool || user.id == req.user.id, false);
+            return annotation;
+          });
+        res.status(200).json(annotations);
+
+      })
+  });
+});
+
+/**
+ * Get all top-level annotation for a given source
+ * @name GET/api/annotations/new_annotation
+ * @param url: source url
+ * @param class: source class id
+ * @return [{
+ * id: id of annotation
+ * content: text content of annotation,
+ * range: json for location range,
+ * author: id of author,
+ * tags: list of ids of tag types,
+ * userTags: list of ids of users tagged,
+ * visibility: string enum,
+ * anonymity: string enum,
+ * replyRequest: boolean,
+ * star: boolean
+ * }]
+ */
+router.get('/new_annotation', (req, res)=> {
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.query.class} ] },
+    include:[{
+      association: 'Class',
+      include: [
+        {association: 'Instructors', attributes: ['id']},
+        {association: 'GlobalSection', include: [{
+          association: 'MemberStudents', attributes: ['id']
+        }]},
         {association: 'Sections', separate: true, include: [{ // with the hasMany Sections association, add a "separate: true" to make this join happen separately so that there are no duplicate joins
             association: 'MemberStudents', attributes: ['id']
         }]}
