@@ -98,26 +98,24 @@ module.exports = function(models){
       .then(() => nb_class));
     },
 
-    addStudentToSection: function(classId, user, sectionName) {
-      return Class.findByPk(classId, {include:[{association: 'GlobalSection'}]})
-      .then((nb_class) => {
+    addStudentToSection: function(nb_class, user, sectionName) {
+      // add to global section (if not there yet?)
+      nb_class.GlobalSection.addMemberStudent(user);
+      // }
 
-        // add to global section (if not there yet?)
-        nb_class.GlobalSection.addMemberStudent(user);
-        // }
-
-        // remove student from existing non-global section, and then add to new section
-        Section.findOne({ where: {class_id: nb_class.id, is_global: false}, 
-          include: [{
-            model: models.User,    
-            as: 'MemberStudents',
-            where: { id: user.id }, // filter to find a section with this student
-          }]
-        })
-        .then(function (section) {
-          if (section) {
-            section.removeMemberStudent(user);
-          }
+      // remove student from existing non-global section, and then add to new section
+      Section.findOne({ where: {class_id: nb_class.id, is_global: false}, 
+        include: [{
+          model: models.User,    
+          as: 'MemberStudents',
+          where: { id: user.id }, // filter to find a section with this student
+        }]
+      })
+      .then(function (section) {
+        if (section) {
+          section.removeMemberStudent(user);
+        }
+        if (sectionName.length > 0) { // if there is a valid section name
           Section.findOrCreate({
             where: { section_name: sectionName, class_id: nb_class.id },
             defaults: {
@@ -127,7 +125,8 @@ module.exports = function(models){
           .then(([section, createdBool]) => {
             section.addMemberStudent(user)
           });
-        })
+        }
+        
       })
     },
 
