@@ -9,6 +9,7 @@ const HtmlLocation = require('../models').HtmlLocation;
 const Tag = require('../models').Tag;
 const router = express.Router();
 const { Op } = require("sequelize");
+const utils = require('../models/utils')(require('../models'));
 
 
 /**
@@ -198,6 +199,135 @@ router.get('/annotation', (req, res)=> {
   });
 });
 
+/**
+ * Get all top-level annotation for a given source
+ * @name GET/api/annotations/new_annotation
+ * @param url: source url
+ * @param class: source class id
+ * @return [{
+ * id: id of annotation
+ * content: text content of annotation,
+ * range: json for location range,
+ * author: id of author,
+ * tags: list of ids of tag types,
+ * userTags: list of ids of users tagged,
+ * visibility: string enum,
+ * anonymity: string enum,
+ * replyRequest: boolean,
+ * star: boolean
+ * }]
+ */
+router.get('/new_annotation', (req, res)=> {
+  Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.query.class} ] },
+    include:[{
+      association: 'Class',
+      include: [
+        {association: 'Instructors', attributes: ['id']},
+        {association: 'GlobalSection', include: [{
+          association: 'MemberStudents', attributes: ['id']
+        }]},
+        {association: 'Sections', separate: true, include: [{ // with the hasMany Sections association, add a "separate: true" to make this join happen separately so that there are no duplicate joins
+            association: 'MemberStudents', attributes: ['id']
+        }]}
+      ]
+    }]})
+  .then(source => {
+    let instructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+    let globalSectionStudents = new Set(source.Class.GlobalSection.MemberStudents.map(user => user.id)) // convert to set so faster to check if a user is in this set
+    let isUserInstructor = instructors.has(req.user.id);
+    let isUserStudent = globalSectionStudents.has(req.user.id);
+
+    if (!isUserInstructor && !isUserStudent) {
+      res.status(200).json([]);
+      return;
+    }
+
+    let usersICanSee = new Set([]) // convert to set so faster to check if a user is in this set
+    let isSingleSectionClass = source.Class.Sections.length === 1
+
+    for (const section of source.Class.Sections) {
+      let memberIds = section.MemberStudents.map(user => user.id)
+      if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
+        usersICanSee = new Set(memberIds)
+        break;
+      } else {
+        if (memberIds.indexOf(req.user.id) >= 0 && !section.is_global) {
+          usersICanSee = new Set(memberIds)
+          break
+        }
+      }
+    }
+    source.getLocations({include:
+      [
+        {association:'HtmlLocation'},
+        {association: 'Thread',
+        required: true,
+        include:[
+          {association: 'HeadAnnotation', attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
+            include:[
+              {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
+              {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
+              {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
+              {association: 'TaggedUsers', attributes: ['id']},
+              {association: 'Tags', attributes: ['tag_type_id']},
+              {association: 'Bookmarkers', attributes: ['id']}
+            ]
+          },
+          {association: 'AllAnnotations', separate: true, attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
+            include:[
+              {association: 'Parent', attributes: ['id']},
+              {association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username']},
+              {association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username']},
+              {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
+              {association: 'TaggedUsers', attributes: ['id']},
+              {association: 'Tags', attributes: ['tag_type_id']},
+              {association: 'Bookmarkers', attributes: ['id']}
+            ]
+          },
+          {association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
+          {association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
+        ]}
+      ]})
+      .then(locations => {      
+        let annotations = {}
+        let headAnnotations = []
+
+        // TODO: is this the correct way to filter replies?
+        let goodLocations = locations.filter((location) => {
+          let head = location.Thread.HeadAnnotation;
+          if (head.visibility === 'MYSELF'
+            && head.Author.id !== req.user.id) {
+            return false;
+          }
+          if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
+            return false;
+          } if (isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id)) {
+              return false;
+          }
+          return true;
+        })
+        
+        goodLocations.forEach((location) => {
+          // store all head annotaitons
+          headAnnotations.push(utils.createAnnotation(location, location.Thread.HeadAnnotation, instructors, req.user.id))
+          
+          // store all associated annotations in {parent_id : annotation} annotations object
+          location.Thread.AllAnnotations.forEach((annotation) => {
+            if (annotation.Parent) {
+              if (!(annotation.Parent.id in annotations)) {
+                annotations[annotation.Parent.id] = []
+              }
+              annotations[annotation.Parent.id].push(utils.createAnnotation(location, annotation, instructors, req.user.id ))
+            }
+          })
+        });
+
+        res.status(200).json({'headAnnotations': headAnnotations, 'annotationsData': annotations});
+
+      })
+  });
+});
+
 
 /**
  * Make new thread for a given annotation
@@ -348,11 +478,9 @@ router.get('/reply/:id', (req, res)=> {
 
 });
 
-
-
 /**
  * Make new reply for a given annotation
- * @name GET/api/annotations/reply/:id
+ * @name POST/api/annotations/reply/:id
  * @param id: id of parent annotation
  * @param content: text content of annotation
  * @param author: id of author
