@@ -32,7 +32,7 @@
         :filter-by-query="true"
         @select="selectNewUser">
         <div slot="suggestion-item" slot-scope="{ suggestion, query }">
-          <div>{{ suggestion.username }} ({{ suggestion.email}})</div>
+          <div>{{suggestion.first_name}} {{suggestion.last_name}} - {{suggestion.username }} ({{ suggestion.email}})</div>
         </div>
       </vue-simple-suggest>
       <div>
@@ -260,6 +260,7 @@
         }
         return user.username.toLowerCase().includes(query.toLowerCase())
           || user.email.toLowerCase().includes(query.toLowerCase())
+          || (user.first_name + " " + user.last_name).toLowerCase().includes(query.toLowerCase())
       },
       selectNewUser: function(user) {
         this.newUser.user = user
