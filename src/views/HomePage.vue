@@ -37,6 +37,7 @@
     </pre>
         </div>
         </modal>
+        <a href="https://forms.gle/6YERC3jSu1W1zUzS8" class="nb-bug-link" target="_blank">Report Bug</a>
       </div>
       <div class="dashboard-wrapper">
         <course-dashboard
@@ -161,6 +162,12 @@
 </script>
 
 <style>
+
+  .nb-bug-link {
+    position: fixed;
+    bottom: 12px;
+    left: 25px
+  }
   .app-wrapper {
     height: 100%;
   }
@@ -173,19 +180,23 @@
     min-width: 300px;
     width: 300px;
     padding: 0 0 0 20px;
-    height: 100%;
-    overflow-y: scroll;
+    /* height: 100%; */
+    height: calc(100% - 6px);
+    overflow-y: auto;
     background-color: #eee;
     text-align: left;
+    border: solid 3px #875f9a;
+    border-bottom-left-radius: 11px;
   }
   .dashboard-wrapper {
     padding: 20px;
     height: calc(100% - 46px);
-    overflow-y: scroll;
+    overflow-y: auto;
     flex-wrap: wrap;
     align-items: flex-start;
     border: solid 3px #875f9a;
     flex-grow: 1;
+    border-bottom-right-radius: 11px;
   }
 
   .sidebar button {
