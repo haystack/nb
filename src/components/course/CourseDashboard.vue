@@ -26,6 +26,7 @@
           :user="user"
           :course="course"
           @add-user="addUser"
+          @add-new-user="addNewUser" 
           @remove-users="removeUsers"
           @upload-users-file="uploadUsersFile"
           @refresh="refreshUsers">
@@ -164,6 +165,18 @@ export default {
       axios.get(`/api/users/all`, headers)
         .then(res => {
           this.allUsers = res.data
+        })
+    },
+    addNewUser: function (user) { // adds a new user that isn't curren't registered in NB
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.post(`/api/classes/user/${this.course.id}`, user, headers)
+        .then(() => {
+          if (user.role === "instructor") {
+            this.loadInstructors()
+          } else {
+            this.loadStudents()
+          }
         })
     },
     addUser: function(user, role) {

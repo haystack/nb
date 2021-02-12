@@ -206,6 +206,47 @@ router.post('/student/:id', (req, res) => {
   });
 });
 
+/** 
+ * Register and add a single user to a given class
+ * @name POST/api/classes/user/:id
+ * @param id: id of the class
+ */
+router.post('/user/:id', (req, res) => {
+  Class.findByPk(req.params.id, {include:[
+    {association: 'Instructors', required:true, where:{id: req.user.id}},
+    {association: 'GlobalSection'}
+  ]})
+  .then(nb_class => {
+    if (!nb_class){
+      res.status(401).json(null);
+    }
+    else{
+      User.create({
+        username: req.body.email,
+        first_name: req.body.first,
+        last_name: req.body.last,
+        email: req.body.email,
+        password: randomstring.generate(),
+    }).then((user) => {
+      if (req.body.role === "instructor") {
+        nb_class.addInstructor(user)
+      } else if (req.body.role === "student") {
+        utils.addStudentToSection(nb_class, user, req.body.section)
+      }
+      res.status(200).json(null)
+    }).catch((err)=>{
+      User.findOne({ where: { email: req.body.email }}).then(function (user) {
+        if (user) {
+          utils.addStudentToSection(nb_class, user, req.body.section)
+        } else {
+          res.status(400).json({msg: "Error registering user"})
+        } 
+      });
+    })
+    }
+  });
+});
+
 /**
  * Add users from a CSV to a given class
  * @name POST/api/classes/upload/:id
@@ -213,8 +254,11 @@ router.post('/student/:id', (req, res) => {
  */
 
 router.post('/upload/:id', upload.single("file"), function(req, res) {
-  Class.findByPk(req.params.id, {include:[
-    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
+  Class.findByPk(req.params.id, {include:
+    [
+      {association: 'Instructors', required:true, where:{id: req.user.id}},
+      {association: 'GlobalSection'}
+    ]})
   .then(nb_class => {
     if (!nb_class){
       res.status(401).json(null);
@@ -223,35 +267,42 @@ router.post('/upload/:id', upload.single("file"), function(req, res) {
       fs.createReadStream(req.file.path)
       .pipe(stripBomStream()) // Remove Byte Order Marks (BOM) that might be present in some CSV format files such as Excel
       .pipe(csv())
-      .on('data', (data) => results.push(data))
+      .on('data', (data) => {results.push(data)})
       .on('end', () => {
-        Promise.all(results.forEach(student_entry => {
-          let section = student_entry['Section']
-          let email = student_entry['Email']
-          if (email) {
-            User.create({
-              username: email,
-              first_name: student_entry["First"],
-              last_name: student_entry["Last"],
-              email: email,
-              password: randomstring.generate(),
-            }).then((user) => {
-              if (section) {
-                utils.addStudentToSection(req.params.id, user, section);
-              } 
-            }).catch((err)=>{
-              if (section) {
-                User.findOne({ where: { email: email }}).then(function (user) {
-                  if (user) {
-                    utils.addStudentToSection(req.params.id, user, section)
-                  } 
-                });
-              } 
-            })
-          } 
-        }))
-        .then(() => {res.status(200).json(null);})
-        .catch((err) => { res.status(200).json(null);}); 
+
+        let requests = results.map(student_entry  => {
+          return new Promise((resolve) => {
+            let section = student_entry['Section']
+            let email = student_entry['Email']
+            if (email) {
+              User.create({
+                username: email,
+                first_name: student_entry["First"],
+                last_name: student_entry["Last"],
+                email: email,
+                password: randomstring.generate(),
+              })
+              .then((user) => {
+                resolve() // resolve so that we can send a signal back to the frontend
+                utils.addStudentToSection(nb_class, user, section)
+              }).catch((err)=>{
+                resolve()
+                User.findOne({ where: { email: email }})
+                  .then(function (user) {
+                    if (user) {
+                      utils.addStudentToSection(nb_class, user, section)
+                    }
+                  })
+              })
+            } else {
+              resolve()
+            }
+          });
+        })
+        Promise.all(requests)
+        .then(() => {res.status(200).json(null);}) 
+        .catch((err) => {res.status(200).json(null);
+        }); 
       })
     }
   });
