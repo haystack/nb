@@ -10,7 +10,7 @@ const nb_class = (sequelize, DataTypes) => {
       unique: true,
       allowNull: false
     },
-    /*
+    
     description: {
       type: DataTypes.STRING,
       defaultValue: ""
@@ -23,10 +23,7 @@ const nb_class = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: ""
     },
-    institution: {
-      type: DataTypes.STRING,
-      defaultValue: ""
-    },*/
+   
 
     is_archived:{
       type: DataTypes.BOOLEAN,

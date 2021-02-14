@@ -14,10 +14,10 @@ module.exports = function(models){
         if(newData) {
           course.update({
             class_name: newData.class_name,
-            /*description: newData.description,
+            description: newData.description,
             term: newData.term,
             contact_email: newData.contact_email,
-            institution: newData.institution*/
+           
           })
           .then(() => {
             console.log("Updated title to " + newData.class_name);

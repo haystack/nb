@@ -11,7 +11,7 @@
       <input id="course-settings-sections" type="text" v-model="sections">
     </div>
 
-    <div v-if="false">
+    
     <div class="group">
       <label for="course-settings-description"> Description: </label>
       <input id="course-settings-description" type="text" v-model="newCourse.description">
@@ -20,15 +20,12 @@
       <label for="course-settings-term"> Term: </label>
       <input id="course-settings-term" type="text" v-model="newCourse.term" placeholder="Spring 2021">
     </div>
-    <div class="group">
-      <label for="course-settings-institution"> Institution: </label>
-      <input id="course-settings-institution" type="text" v-model="newCourse.institution" placeholder="UC Davis">
-    </div>
+   
     <div class="group">
       <label for="course-settings-contact"> Contact Email: </label>
       <input id="course-settings-contact" type="text" v-model="newCourse.contact_email">
     </div>
-    </div>
+ 
 
 
 
