@@ -18,7 +18,7 @@
       Sign in
     </button>
     <br><br>
-    <h3 class="title">Forgot Your Password</h3>
+    <h3 class="title">Reset Your Password</h3>
     <div class="group">
       <label for="login-email"> Email: </label>
       <input id="login-email" type="text" v-model="user.email">
