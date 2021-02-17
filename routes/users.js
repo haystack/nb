@@ -70,7 +70,7 @@ router.post('/register', (req, res) => {
       res.status(200).json({msg: "registered"});
     }).catch((err)=>{
       console.log("error:" + err);
-      res.status(400).json({msg: "Error registering"})
+      res.status(400).json({msg: err.errors[0].message})
     })
 });
 
@@ -96,7 +96,8 @@ router.post('/forgotpassword', (req, res) => {
 
       transporter.sendMail(mailOptions, function(error, info){
         if (error) {
-          console.log(error);
+          console.log("Error sending mail: " + error);
+          res.status(400).json({msg: "Error sending mail"})
         } else {
           console.log('Email sent: ' + info.response);
           res.status(200).json({email: req.body.email});
