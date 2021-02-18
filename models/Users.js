@@ -71,7 +71,8 @@ const user = (sequelize, DataTypes) => {
         user.password = bcrypt.hashSync(user.password, salt);
       },
       beforeUpdate: (user) => {
-        if (user.password !== undefined && user.password.length > 0) {
+        if ("password" in user._changed && user._changed.password && user.password !== undefined && user.password.length > 0) {
+          console.log("hi")
           const salt = bcrypt.genSaltSync();
           user.password = bcrypt.hashSync(user.password, salt);
         }
