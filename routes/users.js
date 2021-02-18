@@ -6,6 +6,7 @@ const router = express.Router();
 const transporter = require('../email-config');
 const { v4: uuidv4 } = require('uuid');
 const donenv = require('dotenv');
+const { Op } = require("sequelize");
 
 donenv.config();
 
@@ -47,7 +48,7 @@ router.post('/login', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     
-    const user = await User.findOne({ where: { username: username }})
+    const user = await User.findOne({ where: { username: {[Op.iLike]: username } }})
 
     if (!user) {
         res.status(401).json({msg: "No user with username " + username});
@@ -64,7 +65,7 @@ router.post('/register', (req, res) => {
         username: req.body.username,
         first_name: req.body.first,
         last_name: req.body.last,
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
         password: req.body.password
     }).then(() => {
       res.status(200).json({msg: "registered"});
@@ -120,11 +121,9 @@ router.put('/editPersonal', passport.authenticate('jwt', { session: false }), (r
       user.update({
         first_name: req.body.first,
         last_name: req.body.last,
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
         username: req.body.username,
       }).then((updatedUser) => {
-        console.log("UPDATED USER");
-        console.log(updatedUser);
         const token = jwt.sign({ user: updatedUser }, process.env.JWT_SECRET);
         res.status(200).json({ token });
       }).catch((err) => {
