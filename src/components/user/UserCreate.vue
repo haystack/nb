@@ -76,7 +76,7 @@
                 console.error(`Signup failed: ${msg}`)
                 if (msg.includes("unique")) {
                   if (msg.includes("username")) {
-                    this.setRegisterMessage("There is already any account configured for this username. Please use a different one, or uou can use the Reset Password option to access the account.")
+                    this.setRegisterMessage("There is already any account configured for this username. Please use a different one, or you can use the Reset Password option to access the account.")
                   } else if (msg.includes("email")) {
                     this.setRegisterMessage("There is already any account configured for this email. Please use a different one, or you can use the Reset Password option to access the account.")
                   }
