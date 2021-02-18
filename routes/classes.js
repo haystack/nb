@@ -10,6 +10,7 @@ const fs = require('fs')
 const stripBomStream = require('strip-bom-stream');
 var randomstring = require("randomstring");
 var upload = multer({ dest: 'uploads/' });
+const { Op } = require("sequelize");
 
 const router = express.Router();
 
@@ -225,7 +226,7 @@ router.post('/user/:id', (req, res) => {
         username: req.body.email,
         first_name: req.body.first,
         last_name: req.body.last,
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
         password: randomstring.generate(),
     }).then((user) => {
       if (req.body.role === "instructor") {
@@ -235,7 +236,7 @@ router.post('/user/:id', (req, res) => {
       }
       res.status(200).json(null)
     }).catch((err)=>{
-      User.findOne({ where: { email: req.body.email }}).then(function (user) {
+      User.findOne({ where: { email: {[Op.iLike]: req.body.email} }}).then(function (user) {
         if (user) {
           utils.addStudentToSection(nb_class, user, req.body.section)
         } else {
@@ -279,7 +280,7 @@ router.post('/upload/:id', upload.single("file"), function(req, res) {
                 username: email,
                 first_name: student_entry["First"],
                 last_name: student_entry["Last"],
-                email: email,
+                email: email.toLowerCase(),
                 password: randomstring.generate(),
               })
               .then((user) => {
@@ -287,7 +288,7 @@ router.post('/upload/:id', upload.single("file"), function(req, res) {
                 utils.addStudentToSection(nb_class, user, section)
               }).catch((err)=>{
                 resolve()
-                User.findOne({ where: { email: email }})
+                User.findOne({ where: { email: {[Op.iLike]: email }} })
                   .then(function (user) {
                     if (user) {
                       utils.addStudentToSection(nb_class, user, section)

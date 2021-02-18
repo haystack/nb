@@ -94,15 +94,15 @@
                 this.$isLoading(false) // hide loading screen      
                 this.setForgotPasswordMessage("Email sent")
             })
-            .catch(err => {            
-                this.$isLoading(false) // hide loading screen      
-                this.setForgotPasswordMessage("No user with that email. Please try again.")
+            .catch(err => {
+                this.$isLoading(false) // hide loading screen
+                this.setForgotPasswordMessage(err.response.data.msg)
             })
         },
         setForgotPasswordMessage: function(msg, disappear=true) {
             this.forgotPasswordMessage = msg;
             if (disappear) {
-            setTimeout(() => this.forgotPasswordMessage = "", 2000);
+            setTimeout(() => this.forgotPasswordMessage = "", 4000);
             }
         },
     },
