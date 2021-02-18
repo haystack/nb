@@ -79,7 +79,7 @@ router.post('/forgotpassword', (req, res) => {
   var reset_password_id = uuidv4();
   var link = req.headers.origin + "/#/forgotpassword?id=" + reset_password_id;
 
-  User.findOne({ where: { email: req.body.email }}).then(function (user) {
+  User.findOne({ where: { email: {[Op.iLike]: req.body.email} }}).then(function (user) {
     if (!user) {
       res.status(401).json({msg: "No user with email " + req.body.email});
     } else {
@@ -88,7 +88,7 @@ router.post('/forgotpassword', (req, res) => {
       })
       var mailOptions = {
         from: 'nbv2.mailer@gmail.com',
-        to: req.body.email,
+        to: req.body.email.toLowerCase(),
         subject: 'NB V2 - Forgot Your Password',
         text: 'Hello ' + user.username + '!\n\nYou indicated that you have forgotten your password for NB V2.' + 
         '\n\nPlease click on this link to reset your password: \n' + link + 
@@ -98,7 +98,7 @@ router.post('/forgotpassword', (req, res) => {
       transporter.sendMail(mailOptions, function(error, info){
         if (error) {
           console.log("Error sending mail: " + error);
-          res.status(400).json({msg: "Error sending mail"})
+          res.status(400).json({msg: "Error sending email"})
         } else {
           console.log('Email sent: ' + info.response);
           res.status(200).json({email: req.body.email});
