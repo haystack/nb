@@ -72,8 +72,17 @@
                 eventBus.$emit('signin-success')
                 this.resetForm()
             } catch (error) {
-                console.error(`Signup failed: ${error.response.data.msg}`)
-                this.setRegisterMessage("There is already any account configured for this username/email. If you don't know the password, please use the password reset option.")
+                let msg = error.response.data.msg
+                console.error(`Signup failed: ${msg}`)
+                if (msg.includes("unique")) {
+                  if (msg.includes("username")) {
+                    this.setRegisterMessage("There is already any account configured for this username. Please use a different one, or you can use the Reset Password option to access the account.")
+                  } else if (msg.includes("email")) {
+                    this.setRegisterMessage("There is already any account configured for this email. Please use a different one, or you can use the Reset Password option to access the account.")
+                  }
+                } else if (msg.includes("isEmail")) {
+                  this.setRegisterMessage("Please enter a valid email with the correct format, such as test@mail.com")
+                } 
             }
         },
         resetForm: function() {
