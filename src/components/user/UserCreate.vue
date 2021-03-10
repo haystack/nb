@@ -31,7 +31,6 @@
       Sign up
     </button>
     <span class="register-message"><br>{{registerMessage}}<br></span>
-
   </div>
 </template>
 

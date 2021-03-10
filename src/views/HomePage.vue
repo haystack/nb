@@ -166,7 +166,7 @@
   .nb-bug-link {
     position: fixed;
     bottom: 12px;
-    left: 25px
+    left: 25px;
   }
   .app-wrapper {
     height: 100%;

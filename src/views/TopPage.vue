@@ -6,6 +6,7 @@
       <div class="v-divide"></div>
       <user-login></user-login>
     </div>
+    <a href="https://forms.gle/6YERC3jSu1W1zUzS8" class="nb-bug-link" target="_blank">Report Bug</a>
   </div>
 </template>
 
@@ -61,6 +62,11 @@
 </script>
 
 <style scoped>
+  .nb-bug-link {
+    position: fixed;
+    bottom: 12px;
+    left: 25px;
+  }
   .app-wrapper {
     height: 100%;
   }
