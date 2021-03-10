@@ -314,7 +314,7 @@
         this.$emit('switch-directory', directory)
       },
       openFile: function(file) {
-        location.href = file.Source.filepath
+        window.open(file.Source.filepath, '_blank');
       },
       editAssignment: function(file) {
         this.edittingFile.file = file
