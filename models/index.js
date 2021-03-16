@@ -49,6 +49,7 @@ if (!global.hasOwnProperty('db')) {
     HtmlLocation: sequelize.import('./Annotations/HTMLLocations'),
     Thread: sequelize.import('./Annotations/Threads'),
     Annotation: sequelize.import('./Annotations/Annotations'),
+    Innotation: sequelize.import('./Innotations/Innotations'),
 
     TagType: sequelize.import('./AnnotationActions/TagTypes'),
     Tag: sequelize.import('./AnnotationActions/Tags'),
