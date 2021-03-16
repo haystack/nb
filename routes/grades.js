@@ -256,10 +256,10 @@ router.get('/grades', (req, res) => {
           total_comments: annotations[student.id].length,
         };
         let possibleGrades = gradingSystem.GradingThresholds.filter(threshold =>
-            gradeLine.total_words > threshold.total_words &&
-            gradeLine.total_chars > threshold.total_chars &&
-            gradeLine.total_tags > threshold.total_tags &&
-            gradeLine.total_comments > threshold.total_comments &&
+            gradeLine.total_words >= threshold.total_words &&
+            gradeLine.total_chars >= threshold.total_chars &&
+            gradeLine.total_tags >= threshold.total_tags &&
+            gradeLine.total_comments >= threshold.total_comments &&
             //Go through all the criteria counts and see if satisfying annotations are enough
             (threshold.CriteriaCounts.reduce((bool, criteriaCount) =>
               (bool &&
