@@ -46,10 +46,10 @@
           <template slot="table-row" slot-scope="props">
             <span
                 v-if="props.column.field === 'filename'"
-                class="clickable filename"
-                @click="openFile(props.row)">
+                class="clickable filename">
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
-              <span>{{ props.row.filename }}</span>
+              <span>&nbsp</span>
+              <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
@@ -312,9 +312,6 @@
       },
       switchDirectory: function(directory) {
         this.$emit('switch-directory', directory)
-      },
-      openFile: function(file) {
-        location.href = file.Source.filepath
       },
       editAssignment: function(file) {
         this.edittingFile.file = file
