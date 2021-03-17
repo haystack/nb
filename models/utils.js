@@ -148,6 +148,7 @@ module.exports = function(models){
       );
     },
     createAnnotation: function(location, head, instructors, sessionUserId) {
+      console.log(head.innotation);
       let annotation = {}
       let range = location.HtmlLocation;
 
@@ -168,6 +169,7 @@ module.exports = function(models){
       annotation.people = head.TaggedUsers.map(userTag => userTag.id);
       annotation.visibility = head.visibility;
       annotation.anonymity = head.anonymity;
+      annotation.innotation = head.Innotation
       annotation.replyRequestedByMe = head.ReplyRequesters
         .reduce((bool, user)=> bool || user.id == sessionUserId, false);
       annotation.replyRequestCount = head.ReplyRequesters.length;

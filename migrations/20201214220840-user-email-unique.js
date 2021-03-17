@@ -12,6 +12,8 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-
+    return Promise.all([
+      queryInterface.removeConstraint('users', 'custom_unique_constraint_name')
+    ])
   }
 };

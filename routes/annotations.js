@@ -270,7 +270,8 @@ router.get('/new_annotation', (req, res)=> {
               {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
               {association: 'TaggedUsers', attributes: ['id']},
               {association: 'Tags', attributes: ['tag_type_id']},
-              {association: 'Bookmarkers', attributes: ['id']}
+              {association: 'Bookmarkers', attributes: ['id']},
+              {association: 'Innotation', attributes: ['id', 'position']},
             ]
           },
           {association: 'AllAnnotations', separate: true, attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],
@@ -281,20 +282,21 @@ router.get('/new_annotation', (req, res)=> {
               {association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username']},
               {association: 'TaggedUsers', attributes: ['id']},
               {association: 'Tags', attributes: ['tag_type_id']},
-              {association: 'Bookmarkers', attributes: ['id']}
+              {association: 'Bookmarkers', attributes: ['id']},
             ]
           },
           {association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
           {association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username']},
         ]}
       ]})
-      .then(locations => {      
+      .then(locations => {     
         let annotations = {}
         let headAnnotations = []
 
         // TODO: is this the correct way to filter replies?
         let goodLocations = locations.filter((location) => {
           let head = location.Thread.HeadAnnotation;
+
           if (head.visibility === 'MYSELF'
             && head.Author.id !== req.user.id) {
             return false;

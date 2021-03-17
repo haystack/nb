@@ -1,5 +1,5 @@
 const innotation = (sequelize, DataTypes) => {
-    const Innotation = sequelize.define('annotation', {
+    const Innotation = sequelize.define('innotation', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV1,

@@ -10,15 +10,18 @@ const Annotation = require('../models').Annotation;
  * @param position: string enum
  */
 router.post('/innotation', async (req, res) => {
-    const annotation = await Annotation.findOne({where: {id: req.body.annotationId}})
-    const innotation = await Innotation.create({
-            annotation_id: annotation.id,
-            position: req.body.position
-        }, {
-            include: [{association: 'Annotation'}]
-        }
-    )
-    res.status(200).json(innotation)
+    const annotation = await Annotation.findOne({where: {id: req.body.annotation_id}})
+    try {
+        const innotation = await Innotation.create(
+            {
+                annotation_id: annotation.id,
+                position: req.body.position
+            }, 
+        )
+        res.status(200).json(innotation)
+    } catch (error) {
+        res.status(400).json(error)
+    }
 })
 
 /**
@@ -29,10 +32,15 @@ router.post('/innotation', async (req, res) => {
  */
 router.put('/innotation/:id', async (req, res) => {
     const innotation = await Innotation.findByPk(req.params.id)
+
+    if (!innotation) {
+        res.status(404).send()
+    }
+
     await innotation.update({
         position: req.body.position
     })
-    res.status(200)
+    res.status(200).send()
 })
 
 /**
@@ -43,8 +51,13 @@ router.put('/innotation/:id', async (req, res) => {
  */
 router.delete('/innotation/:id', async (req, res) => {
     const innotation = await Innotation.findByPk(req.params.id)
+
+    if (!innotation) {
+        res.status(404).send()
+    }
+
     await innotation.destroy()
-    res.status(200)
+    res.status(200).send()
 })
 
 module.exports = router;
