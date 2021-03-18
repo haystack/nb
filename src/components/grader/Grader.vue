@@ -60,7 +60,7 @@
         sources: [],
         selectedGrading: null,
         selectedSource: null,
-        date: Date.now() // TODO: default to the assignment due date instead
+        date: new Date() // TODO: default to the assignment due date instead
       }
     },
     computed: {
