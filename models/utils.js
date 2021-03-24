@@ -148,7 +148,6 @@ module.exports = function(models){
       );
     },
     createAnnotation: function(location, head, instructors, sessionUserId) {
-      console.log(head.innotation);
       let annotation = {}
       let range = location.HtmlLocation;
 

@@ -11,7 +11,7 @@ module.exports = {
             },
             position: {
                 type: Sequelize.ENUM,
-                values: ['IN', 'UP', 'DOWN', 'LEFT', 'RIGHT']
+                values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT']
             },
             created_at: {
                 allowNull: false,

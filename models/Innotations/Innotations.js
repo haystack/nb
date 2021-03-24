@@ -7,7 +7,7 @@ const innotation = (sequelize, DataTypes) => {
         },
         position: {
             type: DataTypes.ENUM,
-            values: ['IN', 'UP', 'DOWN', 'LEFT', 'RIGHT']
+            values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT']
         }
     },
     {

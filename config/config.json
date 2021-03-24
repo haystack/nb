@@ -1,8 +1,8 @@
 {
     "development": {
-      "username": "NAME",
-      "password": "PASSWORD",
-      "database": "DBNAME",
+      "username": "nbdev",
+      "password": "nb123",
+      "database": "nb",
       "host": "127.0.0.1",
       "dialect": "postgres"
     },
