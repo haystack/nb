@@ -18,14 +18,29 @@ var config = {
 }
 module.exports = config;
 ```
+4. Add `email-config.js` file in thr root of the project like below (you can use your gmail account or ask admin for test account):
+```
+const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: { 
+    user: 'EMAIL_ADDRESS',
+    pass: 'EMAIL_PASSWORD'
+  }
+});
+module.exports = transporter;
+```
 
-4. Run NB in separate terminals
+5. Create .env file with the following content
+```
+JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
+```
+
+6. Run NB in separate terminals
     * Run backend using command `npm run dev`
     * run UI using command `npm run serve`
 
-5. Access UI on https://127.0.0.1:8080/ . Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. In Chrome type:  thisisunsafe. 
-
-
+7. Access UI on https://127.0.0.1:8080/ . Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. In Chrome type:  thisisunsafe. 
 
 
 ## Deploy NB (Production)

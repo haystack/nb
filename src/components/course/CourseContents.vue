@@ -46,10 +46,10 @@
           <template slot="table-row" slot-scope="props">
             <span
                 v-if="props.column.field === 'filename'"
-                class="clickable filename"
-                @click="openFile(props.row)">
+                class="clickable filename">
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
-              <span>{{ props.row.filename }}</span>
+              <span>&nbsp</span>
+              <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
@@ -116,12 +116,21 @@
     </modal>
 
     <div v-if="userType === 'instructor' && !showDeleted" class="add-file">
-      <h3>New File</h3>
+      <h3>New Web File</h3>
       <label for="new-file-name">Name:</label>
       <input v-model='newFile.name' type='text' id="new-file-name">
       <label for="new-file-url">URL:</label>
       <input v-model='newFile.url' type='text' id="new-file-url">
       <button @click="addFile" :disabled="!newFileEnabled">Add</button>
+    </div>
+    <br>
+    <div v-if="userType === 'instructor' && !showDeleted" class="add-file">
+        <h3>New Pdf File</h3>
+        <label for="new-pdf-file-name">Name:</label>
+        <input v-model='newPdfFile.name' type='text' id="new-pdf-file-name">
+        <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
+        <button @click="submitFile" :disabled="!newPdfFileEnabled">Add</button>
+
     </div>
     <notifications position="bottom right" group="addFile" />
   </div>
@@ -204,6 +213,10 @@
           name: "",
           url: "",
         },
+        newPdfFile: {
+          name: ""
+        },
+        pdfFileUpload: null,
         edittingFile: {
           file: null,
           newFilename: "",
@@ -219,6 +232,9 @@
       },
       newFileEnabled: function() {
         return this.newFile.name.length > 0 && this.newFile.url.length > 0
+      },
+      newPdfFileEnabled: function() {
+        return this.pdfFileUpload && this.newPdfFile.name.length > 0
       },
       editEnabled: function() {
         let ans = this.edittingFile.newFilename.length > 0 && this.edittingFile.newFilepath.length > 0
@@ -313,9 +329,6 @@
       switchDirectory: function(directory) {
         this.$emit('switch-directory', directory)
       },
-      openFile: function(file) {
-        location.href = file.Source.filepath
-      },
       editAssignment: function(file) {
         this.edittingFile.file = file
         this.deleteText = "Delete"
@@ -370,7 +383,46 @@
             this.loadFiles()
             this.deleteText = "Delete"
           })
-      }
+      },
+      handleFileUpload(){
+        this.pdfFileUpload = this.$refs.file.files[0];
+      },
+      submitFile() {
+        let formData = new FormData();
+        formData.append('file', this.pdfFileUpload);
+        formData.append('name', this.newPdfFile.name)
+        const token = localStorage.getItem("nb.user");
+        const headers = {
+          headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': 'Bearer ' + token 
+          }
+        }
+        axios.post(`/api/files/filePdf/${this.currentDir.id}`, formData, headers)
+          .then((result) =>{
+            this.newPdfFile = { name: ""}
+            if(!result.data.error) {
+              this.loadFiles();
+              Vue.notify({
+              group: 'addFile',
+              title: 'Your file was added',
+              type: 'success',
+              })
+            }
+            else {
+              console.log("NO FILE")
+              Vue.notify({
+              group: 'addFile',
+              title: 'Your file was not added',
+              type: 'error',
+              text: 'You have added this file in the past. Try looking through your files (or deleted files) for it!'
+              })
+
+            }
+          })
+        
+
+      },
     },
     mounted: function() {
       this.loadFiles()
