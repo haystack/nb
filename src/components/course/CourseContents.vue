@@ -145,8 +145,15 @@
   import VModal from 'vue-js-modal'
   import moment from 'moment'
   import Notifications from 'vue-notification'
+  import loading from 'vuejs-loading-screen'
   Vue.use(VModal)
   Vue.use(Notifications)
+  Vue.use(loading, {
+    bg: '#4a2270ad',
+    icon: 'refresh',
+    size: 3,
+    icon_color: 'white',
+})
 
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
@@ -388,6 +395,7 @@
         this.pdfFileUpload = this.$refs.file.files[0];
       },
       submitFile() {
+        this.$isLoading(true) // open loading screen      
         let formData = new FormData();
         formData.append('file', this.pdfFileUpload);
         formData.append('name', this.newPdfFile.name)
@@ -400,6 +408,7 @@
         }
         axios.post(`/api/files/filePdf/${this.currentDir.id}`, formData, headers)
           .then((result) =>{
+            this.$isLoading(false) // close loading screen      
             this.newPdfFile = { name: ""}
             if(!result.data.error) {
               this.loadFiles();
