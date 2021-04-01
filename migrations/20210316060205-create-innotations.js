@@ -11,7 +11,7 @@ module.exports = {
             },
             position: {
                 type: Sequelize.ENUM,
-                values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT']
+                values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
             },
             created_at: {
                 allowNull: false,
@@ -25,5 +25,6 @@ module.exports = {
     },
     down: async (queryInterface, Sequelize) => {
         await queryInterface.dropTable('innotations');
+        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_innotations_position";');
     }
 };

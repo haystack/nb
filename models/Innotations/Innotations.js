@@ -7,13 +7,13 @@ const innotation = (sequelize, DataTypes) => {
         },
         position: {
             type: DataTypes.ENUM,
-            values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT']
+            values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
         }
     },
     {
         classMethods:{
             associate: (models) => {
-                Innotation.belongsTo(models.Annotation, {as: 'Annotation', foreignKey:{name: 'annotation_id'}, onDelete: 'CASCADE'});                
+                Innotation.belongsTo(models.Annotation, {as: 'Annotation', foreignKey:{name: 'annotation_id'}, onDelete: 'CASCADE'});
             }
         }
     });
