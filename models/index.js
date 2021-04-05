@@ -49,7 +49,8 @@ if (!global.hasOwnProperty('db')) {
     HtmlLocation: sequelize.import('./Annotations/HTMLLocations'),
     Thread: sequelize.import('./Annotations/Threads'),
     Annotation: sequelize.import('./Annotations/Annotations'),
-    Innotation: sequelize.import('./Innotations/Innotations'),
+    Spotlight: sequelize.import('./Spotlights/Spotlights'),
+    SpotlightLog: sequelize.import('./Spotlights/SpotlightsLog'),
 
     TagType: sequelize.import('./AnnotationActions/TagTypes'),
     Tag: sequelize.import('./AnnotationActions/Tags'),

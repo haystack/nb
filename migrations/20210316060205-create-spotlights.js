@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('innotations', {
+        await queryInterface.createTable('spotlights', {
             id: {
                 allowNull: false,
                 defaultValue: Sequelize.UUIDV1,
@@ -24,7 +24,7 @@ module.exports = {
         });
     },
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('innotations');
-        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_innotations_position";');
+        await queryInterface.dropTable('spotlights');
+        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_spotlights_position";');
     }
 };

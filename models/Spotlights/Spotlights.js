@@ -1,5 +1,5 @@
-const innotation = (sequelize, DataTypes) => {
-    const Innotation = sequelize.define('innotation', {
+const spotlight = (sequelize, DataTypes) => {
+    const Spotlight = sequelize.define('spotlight', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV1,
@@ -13,11 +13,11 @@ const innotation = (sequelize, DataTypes) => {
     {
         classMethods:{
             associate: (models) => {
-                Innotation.belongsTo(models.Annotation, {as: 'Annotation', foreignKey:{name: 'annotation_id'}, onDelete: 'CASCADE'});
+                Spotlight.belongsTo(models.Annotation, {as: 'Annotation', foreignKey:{name: 'annotation_id'}, onDelete: 'CASCADE'});
             }
         }
     });
-    return Innotation;
+    return Spotlight;
 };
 
-module.exports = innotation;
+module.exports = spotlight;

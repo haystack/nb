@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.addConstraint('innotations', { 
+        await queryInterface.addConstraint('spotlights', { 
             fields: ['annotation_id'],
             type: 'unique',
             name: 'annotation_id_key'
@@ -11,6 +11,6 @@ module.exports = {
     },
     
     down: async (queryInterface, Sequelize) => {
-        queryInterface.removeConstraint('innotations', 'annotation_id_key')
+        queryInterface.removeConstraint('spotlights', 'annotation_id_key')
     }
 };

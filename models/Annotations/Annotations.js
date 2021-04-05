@@ -35,7 +35,7 @@ const annotation = (sequelize, DataTypes) => {
         Annotation.belongsToMany(models.User, {as:'TaggedUsers', through:'user_tags' , onDelete: 'CASCADE'});
         Annotation.belongsToMany(models.User, {as:'Bookmarkers', through:'bookmarks' , onDelete: 'CASCADE'});
         Annotation.belongsToMany(models.User, {as:'Starrers', through:'stars' , onDelete: 'CASCADE'});
-        Annotation.hasOne(models.Innotation, {as: 'Innotation', foreignKey:{name: 'annotation_id'}, onDelete: 'CASCADE'});
+        Annotation.hasOne(models.Spotlight, {as: 'Spotlight', foreignKey:{name: 'annotation_id'}, onDelete: 'CASCADE'});
       }
     }
   });

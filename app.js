@@ -10,7 +10,7 @@ const usersRouter = require('./routes/users');
 const classesRouter = require('./routes/classes');
 const filesRouter = require('./routes/files');
 const annotationsRouter = require('./routes/annotations');
-const innotationsRouter = require('./routes/innotations');
+const spotlightsRouter = require('./routes/spotlights');
 const gradesRouter = require('./routes/grades');
 
 require('./auth/auth');
@@ -55,7 +55,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/classes',     passport.authenticate('jwt', { session: false }), classesRouter);
 app.use('/api/files',       passport.authenticate('jwt', { session: false }), filesRouter);
 app.use('/api/annotations', passport.authenticate('jwt', { session: false }), annotationsRouter);
-app.use('/api/innotations', passport.authenticate('jwt', { session: false }), innotationsRouter);
+app.use('/api/spotlights', passport.authenticate('jwt', { session: false }), spotlightsRouter);
 app.use('/api/grades',      passport.authenticate('jwt', { session: false }), gradesRouter);
 
 // Handle errors.

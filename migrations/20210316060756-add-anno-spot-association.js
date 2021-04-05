@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.addColumn('innotations', 'annotation_id', {
+        await queryInterface.addColumn('spotlights', 'annotation_id', {
             type: Sequelize.UUID,
             references: {
                 model: 'annotations',
@@ -13,6 +13,6 @@ module.exports = {
     },
     
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.removeColumn('innotations', 'annotation_id');
+        await queryInterface.removeColumn('spotlights', 'annotation_id');
     }
 };
