@@ -9,9 +9,9 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.UUID
             },
-            position: {
+            type: {
                 type: Sequelize.ENUM,
-                values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
+                values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
             },
             created_at: {
                 allowNull: false,
@@ -25,6 +25,6 @@ module.exports = {
     },
     down: async (queryInterface, Sequelize) => {
         await queryInterface.dropTable('spotlights');
-        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_spotlights_position";');
+        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_spotlights_type";');
     }
 };

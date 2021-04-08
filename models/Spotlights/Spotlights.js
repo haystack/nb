@@ -5,9 +5,9 @@ const spotlight = (sequelize, DataTypes) => {
             defaultValue: DataTypes.UUIDV1,
             primaryKey: true
         },
-        position: {
+        type: {
             type: DataTypes.ENUM,
-            values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
+            values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
         }
     },
     {

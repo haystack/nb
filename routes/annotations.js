@@ -271,7 +271,7 @@ router.get('/new_annotation', (req, res)=> {
               {association: 'TaggedUsers', attributes: ['id']},
               {association: 'Tags', attributes: ['tag_type_id']},
               {association: 'Bookmarkers', attributes: ['id']},
-              {association: 'Spotlight', attributes: ['id', 'position']},
+              {association: 'Spotlight', attributes: ['id', 'type']},
             ]
           },
           {association: 'AllAnnotations', separate: true, attributes:['id', 'content', 'visibility', 'anonymity', 'created_at'],

@@ -11,11 +11,11 @@ module.exports = {
             },
             action: {
                 type: Sequelize.ENUM,
-                values: ['CLICK']
+                values: ['CLICK', 'HOVER', 'LIKE', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END']
             },
-            position: {
+            type: {
                 type: Sequelize.ENUM,
-                values: ['IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
+                values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
             },
             role: {
                 type: Sequelize.ENUM,
@@ -35,6 +35,7 @@ module.exports = {
     down: async (queryInterface, Sequelize) => {
         await queryInterface.dropTable('spotlight_logs');
         await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_spotlight_logs_action";');
-        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_spotlight_logs_position";');
+        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_spotlight_logs_type";');
+        await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_spotlight_logs_role";');
     }
 };
