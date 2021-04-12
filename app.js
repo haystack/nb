@@ -55,7 +55,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/classes',     passport.authenticate('jwt', { session: false }), classesRouter);
 app.use('/api/files',       passport.authenticate('jwt', { session: false }), filesRouter);
 app.use('/api/annotations', passport.authenticate('jwt', { session: false }), annotationsRouter);
-app.use('/api/spotlights', passport.authenticate('jwt', { session: false }), spotlightsRouter);
+app.use('/api/spotlights',  passport.authenticate('jwt', { session: false }), spotlightsRouter);
 app.use('/api/grades',      passport.authenticate('jwt', { session: false }), gradesRouter);
 
 // Handle errors.

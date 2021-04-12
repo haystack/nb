@@ -38,6 +38,7 @@ if (!global.hasOwnProperty('db')) {
   }
 
   const models = {
+    NbConfig: sequelize.import('./NbConfig'),
     User: sequelize.import('./Users'),
     Institution: sequelize.import('./Classes/Institutions'),
     Class: sequelize.import('./Classes/Classes'),
