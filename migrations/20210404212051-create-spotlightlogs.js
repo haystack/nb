@@ -11,11 +11,11 @@ module.exports = {
             },
             action: {
                 type: Sequelize.ENUM,
-                values: ['CLICK', 'HOVER', 'LIKE', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END']
+                values: ['CLICK', 'HOVER', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END']
             },
             type: {
                 type: Sequelize.ENUM,
-                values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
+                values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN', 'LIST', 'HIGHLIGHT']
             },
             role: {
                 type: Sequelize.ENUM,

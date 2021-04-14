@@ -7,11 +7,11 @@ const spotlightLog = (sequelize, DataTypes) => {
         },
         action: {
             type: DataTypes.ENUM,
-            values: ['CLICK', 'HOVER', 'LIKE', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END']
+            values: ['CLICK', 'HOVER', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END']
         },
         type: {
             type: DataTypes.ENUM,
-            values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
+            values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN', 'LIST', 'HIGHLIGHT']
         },
         role: {
             type: DataTypes.ENUM,

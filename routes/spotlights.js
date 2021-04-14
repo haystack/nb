@@ -76,7 +76,7 @@ router.delete('/spotlight/:id', async (req, res) => {
  * @param role: string enum ('INSTRUCTOR', 'STUDENT')
  */
 router.post('/log', async (req, res) => {
-    const spotlight = await Spotlight.findByPk(req.body.spotlight_id)
+    const spotlight = req.body.spotlight_id ? await Spotlight.findByPk(req.body.spotlight_id) : {}
     const annotation = await Annotation.findByPk(req.body.annotation_id)
     const user = await User.findByPk(req.user.id)
     const source = await Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.body.class_id} ] }})
@@ -84,7 +84,7 @@ router.post('/log', async (req, res) => {
     try {
         const spotlightLog = await SpotlightLog.create(
             {
-                spotlight_id: spotlight.id,
+                spotlight_id: req.body.spotlight_id ? spotlight.id : null,
                 annotation_id: annotation.id,
                 user_id: user.id,
                 type: req.body.type.toUpperCase(),
