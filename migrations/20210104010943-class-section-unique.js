@@ -9,5 +9,9 @@ module.exports = {
     });
   },
   
-  down: async (queryInterface, Sequelize) => {}
+  down: async (queryInterface, Sequelize) => {
+    return Promise.all([
+      queryInterface.removeConstraint('sections', 'section_name_classid_key')
+    ])
+  }
 };

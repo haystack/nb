@@ -16,5 +16,8 @@ module.exports = {
 
   },
   down: async (queryInterface, Sequelize) => {
+    return Promise.all([
+      queryInterface.removeColumn('users', 'reset_password_id')
+    ])
   }
 };
