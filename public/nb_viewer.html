@@ -201,8 +201,8 @@
                 eventBus.on('pagerender', (evt) => {
                     // If we've rendered the last page, load NB
                     if (evt.pageNumber === views.length) {
-                        //let nb_bundle = window.location.protocol + "//" + window.location.host + "/client/js/bundle.js"
-                        let nb_bundle = "https://127.0.0.1:3001/js/bundle.js"
+                        let nb_bundle = window.location.protocol + "//" + window.location.host + "/client/js/bundle.js"
+                        //let nb_bundle = "https://127.0.0.1:3001/js/bundle.js"
                         let s = document.createElement('script'); s.src= nb_bundle; document.body.append(s);
                     }
                 });
