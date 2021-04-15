@@ -15,11 +15,8 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
+    return Promise.all([
+      queryInterface.removeColumn('file_system_objects', 'deleted')
+    ])
   }
 };

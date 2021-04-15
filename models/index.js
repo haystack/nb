@@ -1,4 +1,4 @@
-// import Sequelize from 'sequelize';
+require('dotenv').config();
 const Sequelize = require("sequelize");
 const config = require("../config");
 
@@ -21,7 +21,7 @@ if (!global.hasOwnProperty('db')) {
   } else {
     // the application is executed on the local machine ... use mysql
     sequelize = new Sequelize(config.db.name, config.db.user, config.db.pass, {
-      host: 'localhost',
+      host: process.env.DATABASE_HOST || 'localhost',
       dialect: 'postgres',
       logging: false,
       port: 5432,
@@ -38,6 +38,7 @@ if (!global.hasOwnProperty('db')) {
   }
 
   const models = {
+    NbConfig: sequelize.import('./NbConfig'),
     User: sequelize.import('./Users'),
     Institution: sequelize.import('./Classes/Institutions'),
     Class: sequelize.import('./Classes/Classes'),
@@ -49,6 +50,8 @@ if (!global.hasOwnProperty('db')) {
     HtmlLocation: sequelize.import('./Annotations/HTMLLocations'),
     Thread: sequelize.import('./Annotations/Threads'),
     Annotation: sequelize.import('./Annotations/Annotations'),
+    Spotlight: sequelize.import('./Spotlights/Spotlights'),
+    SpotlightLog: sequelize.import('./Spotlights/SpotlightsLog'),
 
     TagType: sequelize.import('./AnnotationActions/TagTypes'),
     Tag: sequelize.import('./AnnotationActions/Tags'),

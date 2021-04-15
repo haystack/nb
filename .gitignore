@@ -9,6 +9,7 @@ node_modules
 /uploads
 config.js
 email-config.js
+config/config.json
 
 # local env files
 .env.local
