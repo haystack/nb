@@ -5,6 +5,7 @@ node_modules
 /public/js
 /public/style
 /public/uploads
+/public/pdfs
 /uploads
 config.js
 email-config.js
