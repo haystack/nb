@@ -71,7 +71,7 @@ router.delete('/spotlight/:id', async (req, res) => {
  * Make new spotlight log for a given annotation
  * @name POST/api/spotlights/log
  * @param annotationId: annotation id to innotate
- * @param type: string enum ('IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN')
+ * @param type: string enum ('IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN', 'NOTIFICATION_LIST', 'NOTIFICATION_POPUP', 'NOTIFICATION_HIGHLIGHT')
  * @param action: string enum ('CLICK', 'HOVER', 'LIKE', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY')
  * @param role: string enum ('INSTRUCTOR', 'STUDENT')
  */

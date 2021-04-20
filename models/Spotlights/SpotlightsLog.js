@@ -11,7 +11,7 @@ const spotlightLog = (sequelize, DataTypes) => {
         },
         type: {
             type: DataTypes.ENUM,
-            values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN', 'LIST', 'HIGHLIGHT']
+            values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN', 'LIST', 'HIGHLIGHT', 'NOTIFICATION_LIST', 'NOTIFICATION_POPUP', 'NOTIFICATION_HIGHLIGHT']
         },
         role: {
             type: DataTypes.ENUM,
