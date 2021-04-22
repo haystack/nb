@@ -8,6 +8,7 @@ const app = require('../app');
 const debug = require('debug')('fritter-starter:server');
 const https = require('https');
 const fs = require('fs');
+let socketapi = require("../socketapi"); // used for socket.io
 
 donenv.config();
 
@@ -90,5 +91,8 @@ function onListening() {
  * Listen on provided port, on all network interfaces.
  */
 server.listen(port);
+socketapi.io.attach(server, options={
+  cors:true,
+ }); // used for socket.io
 server.on('error', onError);
 server.on('listening', onListening);

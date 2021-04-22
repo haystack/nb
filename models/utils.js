@@ -182,6 +182,40 @@ module.exports = function(models){
       
       return annotation
     },
+    createAnnotationFromThread: function(htmlLocation, head, seenUsers, instructors, sessionUserId) {
+      let annotation = {}
+      let range = htmlLocation;
+
+      annotation.id = head.id;
+      annotation.range = {
+        start: range.start_node,
+        end: range.end_node,
+        startOffset: range.start_offset,
+        endOffset: range.end_offset
+      };
+      annotation.parent = null;
+      annotation.timestamp = head.dataValues.created_at;
+      annotation.author = head.Author.id;
+      annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
+      annotation.instructor = instructors.has(head.Author.id);
+      annotation.html = head.content;
+      annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
+      annotation.people = head.TaggedUsers.map(userTag => userTag.id);
+      annotation.visibility = head.visibility;
+      annotation.anonymity = head.anonymity;
+      annotation.replyRequestedByMe = head.ReplyRequesters
+        .reduce((bool, user)=> bool || user.id == sessionUserId, false);
+      annotation.replyRequestCount = head.ReplyRequesters.length;
+      annotation.starredByMe = head.Starrers
+        .reduce((bool, user)=> bool || user.id == sessionUserId, false);
+      annotation.starCount = head.Starrers.length;
+      annotation.seenByMe = seenUsers
+        .reduce((bool, user)=> bool || user.id == sessionUserId, false);
+      annotation.bookmarked = head.Bookmarkers
+        .reduce((bool, user)=> bool || user.id == sessionUserId, false);
+      
+      return annotation
+    },
     createFile: function(parentId, filename, filepath){
       return FileSystemObject.findByPk(parentId, {include:[{association: 'Class'}]})
       .then((folder) => {
