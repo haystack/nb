@@ -22,6 +22,13 @@
           <font-awesome-icon :icon="folderIcon"></font-awesome-icon>
           <span>{{ dir.filename }}</span>
         </div>
+
+        <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="editIcon"
+                  @click= this.$modal.show(edit-file-modal)>
+              </font-awesome-icon>
         <div v-if="(trashExists || showDeleted) && userType==='instructor'" class="item" :key="trash" @click="showDeleted = !showDeleted">
         
           <font-awesome-icon :icon="trashIcon"></font-awesome-icon>
