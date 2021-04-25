@@ -17,6 +17,10 @@ const spotlightLog = (sequelize, DataTypes) => {
             type: DataTypes.ENUM,
             values: ['INSTRUCTOR', 'STUDENT']
         },
+        trigger: {
+            type: DataTypes.ENUM,
+            values: ['NONE', 'INSTRUCTOR_COMMENTED', 'REPLY_REQUESTED', 'USER_TAGGED', 'USER_SAW_RECENT_ACTIVITY']
+        }
     },
     {
         classMethods:{

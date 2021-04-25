@@ -74,6 +74,7 @@ router.delete('/spotlight/:id', async (req, res) => {
  * @param type: string enum ('IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN', 'NOTIFICATION_LIST', 'NOTIFICATION_POPUP', 'NOTIFICATION_HIGHLIGHT')
  * @param action: string enum ('CLICK', 'HOVER', 'LIKE', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY')
  * @param role: string enum ('INSTRUCTOR', 'STUDENT')
+ * @param trigger: string enum ('NONE', 'INSTRUCTOR_COMMENTED', 'REPLY_REQUESTED', 'USER_TAGGED', 'USER_SAW_RECENT_ACTIVITY')
  */
 router.post('/log', async (req, res) => {
     const spotlight = req.body.spotlight_id ? await Spotlight.findByPk(req.body.spotlight_id) : {}
@@ -92,6 +93,7 @@ router.post('/log', async (req, res) => {
                 role: req.body.role.toUpperCase(),
                 class_id: req.body.class_id,
                 source_id: source.id,
+                trigger: req.body.trigger ? req.body.trigger : 'NONE'
             }, 
         )
         res.status(200).json(spotlightLog)
