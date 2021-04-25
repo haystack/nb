@@ -554,7 +554,7 @@ router.put('/annotation/:id', (req, res) => {
           else annotation.removeReplyRequester(user);
         });
       })
-      .then(() => res.status(200))
+      .then(() => res.sendStatus(200))
     );
 });
 
@@ -576,7 +576,8 @@ router.delete('/annotation/:id', (req, res) => {
       }
 
     })
-    .then(() => res.status(200));
+    .then(() => res.sendStatus(200))
+    .catch((err) => res.sendStatus(400));
 });
 
 /**
@@ -587,8 +588,11 @@ router.delete('/annotation/:id', (req, res) => {
 router.post('/seen/:id', (req, res) => {
   Annotation.findByPk(req.params.id, {include:[{association: 'Thread'}]}).then(annotation =>
     User.findByPk(req.user.id).then(user => {
-      annotation.Thread.addSeenUser(user);
-    }).then(() => res.status(200))
+      annotation.Thread.removeSeenUser(user).then(() => {
+        annotation.Thread.addSeenUser(user)
+      })
+    }).then(() => res.sendStatus(200))
+    .catch((err) => res.sendStatus(400))
   );
 });
 
@@ -602,9 +606,14 @@ router.post('/star/:id', (req, res) => {
     User.findByPk(req.user.id).then(user => {
       if (req.body.star) {annotation.addStarrer(user);}
       else {annotation.removeStarrer(user);}
-      annotation.Thread.addSeenUser(user);
-      annotation.Thread.addRepliedUser(user);
-    }).then(() => res.status(200))
+      annotation.Thread.removeSeenUser(user).then(() => {
+        annotation.Thread.addSeenUser(user)
+      })
+      annotation.Thread.removeRepliedUser(user).then(() => {
+        annotation.Thread.addRepliedUser(user)
+      })
+    }).then(() => res.sendStatus(200))
+    .catch((err) => res.sendStatus(400))
   );
 });
 
@@ -618,9 +627,14 @@ router.post('/replyRequest/:id', (req, res) => {
     User.findByPk(req.user.id).then(user => {
       if (req.body.replyRequest) {annotation.addReplyRequester(user);}
       else {annotation.removeReplyRequester(user);}
-      annotation.Thread.addSeenUser(user);
-      annotation.Thread.addRepliedUser(user);
-    }).then(() => res.status(200))
+      annotation.Thread.removeSeenUser(user).then(() => {
+        annotation.Thread.addSeenUser(user)
+      })
+      annotation.Thread.removeRepliedUser(user).then(() => {
+        annotation.Thread.addRepliedUser(user)
+      })
+    }).then(() => res.sendStatus(200))
+    .catch((err) => res.sendStatus(400))
   );
 });
 
@@ -634,9 +648,15 @@ router.post('/bookmark/:id', (req, res) => {
     User.findByPk(req.user.id).then(user => {
       if (req.body.bookmark) {annotation.addBookmarker(user);}
       else {annotation.removeBookmarker(user);}
-      annotation.Thread.addSeenUser(user);
-      annotation.Thread.addRepliedUser(user);
-    }).then(() => res.status(200))
+      annotation.Thread.removeSeenUser(user).then(() => {
+        annotation.Thread.addSeenUser(user)
+      })
+      annotation.Thread.removeRepliedUser(user).then(() => {
+        annotation.Thread.addRepliedUser(user)
+      })
+    }).then(() => res.sendStatus(200))
+    .catch((err) => res.sendStatus(400))
+
   );
 });
 
