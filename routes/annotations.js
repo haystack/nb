@@ -772,7 +772,8 @@ router.post('/new_reply/:id', (req, res)=>{
             authorId: req.user.id, 
             threadId: parent.Thread.id, 
             headAnnotationId: parent.Thread.HeadAnnotation.id, 
-            taggedUsers: [...req.body.userTags]
+            taggedUsers: [...req.body.userTags],
+            newAnnotationId: child.id
           })
       });
       parent.addChild(child);
