@@ -142,9 +142,22 @@ module.exports = function(models){
     removeStudent: function(classId, userId){
       return Class.findByPk(classId, {include:[{association: 'GlobalSection'}]})
       .then((nb_class) =>
-        User.findByPk(userId).then((user) =>
+        User.findByPk(userId).then((user) => {
           nb_class.GlobalSection.removeMemberStudent(user)
-        )
+          // remove student from existing non-global section
+          Section.findOne({ where: {class_id: classId, is_global: false}, 
+            include: [{
+              model: models.User,    
+              as: 'MemberStudents',
+              where: { id: userId }, // filter to find a section with this student
+            }]
+          })
+          .then(function (section) {
+            if (section) {
+              section.removeMemberStudent(user);
+            }
+          })
+        })
       );
     },
     createAnnotation: function(location, head, instructors, sessionUserId) {
