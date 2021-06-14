@@ -14,6 +14,7 @@ const spotlightsRouter = require('./routes/spotlights');
 const gradesRouter = require('./routes/grades');
 
 require('./auth/auth');
+let socketapi = require("./socketapi"); // used for socket.io
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use(cors({
       || origin == 'https://jumana-nb.csail.mit.edu'
       || origin == 'https://akshahk-nb.csail.mit.edu'
       || origin == 'https://localhost:8080'
+      || origin == 'https://helen-nb.csail.mit.edu'
     ){
       callback(null, true);
     }
@@ -64,4 +66,5 @@ app.use(function(err, req, res, next) {
     res.json({ success: false, error: err });
 });
 
+app.set('socketio', socketapi.io)
 module.exports = app;
