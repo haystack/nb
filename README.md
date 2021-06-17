@@ -2,12 +2,17 @@
 
 ## Local Dev
 
-1. clone repo then install packages using the command `npm install`
+1. Install node.js and PostgreSQL
+   - [Node install](https://nodejs.org/en/download/)
+   - [PostgreSQL install macOS](https://www.codementor.io/@engineerapart/getting-started-with-postgresql-on-mac-osx-are8jcopb)
+   - [PostgreSQL install windows](https://www.postgresqltutorial.com/install-postgresql/)
 
-2. Install PostgreSQL 
-and Create DB for NB with a user that has full access to it. [Helpful resource](https://www.codementor.io/@engineerapart/getting-started-with-postgresql-on-mac-osx-are8jcopb).
 
-3. Add a config file for your database called config.js structured like below:
+2. Clone repo then install packages using the command `npm install`
+
+3. Using PostgreSQL, Create DB for NB with a user that has full access to it. [Helpful resource](https://www.codementor.io/@engineerapart/getting-started-with-postgresql-on-mac-osx-are8jcopb).
+
+4. Add a config file for your database called config.js in the base folder of the project structured like below. Entries in config db should match the ones you used in Postgres:
 ```
 var config = {
   db: {
@@ -18,7 +23,8 @@ var config = {
 }
 module.exports = config;
 ```
-4. Add `email-config.js` file in thr root of the project like below (you can use your gmail account or ask admin for test account):
+
+5. Add an `email-config.js` file in the base folder of the project (where config.js is) like below (you can use your gmail account or ask admin for test account):
 ```
 const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
@@ -31,16 +37,27 @@ const transporter = nodemailer.createTransport({
 module.exports = transporter;
 ```
 
-5. Create .env file with the following content
+6. Create a .env file with the following content and place it in the base folder of the project (where config.js is).
 ```
 JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
 ```
+   - NOTE: Do not give the file a name (ie local.env), leave it as '.env'
+     - If you are on Mac you won’t be able to do this at first because ‘.’ files are hidden and therefore inaccessible/unwriteable by default. You need to run the following two lines in your command line tool first (to modify your hidden files temporarily), and when done run the same two lines but change the bool tag to a NO (to protect your hidden files):
+          ```
+          defaults write com.apple.finder AppleShowAllFiles -bool YES
+          ```
+          ```
+          killall Finder 
+          ```
 
-6. Run NB in separate terminals
-    * Run backend using command `npm run dev`
-    * run UI using command `npm run serve`
+7. Run NB in separate terminals
+   - Run backend using command `npm run dev`
+   - Run UI using command `npm run serve`
+     - The UI has several errors listed in the command line when you run it, but it still works if you open up the server on your browser.
 
-7. Access UI on https://127.0.0.1:8080/ . Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. In Chrome type:  thisisunsafe. 
+8. Access UI on https://127.0.0.1:8080/ 
+   - Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. In Chrome type:  thisisunsafe. (note: there is no text box to type this in, you have to type it on yout keyboard to get through). You can also press the advanced button then press continue to site. 
+
 
 
 ## Deploy NB (Production)
