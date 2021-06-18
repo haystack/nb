@@ -32,6 +32,14 @@
                   @click="editFolder(dir)">
               </font-awesome-icon>
             </span>
+            <span v-else-if="(userType == 'instructor' && showDeleted)" class="editdir">
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="restoreIcon"
+                  @click="restoreFolder(dir)">
+              </font-awesome-icon>
+            </span>
           <span>
           {{ dir.filename }}
           </span>
@@ -46,7 +54,7 @@
 
     <modal v-if="edittingFolder.folder" name="edit-folder-modal" height="auto">
       <!-- TODO: add options to edit filename, URL, etc -->
-      <div>
+      <div class="edit-file-form">
         <h3>{{edittingFolder.folder.filename}}</h3>
         <div class="group">
         <label for="edit-filename"> Name: </label>
@@ -373,6 +381,7 @@
         
       },
       switchDirectory: function(directory) {
+        this.showDeleted = false
         this.$emit('switch-directory', directory)
       },
       editFolder: function(directory) {
@@ -394,6 +403,15 @@
         const token = localStorage.getItem("nb.user");
         const headers = { headers: { Authorization: 'Bearer ' + token }}
         axios.post(`/api/files/file/restore/${file.id}`, {}, headers)
+          .then(() =>{
+            this.loadFiles()
+            
+          })
+      },
+      restoreFolder: function(dir) {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/restore/${dir.id}`, {}, headers)
           .then(() =>{
             this.loadFiles()
             
