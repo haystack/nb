@@ -18,17 +18,48 @@
             v-for="dir in directories"
             class="item"
             :key="dir.id"
-            @click="switchDirectory(dir)">
-          <font-awesome-icon :icon="folderIcon"></font-awesome-icon>
-          <span>{{ dir.filename }}</span>
+            >
+          <font-awesome-icon 
+              class="jj"
+              :icon="folderIcon"
+              @click="switchDirectory(dir)">
+          </font-awesome-icon>
+          <span v-if="(userType === 'instructor' && !showDeleted)" class="editdir">
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="editIcon"
+                  @click="editFolder(dir)">
+              </font-awesome-icon>
+            </span>
+          <span>
+          {{ dir.filename }}
+          </span>
         </div>
-        <div v-if="(trashExists || showDeleted) && userType==='instructor'" class="item" :key="trash" @click="showDeleted = !showDeleted">
+        <div v-if="(trashExists || showDeleted) && userType==='instructor'" class="item" :key="trash">
         
-          <font-awesome-icon :icon="trashIcon"></font-awesome-icon>
+          <font-awesome-icon class="trash_item" :icon="trashIcon" @click="showDeleted = !showDeleted"></font-awesome-icon>
           <span>{{ showDeleted ? "Hide Trash" : "Show Trash"}}</span>
         </div>
       </div>
     </div>
+
+    <modal v-if="edittingFolder.folder" name="edit-folder-modal" height="auto">
+      <!-- TODO: add options to edit filename, URL, etc -->
+      <div>
+        <h3>{{edittingFolder.folder.filename}}</h3>
+        <div class="group">
+        <label for="edit-filename"> Name: </label>
+        <input id="edit-filename" type="text" v-model="edittingFolder.newFoldername">
+        </div>
+        
+        <div class="group form-buttons">
+        <button class="delete" @click="deleteFolderEdit"> {{deleteText}} </button>
+          <button class="cancel" @click="closeFolderEdit"> Cancel </button>
+          <button class="save" @click="saveFolderEdit" :disabled="!editFolderEnabled"> Save </button>
+        </div>
+      </div>
+    </modal>
 
     <div v-if="userType === 'instructor' && !showDeleted" class="add-folder">
       <h3>New Folder</h3>
@@ -229,6 +260,10 @@
           newFilename: "",
           newFilepath: ""
         },
+        edittingFolder: {
+          folder: null,
+          newFoldername: ""
+        },
         deleteText: "Delete",
         showDeleted: false
       }
@@ -252,6 +287,10 @@
         catch (_) {
           ans = false
         }
+        return ans
+      },
+      editFolderEnabled: function() {
+        let ans = this.edittingFolder.newFoldername.length > 0
         return ans
       },
       directories: function() {
@@ -336,6 +375,11 @@
       switchDirectory: function(directory) {
         this.$emit('switch-directory', directory)
       },
+      editFolder: function(directory) {
+        this.edittingFolder.folder = directory
+        this.edittingFolder.newFoldername = directory.filename
+        this.$modal.show('edit-folder-modal')
+      },
       editAssignment: function(file) {
         this.edittingFile.file = file
         this.deleteText = "Delete"
@@ -366,12 +410,30 @@
             
           })
       },
+      saveFolderEdit: function() {
+        const body = {filename: this.edittingFolder.newFoldername}
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/update/${this.edittingFolder.folder.id}`, body, headers)
+          .then(() =>{
+            this.closeFolderEdit()
+            this.loadFiles()
+            
+          })
+      },
       closeEdit: function() {
         this.$modal.hide('edit-file-modal')
         this.edittingFile = {
           file: null,
           newFilename: "",
           newFilepath: ""
+        }
+      },
+      closeFolderEdit: function() {
+        this.$modal.hide('edit-folder-modal')
+        this.edittingFolder = {
+          folder: null,
+          newFoldername: "",
         }
       },
       deleteEdit: function() {
@@ -389,6 +451,22 @@
             this.closeEdit()
             this.loadFiles()
             this.deleteText = "Delete"
+          })
+      },
+      deleteFolderEdit: function() {
+        /*
+        Confirm whether they want to delete
+        if(this.deleteText == "Delete") {
+          this.deleteText = "Confirm Delete"
+          return
+        }
+        */
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/delete/${this.edittingFolder.folder.id}`, {}, headers)
+          .then(() =>{
+            this.closeFolderEdit()
+            this.loadFiles()
           })
       },
       handleFileUpload(){
@@ -501,13 +579,33 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    cursor: pointer;
-  }
-  .directories .listing .item:hover {
-    background-color: #eee;
   }
   .directories .listing .item span {
     margin-left: 10px;
+  }
+
+  .directories .listing .item .editdir .clickable {
+    cursor: pointer;
+  }
+
+  .directories .listing .item .editdir .clickable:hover {
+    color: #007bff;
+  }
+
+  .directories .listing .item .jj {
+    cursor: pointer;
+  }
+
+  .directories .listing .item .jj:hover {
+    color: #007bff;
+  }
+
+  .directories .listing .item .trash_item {
+    cursor: pointer;
+  }
+
+  .directories .listing .item .trash_item:hover {
+    color: #007bff;
   }
 
   .add-folder {
