@@ -1,9 +1,8 @@
+require('dotenv').config()
 const passport = require('passport');
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
-const donenv = require('dotenv');
-
-donenv.config();
+const User = require('../models').User;
 
 passport.use(new JWTstrategy(
     {
@@ -18,3 +17,21 @@ passport.use(new JWTstrategy(
         }
     }
 ))
+
+function isAdmin() {
+    return async (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).send()
+        }
+
+        const user = await User.findByPk(req.user.id)
+
+        if (user.is_admin) {
+            return next()
+        }
+
+        return res.status(401).send()
+    }
+}
+
+module.exports = { isAdmin }
