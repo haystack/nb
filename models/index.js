@@ -9,11 +9,11 @@ if (!global.hasOwnProperty('db')) {
     // the application is executed on Heroku ... use the postgres database
     var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
     sequelize = new Sequelize(process.env.DATABASE_URL, {
-      dialect:  'postgres',
+      dialect: 'postgres',
       protocol: 'postgres',
-      port:     match[4],
-      host:     match[3],
-      logging:  false,
+      port: match[4],
+      host: match[3],
+      logging: false,
       define: {
         underscored: true
       }
@@ -84,20 +84,21 @@ sequelize.sync().then(() => {
   global.db.Class.findAll().then(nb_classes =>
     nb_classes.forEach(nb_class => {
       const tagDefaults = [
-        {value: "lightbulb-moment", emoji: "11_lightbulb-moment"},
-        {value: "learning-goal", emoji: "9_learning-goal"},
-        {value: "just-curious", emoji: "3_just-curious"},
-        {value: "lost", emoji: "4_lost"},
-        {value: "interesting-topic", emoji: "1_interesting-topic"},
-        {value: "question", emoji: "7_question"},
-        {value: "i-think", emoji: "6_i-think"},
-        {value: "surprised",emoji: "2_surprised"},
-        {value: "lets-discuss",emoji: "5_lets-discuss"},
-        {value: "important",emoji: "8_important"},
-        {value: "real-world-application",emoji: "10_real-world-application"}
+        { value: "lightbulb-moment", emoji: "11_lightbulb-moment" },
+        { value: "learning-goal", emoji: "9_learning-goal" },
+        { value: "just-curious", emoji: "3_just-curious" },
+        { value: "lost", emoji: "4_lost" },
+        { value: "interesting-topic", emoji: "1_interesting-topic" },
+        { value: "question", emoji: "7_question" },
+        { value: "i-think", emoji: "6_i-think" },
+        { value: "surprised", emoji: "2_surprised" },
+        { value: "lets-discuss", emoji: "5_lets-discuss" },
+        { value: "important", emoji: "8_important" },
+        { value: "real-world-application", emoji: "10_real-world-application" },
+        { value: "needs-work", emoji: "12_needs-work" }
       ];
       Promise.all(tagDefaults.map(tagDefault =>
-        global.db.TagType.findOrCreate({where: tagDefault}).then(res => res[0])
+        global.db.TagType.findOrCreate({ where: tagDefault }).then(res => res[0])
       )).then(tag_types => nb_class.setTagTypes(tag_types));
     })
   );
