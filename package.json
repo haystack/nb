@@ -74,7 +74,9 @@
     "sequelize-cli": "^6.2.0",
     "supertest-session": "^4.0.0",
     "uuid": "^8.3.2",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.17",
+    "webpack": "^5.40.0",
+    "webpack-cli": "^4.7.2"
   },
   "eslintConfig": {
     "root": true,
