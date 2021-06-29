@@ -17,7 +17,7 @@ router.get('/spotlight', async (req, res) => {
     if (courseConfig) {
         const config = JSON.parse(courseConfig.value)
         if (config.expSpotlight) {
-            res.status(200).json(config.expSpotlight)
+            return res.status(200).json(config.expSpotlight)
         }
     }
     res.status(200).send()

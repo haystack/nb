@@ -23,7 +23,7 @@ router.get('/courses', async (req, res) => {
         include: [
             { association: 'Instructors' },
             { association: 'Sections' },
-            { association: 'Sources' },
+            { association: 'Sources', include: [{ association: 'Files' }] },
             { association: 'Creator' },
             { association: 'Sections' },
         ]
@@ -135,10 +135,10 @@ router.post('/course/:course/source/:source/assignment', async (req, res) => {
 
         try {
             await ExpSpotlighAssignment.bulkCreate(bulk)
-            res.status(200).send()
+            return res.status(200).send()
         } catch (error) {
             console.log(error);
-            res.status(400).json(error)
+            return res.status(400).json(error)
         }
     }
 

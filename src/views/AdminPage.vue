@@ -77,7 +77,12 @@
                             <fieldset>
                                 <legend>Sources</legend>
                                 <ul>
-                                    <li v-for="source in selectedCourse.Sources"><span v-if="assignedSources.includes(source.id)">✔️</span><button v-else @click="assignSource(source)">Assign</button> <kbd>[{{source.id}}] </kbd>{{source.filename}}</li>
+                                    <li v-for="source in selectedCourse.Sources">
+                                        <span v-if="source.Files[0].deleted">🗑️</span>
+                                        <span v-else-if="!source.Files.deleted && assignedSources.includes(source.id)">✔️</span>
+                                        <button v-else @click="assignSource(source)">Assign</button> 
+                                        <kbd>[{{source.id}}] </kbd>{{source.filename}}
+                                    </li>
                                 </ul>
                             </fieldset>
                         </template>
