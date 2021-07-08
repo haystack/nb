@@ -338,17 +338,22 @@ router.get('/new_annotation', (req, res) => {
 
             // TODO: is this the correct way to filter replies?
             let goodLocations = locations.filter((location) => {
-                let head = location.Thread.HeadAnnotation;
+                try {
+                    let head = location.Thread.HeadAnnotation;
 
-                if (head.visibility === 'MYSELF' && head.Author.id !== req.user.id) {
+                    if (head.visibility === 'MYSELF' && head.Author.id !== req.user.id) {
+                        return false;
+                    }
+                    if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
+                        return false;
+                    } if (req.query.sectioned === 'true' && isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id)) {
+                        return false;
+                    }
+                    return true;
+                } catch(e) {
+                    console.log(e)
                     return false;
                 }
-                if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
-                    return false;
-                } if (req.query.sectioned === 'true' && isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id)) {
-                    return false;
-                }
-                return true;
             })
 
             goodLocations.forEach((location) => {
