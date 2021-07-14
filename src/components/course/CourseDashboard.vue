@@ -113,6 +113,12 @@ export default {
       this.loadStudents()
       this.loadInstructors()
     },
+    '$route': function(){
+      this.currentTab = 'contents'
+      this.loadFiles()
+      this.loadStudents()
+      this.loadInstructors()
+    }
   },
   mounted: function(){
     this.loadFiles()

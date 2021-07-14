@@ -1,6 +1,6 @@
 <template>
   <div class="app-wrapper">
-    <nav-bar :course="selectedCourse" :user="user"></nav-bar>
+    <nav-bar :course="$route.params.course_id? selectedCourse : introString" :user="user"></nav-bar>
     <div class="app-body">
       <div class="sidebar">
         <h2 class="title"> My Classes </h2>
@@ -39,13 +39,15 @@
         </modal>
         <a href="https://forms.gle/6YERC3jSu1W1zUzS8" class="nb-bug-link" target="_blank">Report Bug</a>
       </div>
-      <div class="dashboard-wrapper">
+      <div v-if="$route.params.course_id" class="dashboard-wrapper">
         <course-dashboard
             v-if="selectedCourse"
             :course="selectedCourse"
             :userType="userType"
             :user="user">
         </course-dashboard>
+        <!-- {{selectedCourse}} -->
+        <!-- {{$route.params.course_id}} -->
       </div>
       
     </div>
@@ -79,6 +81,7 @@
           student: [],
         },
         selectedCourse: null,
+        introString: "Hello",
       }
     },
     computed: {
@@ -121,8 +124,17 @@
         }
       },
       onSelectCourse: function(course) {
+          if (
+            this.courses.instructor.find(x => x.id === this.$route.params.course_id)
+          ) {
+            this.selectedCourse = this.courses.instructor.find(x => x.id === this.$route.params.course_id)
+          }
+          if (
+            this.courses.student.find(x => x.id === this.$route.params.course_id)
+          ) {
+            this.selectedCourse = this.courses.student.find(x => x.id === this.$route.params.course_id)
+          }
           localStorage.setItem('nb.current.course', JSON.stringify(course))
-          this.selectedCourse = course
       },
       onCreateCourse: function() {
         this.loadCourses()

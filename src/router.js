@@ -39,6 +39,13 @@ export default new Router({
       name: 'bookmarklet',
       props: { default: true },
       component: () => import('./views/Bookmarklet.vue'),
+    },
+    
+    {
+      path: '/courses/:course_id',
+      name: 'course-page',
+      props: { default: true },
+      component: () => import('./views/HomePage.vue'),
     }
   ]
 })

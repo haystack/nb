@@ -1,5 +1,5 @@
 <template>
-  <div class="course-contents">
+  <div id = "app" class="course-contents">
     <div class="breadcrumb">
       <h3
           v-for="(ancestor, idx) in path"
@@ -52,9 +52,9 @@
       </div>
     </div>
 
-    <modal v-if="edittingFolder.folder" name="edit-folder-modal" height="auto">
+    <modal name="edit-folder-modal" height="auto">
       <!-- TODO: add options to edit filename, URL, etc -->
-      <div class="edit-file-form">
+      <div v-if="edittingFolder.folder" class="edit-file-form">
         <h3>{{edittingFolder.folder.filename}}</h3>
         <div class="group">
         <label for="edit-filename"> Name: </label>
@@ -181,6 +181,7 @@
   import { faFolder, faFile, faEdit, faTrash, faTrashRestore } from '@fortawesome/free-solid-svg-icons'
 
   import Vue from 'vue'
+  import Router from 'vue-router'
   import VModal from 'vue-js-modal'
   import moment from 'moment'
   import Notifications from 'vue-notification'
@@ -379,6 +380,13 @@
             this.contents = res.data
           })
         
+      },
+      addHashToLocation(params) {
+        history.pushState(
+          {},
+          null,
+          this.$route.path + '#' + encodeURIComponent(params)
+        )
       },
       switchDirectory: function(directory) {
         this.showDeleted = false
