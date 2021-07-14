@@ -32,6 +32,14 @@
                   @click="editFolder(dir)">
               </font-awesome-icon>
             </span>
+            <span v-else-if="(userType == 'instructor' && showDeleted)" class="editdir">
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="restoreIcon"
+                  @click="restoreFolder(dir)">
+              </font-awesome-icon>
+            </span>
           <span>
           {{ dir.filename }}
           </span>
@@ -366,6 +374,7 @@
         
       },
       switchDirectory: function(directory) {
+        this.showDeleted = false
         this.$emit('switch-directory', directory)
       },
       editFolder: function(directory) {
