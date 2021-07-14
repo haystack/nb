@@ -38,7 +38,8 @@ export default new Router({
       path: '/bookmarklet',
       name: 'bookmarklet',
       props: { default: true },
-      component: () => import('./views/Bookmarklet.vue'),
+      component: () => import('./views/Bookma
+      rklet.vue'),
     },
     
     {
