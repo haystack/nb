@@ -14,8 +14,7 @@
       <course-contents
           v-if="filePath.length"
           :userType="userType"
-          :path="filePath"
-          @switch-directory="switchDirectory">
+          :path="filePath"">
       </course-contents>
     </div>
     <div v-if="showUsersTab" class="users-tab">
@@ -37,6 +36,12 @@
     </div>
     <div v-if="showCourseSettingsTab" class="course-settings-tab">
       <CourseSettings :course="course" />
+    </div>
+    <div>
+      {{this.filePath}}
+    </div>
+    <div>
+      {{this.$route.name}}
     </div>
   </div>
 
@@ -113,14 +118,9 @@ export default {
       this.loadStudents()
       this.loadInstructors()
     },
-    '$route': function(){
-      this.currentTab = 'contents'
-      this.loadFiles()
-      this.loadStudents()
-      this.loadInstructors()
-    }
+    '$route.params.folder_id': 'switchDirectory'
   },
-  mounted: function(){
+  created: function(){
     this.loadFiles()
     this.loadStudents()
     this.loadInstructors()
@@ -249,14 +249,48 @@ export default {
           this.filePath = [res.data]
         })
     },
-    switchDirectory: function(directory) {
-      let idx = this.filePath.indexOf(directory)
-      if (idx < 0) { // file doesn't exist in the path yet
-        this.filePath.push(directory)
-      } else if (idx < this.filePath.length - 1) {
-        // file exists, but not at the end of path
-        this.filePath.splice(idx + 1)
+    switchDirectory: function() {
+      console.log(this.filePath)
+
+      let idpath = this.$route.params.folder_id.split('%')
+      idpath.reverse()
+      console.log(idpath)
+      console.log(idpath[0])
+      console.log(idpath[1])
+
+      let len = idpath.length
+      console.log(len)
+
+      let newfilepath = []
+
+      for(let i = 0; i < len - 1; i = i+1){
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/files/folder/${idpath[i + 1]}`, headers)
+          .then(res => {
+              let candidates = res.data
+              for(let candidate of candidates){
+                if(candidate.id == idpath[i]){
+                  newfilepath.push(candidate)
+                  console.log(candidate)
+                }
+              }
+          })
       }
+
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+      axios.get(`/api/files/class/${this.course.id}`, headers)
+        .then(res => {
+          newfilepath.push(res.data)
+        })
+      console.log(newfilepath)
+      console.log(newfilepath[0])
+      console.log(newfilepath[1])
+
+      console.log(this.filePath)
+      this.filePath = newfilepath
+      console.log(this.filePath)
     },
   },
   components: {

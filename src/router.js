@@ -38,15 +38,25 @@ export default new Router({
       path: '/bookmarklet',
       name: 'bookmarklet',
       props: { default: true },
-      component: () => import('./views/Bookma
-      rklet.vue'),
+      component: () => import('./views/Bookmarklet.vue'),
     },
-    
     {
       path: '/courses/:course_id',
       name: 'course-page',
       props: { default: true },
       component: () => import('./views/HomePage.vue'),
+    },
+    {
+      path: '/courses/:course_id/:folder_id',
+      name: 'dir-page',
+      props: { default: true },
+      component: () => import('./views/HomePage.vue'),
+    },
+    {
+      path: '/*',
+      name: '404-page',
+      props: { default: true },
+      component: () => import('./error404.vue'),
     }
   ]
 })

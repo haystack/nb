@@ -46,8 +46,6 @@
             :userType="userType"
             :user="user">
         </course-dashboard>
-        <!-- {{selectedCourse}} -->
-        <!-- {{$route.params.course_id}} -->
       </div>
       
     </div>
@@ -104,7 +102,20 @@
       },
       bookmarklet: function() {
         return "javascript:(function(){let s = document.createElement('script'); s.src= '" + window.location.protocol + "//" + window.location.host + "/client/js/bundle.js'; document.body.append(s);})()"
-      }
+      },
+      onSelectCourse: function() {
+          if (
+            this.courses.instructor.find(x => x.id === this.$route.params.course_id)
+          ) {
+            this.selectedCourse = this.courses.instructor.find(x => x.id === this.$route.params.course_id)
+            localStorage.setItem('nb.current.course', JSON.stringify(this.selectedCourse))
+          } else if (
+            this.courses.student.find(x => x.id === this.$route.params.course_id)
+          ) {
+            this.selectedCourse = this.courses.student.find(x => x.id === this.$route.params.course_id)
+            localStorage.setItem('nb.current.course', JSON.stringify(this.selectedCourse))
+          }
+      },
     },
     methods: {
       loadCourses: function() {
@@ -122,19 +133,6 @@
         if (currentCourse) {
             this.selectedCourse = JSON.parse(currentCourse)
         }
-      },
-      onSelectCourse: function(course) {
-          if (
-            this.courses.instructor.find(x => x.id === this.$route.params.course_id)
-          ) {
-            this.selectedCourse = this.courses.instructor.find(x => x.id === this.$route.params.course_id)
-          }
-          if (
-            this.courses.student.find(x => x.id === this.$route.params.course_id)
-          ) {
-            this.selectedCourse = this.courses.student.find(x => x.id === this.$route.params.course_id)
-          }
-          localStorage.setItem('nb.current.course', JSON.stringify(course))
       },
       onCreateCourse: function() {
         this.loadCourses()

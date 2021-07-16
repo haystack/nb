@@ -4,7 +4,7 @@
       <h3
           v-for="(ancestor, idx) in path"
           :key="ancestor.id"
-          @click="switchDirectory(ancestor)">
+          @click="urlChange(ancestor.id)">
         {{ idx === 0 ? "Home" : ancestor.filename }}
       </h3>
     </div>
@@ -22,7 +22,7 @@
           <font-awesome-icon 
               class="jj"
               :icon="folderIcon"
-              @click="switchDirectory(dir)">
+              @click="urlChange(dir.id)">
           </font-awesome-icon>
           <span v-if="(userType === 'instructor' && !showDeleted)" class="editdir">
               <font-awesome-icon
@@ -170,6 +170,9 @@
         <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
         <button @click="submitFile" :disabled="!newPdfFileEnabled">Add</button>
 
+    </div>
+    <div>
+      {{this.path}}
     </div>
     <notifications position="bottom right" group="addFile" />
   </div>
@@ -374,9 +377,6 @@
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
-	      
-
-            
             this.contents = res.data
           })
         
@@ -388,9 +388,25 @@
           this.$route.path + '#' + encodeURIComponent(params)
         )
       },
-      switchDirectory: function(directory) {
-        this.showDeleted = false
-        this.$emit('switch-directory', directory)
+      urlChange: function(id) {
+        let abc = this.$route.params.course_id
+        let def = this.$route.params.folder_id
+        if (def == undefined) {
+          def = this.currentDir.id
+        }
+        let builder = ""
+        for(let element of this.path){
+          builder += element.id + '%'
+          if(element.id == id){
+            builder = builder.slice(0, -1)
+            console.log(builder)
+            this.$router.push({name: 'dir-page', params: {course_id: abc, folder_id: builder}})
+            return;
+          }
+          console.log(builder)
+        }
+        id = def + '%' + id
+        this.$router.push({name: 'dir-page', params: {course_id: abc, folder_id: id}})
       },
       editFolder: function(directory) {
         this.edittingFolder.folder = directory
