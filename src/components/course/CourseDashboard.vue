@@ -76,7 +76,8 @@ export default {
       instructors: [],
       students: [],
       allUsers:[],
-      currentTab: 'contents'
+      currentTab: 'contents',
+      candidates: []
     };
   },
   computed: {
@@ -106,6 +107,9 @@ export default {
     showCourseSettingsTab: function() {
       return this.userType === 'instructor' && this.currentTab === 'courseSettings'
     },
+    idpath: function() {
+      return this.$route.params.folder_id.split('%')
+    },
   },
   watch: {
     course: function(){
@@ -118,7 +122,7 @@ export default {
       this.loadStudents()
       this.loadInstructors()
     },
-    '$route.params.folder_id': 'switchDirectory'
+    '$route': 'switchDirectory'
   },
   created: function(){
     this.loadFiles()
@@ -249,47 +253,37 @@ export default {
           this.filePath = [res.data]
         })
     },
-    switchDirectory: function() {
-      console.log(this.filePath)
-
-      let idpath = this.$route.params.folder_id.split('%')
-      idpath.reverse()
-      console.log(idpath)
-      console.log(idpath[0])
-      console.log(idpath[1])
-
-      let len = idpath.length
-      console.log(len)
-
-      let newfilepath = []
-
-      for(let i = 0; i < len - 1; i = i+1){
-        const token = localStorage.getItem("nb.user");
-        const headers = { headers: { Authorization: 'Bearer ' + token }}
-        axios.get(`/api/files/folder/${idpath[i + 1]}`, headers)
-          .then(res => {
-              let candidates = res.data
-              for(let candidate of candidates){
-                if(candidate.id == idpath[i]){
-                  newfilepath.push(candidate)
-                  console.log(candidate)
-                }
-              }
-          })
-      }
+    switchDirectory: async function() {
+      let len = this.idpath.length
 
       const token = localStorage.getItem("nb.user");
       const headers = { headers: { Authorization: 'Bearer ' + token }}
-      axios.get(`/api/files/class/${this.course.id}`, headers)
-        .then(res => {
-          newfilepath.push(res.data)
-        })
-      console.log(newfilepath)
-      console.log(newfilepath[0])
-      console.log(newfilepath[1])
 
-      console.log(this.filePath)
-      this.filePath = newfilepath
+      let newFilePath = this.filePath
+      console.log(newFilePath)
+      let res = await axios.get(`/api/files/class/${this.course.id}`, headers)
+      newFilePath = [res.data]
+      console.log(res.data)
+      console.log(newFilePath)
+      newFilePath.length = len
+      console.log(newFilePath)
+      console.log(newFilePath.length)
+      for(let i = 1; i < len; i++){
+        console.log(this.idpath[i])
+        let res2 = await axios.get(`/api/files/folder/${this.idpath[i-1]}`, headers)
+        this.candidates = res2.data
+        console.log(this.candidates)
+
+        for (let j = 0; j < this.candidates.length; j++){
+          if (this.candidates[j].id == this.idpath[i]) {
+            console.log(this.candidates[j])
+            newFilePath[i] = this.candidates[j]
+            console.log(newFilePath[i])
+          }
+        }
+        console.log(newFilePath)
+      }
+      this.filePath = newFilePath
       console.log(this.filePath)
     },
   },

@@ -401,12 +401,14 @@
             builder = builder.slice(0, -1)
             console.log(builder)
             this.$router.push({name: 'dir-page', params: {course_id: abc, folder_id: builder}})
+            this.showDeleted = false
             return;
           }
           console.log(builder)
         }
         id = def + '%' + id
         this.$router.push({name: 'dir-page', params: {course_id: abc, folder_id: id}})
+        this.showDeleted = false
       },
       editFolder: function(directory) {
         this.edittingFolder.folder = directory

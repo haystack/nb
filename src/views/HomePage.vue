@@ -109,6 +109,7 @@
           ) {
             this.selectedCourse = this.courses.instructor.find(x => x.id === this.$route.params.course_id)
             localStorage.setItem('nb.current.course', JSON.stringify(this.selectedCourse))
+            console.log(this.$route.params.course_id)
           } else if (
             this.courses.student.find(x => x.id === this.$route.params.course_id)
           ) {
