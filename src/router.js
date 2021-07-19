@@ -41,13 +41,13 @@ export default new Router({
       component: () => import('./views/Bookmarklet.vue'),
     },
     {
-      path: '/courses/:course_id',
+      path: '/courses/:course_id/:tab',
       name: 'course-page',
       props: { default: true },
       component: () => import('./views/HomePage.vue'),
     },
     {
-      path: '/courses/:course_id/:folder_id',
+      path: '/courses/:course_id/:tab/:folder_id',
       name: 'dir-page',
       props: { default: true },
       component: () => import('./views/HomePage.vue'),

@@ -171,9 +171,6 @@
         <button @click="submitFile" :disabled="!newPdfFileEnabled">Add</button>
 
     </div>
-    <div>
-      {{this.path}}
-    </div>
     <notifications position="bottom right" group="addFile" />
   </div>
   
@@ -396,18 +393,18 @@
         }
         let builder = ""
         for(let element of this.path){
-          builder += element.id + '%'
+          builder += element.id + '+'
           if(element.id == id){
             builder = builder.slice(0, -1)
             console.log(builder)
-            this.$router.push({name: 'dir-page', params: {course_id: abc, folder_id: builder}})
+            this.$router.push({name: 'dir-page', params: {course_id: abc, tab: 'contents', folder_id: builder}})
             this.showDeleted = false
             return;
           }
           console.log(builder)
         }
-        id = def + '%' + id
-        this.$router.push({name: 'dir-page', params: {course_id: abc, folder_id: id}})
+        id = def + '+' + id
+        this.$router.push({name: 'dir-page', params: {course_id: abc, tab: 'contents', folder_id: id}})
         this.showDeleted = false
       },
       editFolder: function(directory) {

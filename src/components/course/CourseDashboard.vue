@@ -37,12 +37,6 @@
     <div v-if="showCourseSettingsTab" class="course-settings-tab">
       <CourseSettings :course="course" />
     </div>
-    <div>
-      {{this.filePath}}
-    </div>
-    <div>
-      {{this.$route.name}}
-    </div>
   </div>
 
 </template>
@@ -96,19 +90,19 @@ export default {
       }
     },
     showContentsTab: function() {
-      return this.currentTab === 'contents'
+      return this.$route.params.tab === 'contents'
     },
     showUsersTab: function() {
-      return this.userType === 'instructor' && this.currentTab === 'users'
+      return this.userType === 'instructor' && this.$route.params.tab === 'users'
     },
     showGradesTab: function() {
-      return this.userType === 'instructor' && this.currentTab === 'grades'
+      return this.userType === 'instructor' && this.$route.params.tab === 'grades'
     },
     showCourseSettingsTab: function() {
-      return this.userType === 'instructor' && this.currentTab === 'courseSettings'
+      return this.userType === 'instructor' && this.$route.params.tab === 'courseSettings'
     },
     idpath: function() {
-      return this.$route.params.folder_id.split('%')
+      return this.$route.params.folder_id.split('+')
     },
   },
   watch: {
@@ -124,7 +118,8 @@ export default {
     },
     '$route': 'switchDirectory'
   },
-  created: function(){
+  created: async function(){
+    console.log(this.$route.name)
     this.loadFiles()
     this.loadStudents()
     this.loadInstructors()
@@ -138,6 +133,7 @@ export default {
     },
     openTab: function(type) {
       this.currentTab = type
+      this.$router.push({params: {tab: type}})
     },
     icon: (file) => {
       if(file.is_directory){
@@ -260,32 +256,24 @@ export default {
       const headers = { headers: { Authorization: 'Bearer ' + token }}
 
       let newFilePath = this.filePath
-      console.log(newFilePath)
       let res = await axios.get(`/api/files/class/${this.course.id}`, headers)
       newFilePath = [res.data]
-      console.log(res.data)
-      console.log(newFilePath)
       newFilePath.length = len
-      console.log(newFilePath)
-      console.log(newFilePath.length)
+      console.log(this.idpath)
       for(let i = 1; i < len; i++){
-        console.log(this.idpath[i])
+        console.log(i)
         let res2 = await axios.get(`/api/files/folder/${this.idpath[i-1]}`, headers)
         this.candidates = res2.data
         console.log(this.candidates)
-
         for (let j = 0; j < this.candidates.length; j++){
           if (this.candidates[j].id == this.idpath[i]) {
-            console.log(this.candidates[j])
             newFilePath[i] = this.candidates[j]
-            console.log(newFilePath[i])
           }
         }
-        console.log(newFilePath)
       }
       this.filePath = newFilePath
       console.log(this.filePath)
-    },
+    }
   },
   components: {
     CourseContents,

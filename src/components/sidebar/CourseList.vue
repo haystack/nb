@@ -29,8 +29,7 @@
         }
       },
       changeToCourse: function(course) {
-        this.$router.push({name: 'course-page', params: {course_id: course.id}})
-        this.$emit('select-course')
+        this.$router.push({name: 'course-page', params: {course_id: course.id, tab: 'contents'}})
       }
     },
   }
