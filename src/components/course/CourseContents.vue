@@ -52,9 +52,9 @@
       </div>
     </div>
 
-    <modal v-if="edittingFolder.folder" name="edit-folder-modal" height="auto">
+    <modal name="edit-folder-modal" height="auto">
       <!-- TODO: add options to edit filename, URL, etc -->
-      <div class="edit-file-form">
+      <div v-if="edittingFolder.folder" class="edit-file-form">
         <h3>{{edittingFolder.folder.filename}}</h3>
         <div class="group">
         <label for="edit-filename"> Name: </label>
