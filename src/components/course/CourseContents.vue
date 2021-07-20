@@ -368,7 +368,7 @@
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
-            
+
             this.contents = res.data
           })
         
@@ -620,19 +620,12 @@
   .directories .listing .item .editdir .clickable:hover {
     color: #007bff;
   }
-<<<<<<< HEAD
-
+  
   .directories .listing .item .folder_specs {
     cursor: pointer;
   }
 
   .directories .listing .item .folder_specs:hover {
-=======
-  .directories .listing .item .jj {
-    cursor: pointer;
-  }
-  .directories .listing .item .jj:hover {
->>>>>>> d94a9610b0963083fdcfdb3668e8184f64dc818a
     color: #007bff;
   }
   .directories .listing .item .trash_item {
