@@ -62,7 +62,7 @@
         </div>
         
         <div class="group form-buttons">
-        <button class="delete" @click="deleteFolderEdit"> {{deleteText}} </button>
+          <button class="delete" @click="deleteFolderEdit"> {{deleteText}} </button>
           <button class="cancel" @click="closeFolderEdit"> Cancel </button>
           <button class="save" @click="saveFolderEdit" :disabled="!editFolderEnabled"> Save </button>
         </div>
@@ -179,7 +179,6 @@
 <script>
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
   import { faFolder, faFile, faEdit, faTrash, faTrashRestore } from '@fortawesome/free-solid-svg-icons'
-
   import Vue from 'vue'
   import Router from 'vue-router'
   import VModal from 'vue-js-modal'
@@ -194,14 +193,11 @@
     size: 3,
     icon_color: 'white',
 })
-
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
   import { Datetime } from 'vue-datetime'
   import 'vue-datetime/dist/vue-datetime.css'
-
   import axios from 'axios'
-
   export default {
     name: "course-contents",
     props:{
@@ -357,7 +353,6 @@
               type: 'error',
               text: 'You have added this file in the past. Try looking through your files (or deleted files) for it!'
               })
-
             }
           })
       },
@@ -369,11 +364,11 @@
           
             for (let file of res.data) {
               file.updatedAtString = moment(String(file.updatedAt)).format('MM/DD/YYYY HH:mm');
-
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
+            
             this.contents = res.data
           })
         
@@ -545,11 +540,9 @@
               type: 'error',
               text: 'You have added this file in the past. Try looking through your files (or deleted files) for it!'
               })
-
             }
           })
         
-
       },
     },
     mounted: function() {
@@ -567,7 +560,6 @@
   .course-contents {
     padding-top: 10px;
   }
-
   .breadcrumb {
     display: flex;
     font-size: 16px;
@@ -591,12 +583,10 @@
     color: #000;
     font-weight: bold;
   }
-
   p.empty {
     text-align: left;
     color: #444;
   }
-
   .directories {
     padding: 10px 0;
   }
@@ -624,31 +614,33 @@
   .directories .listing .item span {
     margin-left: 10px;
   }
-
   .directories .listing .item .editdir .clickable {
     cursor: pointer;
   }
-
   .directories .listing .item .editdir .clickable:hover {
     color: #007bff;
   }
+<<<<<<< HEAD
 
   .directories .listing .item .folder_specs {
     cursor: pointer;
   }
 
   .directories .listing .item .folder_specs:hover {
+=======
+  .directories .listing .item .jj {
+    cursor: pointer;
+  }
+  .directories .listing .item .jj:hover {
+>>>>>>> d94a9610b0963083fdcfdb3668e8184f64dc818a
     color: #007bff;
   }
-
   .directories .listing .item .trash_item {
     cursor: pointer;
   }
-
   .directories .listing .item .trash_item:hover {
     color: #007bff;
   }
-
   .add-folder {
     display: flex;
     align-items: center;
@@ -684,7 +676,6 @@
   .add-folder button:enabled:hover {
     background-color: #0069d9;
   }
-
   .files {
     padding: 10px 0;
   }
@@ -703,7 +694,6 @@
   .files .listing .filename span {
     margin-left: 5px;
   }
-
   .edit-file-form {
     height: 100%;
     overflow: scroll;
@@ -739,7 +729,6 @@
   .edit-file-form .form-buttons button.delete:hover {
     background-color: #ff7961;
   }
-
   .edit-file-form .form-buttons button.cancel {
     background-color: #6c757d;
     border: solid 1px #6c757d;
@@ -755,12 +744,10 @@
   .edit-file-form .form-buttons button.save:hover {
     background-color: #0069d9;
   }
-
   .edit-file-form .form-buttons button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }
-
   .edit-file-form .group label {
     margin-right: 5px;
   }
@@ -775,7 +762,6 @@
     color: #cf000f;
     font-size: 14px;
   }
-
   .add-file {
     display: flex;
     align-items: center;
@@ -810,6 +796,5 @@
   .add-file button:enabled:hover {
     background-color: #0069d9;
   }
-
   
 </style>
