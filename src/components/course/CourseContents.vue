@@ -54,8 +54,7 @@
         </div>
         
         <div class="group form-buttons">
-        <button class="delete"> {{deleteText}} </button>
-          <button class="cancel" @click="closeFolderEdit"> Cancel </button>
+        <button class="cancel" @click="closeFolderEdit"> Cancel </button>
           <button class="save" @click="saveFolderEdit" :disabled="!editFolderEnabled"> Save </button>
         </div>
       </div>
