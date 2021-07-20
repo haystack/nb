@@ -20,7 +20,7 @@
             :key="dir.id"
             >
           <font-awesome-icon 
-              class="jj"
+              class="folder_specs"
               :icon="folderIcon"
               @click="urlChange(dir.id)">
           </font-awesome-icon>
@@ -386,10 +386,10 @@
         )
       },
       urlChange: function(id) {
-        let abc = this.$route.params.course_id
-        let def = this.$route.params.folder_id
-        if (def == undefined) {
-          def = this.currentDir.id
+        let cur_course = this.$route.params.course_id
+        let cur_dir = this.$route.params.folder_id
+        if (cur_dir == undefined) {
+          cur_dir = this.currentDir.id
         }
         let builder = ""
         for(let element of this.path){
@@ -397,14 +397,14 @@
           if(element.id == id){
             builder = builder.slice(0, -1)
             console.log(builder)
-            this.$router.push({name: 'dir-page', params: {course_id: abc, tab: 'contents', folder_id: builder}})
+            this.$router.push({name: 'dir-page', params: {course_id: cur_course, tab: 'contents', folder_id: builder}})
             this.showDeleted = false
             return;
           }
           console.log(builder)
         }
-        id = def + '+' + id
-        this.$router.push({name: 'dir-page', params: {course_id: abc, tab: 'contents', folder_id: id}})
+        id = cur_dir + '+' + id
+        this.$router.push({name: 'dir-page', params: {course_id: cur_course, tab: 'contents', folder_id: id}})
         this.showDeleted = false
       },
       editFolder: function(directory) {
@@ -633,11 +633,11 @@
     color: #007bff;
   }
 
-  .directories .listing .item .jj {
+  .directories .listing .item .folder_specs {
     cursor: pointer;
   }
 
-  .directories .listing .item .jj:hover {
+  .directories .listing .item .folder_specs:hover {
     color: #007bff;
   }
 
