@@ -4,6 +4,7 @@ const User = require('../models').User
 const Class = require('../models').Class
 const ExpSpotlighAssignment = require('../models').ExpSpotlighAssignment
 const NbConfig = require('../models').NbConfig;
+const Consent = require('../models').Consent
 
 /**
  * Check if logged in user is an admin
@@ -145,5 +146,27 @@ router.post('/course/:course/source/:source/assignment', async (req, res) => {
     res.status(200).send()
 })
 
+/**
+ * Get all consent with consentees
+ * @name GET/api/admin/consent
+ */
+router.get('/consent', async (req, res) => {
+    const consents = await Consent.findAll({
+        include: [
+            { association: 'Consentees' },
+            { association: 'Dissenters' },
+        ]
+    })
+    res.status(200).json(consents)
+})
+
+/**
+ * Create new consent type
+ * @name POST/api/admin/consent
+ */
+router.post('/consent', async (req, res) => {
+    const consent = await Consent.create({ name: req.body.name })
+    res.status(200).json(consent)
+})
 
 module.exports = router
