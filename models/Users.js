@@ -63,6 +63,8 @@ const user = (sequelize, DataTypes) => {
                     User.belongsToMany(models.Annotation, { as: 'StarredAnnotations', through: 'stars' });
                     User.belongsToMany(models.Thread, { as: 'SeenThreads', through: 'user_seen' });
                     User.belongsToMany(models.Thread, { as: 'RepliedThreads', through: 'user_replied' });
+                    User.belongsToMany(models.Consent, { as: 'Consents', through: 'consentees', onDelete: 'CASCADE' });
+                    User.belongsToMany(models.Consent, { as: 'Dissents', through: 'dissenters', onDelete: 'CASCADE' });
                 }
             },
             hooks: {

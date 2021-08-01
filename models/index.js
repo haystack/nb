@@ -60,7 +60,8 @@ if (!global.hasOwnProperty('db')) {
         Criteria: sequelize.import('./Grading/Criteria'),
         Assignment: sequelize.import('./Grading/Assignments'),
         ExpSpotlighAssignment: sequelize.import('./Exps/ExpSpotlightAssignment'),
-        ExpSpotlightLog: sequelize.import('./Exps/ExpSpotlightLog')
+        ExpSpotlightLog: sequelize.import('./Exps/ExpSpotlightLog'),
+        Consent: sequelize.import('./Consents')
     }
 
     global.db = {
