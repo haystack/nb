@@ -140,7 +140,7 @@
                 v-model="edittingFile.newDeadline"
                 type="datetime"
                 :inline="true"
-                minute-step="15"
+                minute-step="1"
                 use12-hour="true"
                 :bootstrap-styling="true">
             </Datetime>
