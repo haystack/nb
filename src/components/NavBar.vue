@@ -1,7 +1,7 @@
 <template>
   <nav>
     <div class="home" @click="redirect('home-page')"> 
-      <img src="C:\Users\kdmit\Documents\Summer 2021 UROP\NBCode\nb\src\components\inversenblogo.png" alt="test">
+      <img src="./inversenblogo.png" width="40px" alt="test">
     </div>
     <div v-if="course" class="title">
       {{ course.class_name }}

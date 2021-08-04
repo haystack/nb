@@ -11,26 +11,60 @@
         <v-col cols="8">
           <v-row>
             <v-col>
-              <v-card tile> title </v-card>
+              <v-card tile> 
+                <v-card-title class="title-card"> Welcome to NB </v-card-title>
+                <v-card-subtitle class="title-card-subtitle"> Anchored Annotation and Discussion for the Web </v-card-subtitle>
+              </v-card>
             </v-col>
           </v-row>
           <v-row>
             <v-col cols="4">
-              <v-card tile> info 1 </v-card>
+              <v-card tile class="top-panel-cards">
+                <v-img alt="test" class="info-panel-images" src="https://i.imgur.com/eFiEEkW.png"></v-img>
+                <v-card-title class="info-panel-text"> What is NB? </v-card-title>
+                <v-card-subtitle class="info-panel-subtext"> NB is an annotation tool that allows for collaborative annotation and discussion within the margins of textbooks and pdfs. </v-card-subtitle>
+                <v-card-actions> 
+                  <v-btn text class="info-panel-buttons"> Learn More </v-btn>
+                </v-card-actions>
+              </v-card>
             </v-col>
             <v-col cols="4">
-              <v-card tile> info 2 </v-card>
+              <v-card tile class="top-panel-cards">
+                <v-img class="info-panel-images" src="https://i.imgur.com/RWTnCGQ.png" alt="this isn't loading"></v-img>
+                <v-card-title class="info-panel-text"> Features of NB </v-card-title>
+                <v-card-subtitle class="info-panel-subtext"> NB is equipped with highlighting, commenting, bookmarking, and many other features to help students annotate, ask questions, and discuss online material. </v-card-subtitle>
+                <v-card-actions>
+                  <v-btn text class="info-panel-buttons" disabled> Learn More </v-btn>
+                </v-card-actions>
+              </v-card>
             </v-col>
             <v-col cols="4">
-              <v-card tile> info 3 </v-card>
+              <v-card tile class="top-panel-cards"> 
+                <v-card-text class="temporary-text"> Statistics </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
           <v-row>
-            <v-col>
-              <v-card tile> info 3 </v-card>
+            <v-col cols="2">
+              <v-card tile class="bottom-panel-cards"> 
+                <v-card-text> Check out our demo video for tips on getting started! </v-card-text>
+              </v-card>
+            </v-col>
+            <v-col cols="6">
+              <v-card tile class="bottom-panel-cards"> 
+                  <iframe width="100%" height="100%" src="https://www.youtube.com/embed/G0ghiJWkHYY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              </v-card>
+            </v-col>
+            <v-col cols="4">
+              <v-card tile class="bottom-panel-cards">
+                <v-card-text class="temporary-text"> Statistics </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
         </v-col>
+        <v-divider
+          vertical
+        ></v-divider>
         <v-col cols="4">
           <user-login></user-login>
         </v-col>
@@ -111,5 +145,51 @@
     width: 0;
     height: 100%;
     border: solid 1px #aaa;
+  }
+
+  .title-card {
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #4a2770;
+  }
+
+  .title-card-subtitle {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .video-wrapper {
+    position: absolute;
+    padding: 3.5%;
+    width: 100%;
+    height: 100%;
+    top: 400px;
+  }
+
+  .info-panel-images {
+    height: 10vh
+  }
+
+  .info-panel-buttons {
+    color: "875f9a";
+    position: absolute;
+    bottom: 5px;
+  }
+
+  .top-panel-cards {
+    height: 100%;
+    padding-bottom: 15px
+  }
+
+  .bottom-panel-cards {
+    height: 100%;
+  }
+
+  .temporary-text {
+    text-align: center;
+    justify-content: center;
+    position: absolute;
+    top: 40%
   }
 </style>
