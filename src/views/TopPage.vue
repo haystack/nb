@@ -1,11 +1,41 @@
 <template>
   <div class="app-wrapper">
     <nav-bar></nav-bar>
-    <div class="app-body">
+    <!--<div class="app-body">
       <user-create></user-create>
       <div class="v-divide"></div>
       <user-login></user-login>
-    </div>
+    </div>-->
+    <v-container>
+      <v-row>
+        <v-col cols="8">
+          <v-row>
+            <v-col>
+              <v-card tile> title </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="4">
+              <v-card tile> info 1 </v-card>
+            </v-col>
+            <v-col cols="4">
+              <v-card tile> info 2 </v-card>
+            </v-col>
+            <v-col cols="4">
+              <v-card tile> info 3 </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-card tile> info 3 </v-card>
+            </v-col>
+          </v-row>
+        </v-col>
+        <v-col cols="4">
+          <user-login></user-login>
+        </v-col>
+      </v-row>
+    </v-container>
     <a href="https://forms.gle/6YERC3jSu1W1zUzS8" class="nb-bug-link" target="_blank">Report Bug</a>
   </div>
 </template>

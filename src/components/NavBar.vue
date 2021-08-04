@@ -3,13 +3,6 @@
     <div class="home" @click="redirect('home-page')"> 
       <img src="C:\Users\kdmit\Documents\Summer 2021 UROP\NBCode\nb\src\components\inversenblogo.png" alt="test">
     </div>
-    <div id="menu" class="link-bar">
-      <ul class="link-bar">
-        <li class="linklist"><a> About </a></li>
-        <li class="linklist"><a> Credits </a></li>
-        <li class="linklist"><a> Report Bug </a></li>
-      </ul>
-    </div>
     <div v-if="course" class="title">
       {{ course.class_name }}
     </div>

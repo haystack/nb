@@ -60,6 +60,7 @@
     "vuejs-datepicker": "^1.5.4",
     "vuejs-datetimepicker": "^1.1.13",
     "vuejs-loading-screen": "^1.0.9",
+    "vuetify": "^2.5.8",
     "weekstart": "^1.0.1"
   },
   "devDependencies": {
