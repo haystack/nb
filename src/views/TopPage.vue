@@ -23,9 +23,9 @@
                 <v-img alt="test" class="info-panel-images" src="https://i.imgur.com/eFiEEkW.png"></v-img>
                 <v-card-title class="info-panel-text"> What is NB? </v-card-title>
                 <v-card-subtitle class="info-panel-subtext"> NB is an annotation tool that allows for collaborative annotation and discussion within the margins of textbooks and pdfs. </v-card-subtitle>
-                <v-card-actions> 
+                <!--<v-card-actions> 
                   <v-btn text class="info-panel-buttons"> Learn More </v-btn>
-                </v-card-actions>
+                </v-card-actions>-->
               </v-card>
             </v-col>
             <v-col cols="4">
@@ -33,9 +33,9 @@
                 <v-img class="info-panel-images" src="https://i.imgur.com/RWTnCGQ.png" alt="this isn't loading"></v-img>
                 <v-card-title class="info-panel-text"> Features of NB </v-card-title>
                 <v-card-subtitle class="info-panel-subtext"> NB is equipped with highlighting, commenting, bookmarking, and many other features to help students annotate, ask questions, and discuss online material. </v-card-subtitle>
-                <v-card-actions>
+                <!--<v-card-actions>
                   <v-btn text class="info-panel-buttons" disabled> Learn More </v-btn>
-                </v-card-actions>
+                </v-card-actions>-->
               </v-card>
             </v-col>
             <v-col cols="4">
@@ -64,9 +64,10 @@
         </v-col>
         <v-divider
           vertical
+          class="homepage-divider"
         ></v-divider>
         <v-col cols="4">
-          <user-login></user-login>
+          <user-login class="log-in"></user-login>
         </v-col>
       </v-row>
     </v-container>
@@ -192,4 +193,15 @@
     position: absolute;
     top: 40%
   }
+
+  .homepage-divider {
+    border: 1;
+  }
+
+  .log-in {
+    justify-content: center;
+    position: absolute;
+    top: 30%;
+  }
+
 </style>
