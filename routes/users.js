@@ -61,6 +61,34 @@ router.post('/login', async (req, res) => {
   }
 });
 
+/**
+ * Auth login of user based on email or username.
+ * @name POST/api/users/new_login
+ */
+router.post('/new_login', async (req, res) => {
+  let user;
+  const password = req.body.user.password;
+
+  if (req.body.loginType === "Username") {
+    const username = req.body.user.username;
+    user = await User.findOne({ where: { username: username }})
+
+  } else if (req.body.loginType === "Email") {
+    const email = req.body.user.email;
+    user = await User.findOne({ where: { email: email }})
+  }
+  
+
+  if (!user) {
+      res.status(401).json({msg: "No user with that " + req.body.loginType});
+  } else if (!user.validPassword(password)) {
+      res.status(401).json({msg: "Incorrect password"});
+  } else {
+      const token = jwt.sign({ user: user }, process.env.JWT_SECRET);
+      res.status(200).json({ token });
+  }
+});
+
 router.post('/register', (req, res) => {
   User.create({
     username: req.body.username,

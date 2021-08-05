@@ -3,8 +3,14 @@
     <h3 class="title">Sign in</h3>
 
     <div class="group">
-      <label for="login-username"> Username: </label>
-      <input id="login-username" type="text" v-model="user.username">
+      <select v-model="selected">
+        <option>Username</option>
+        <option>Email</option>
+      </select>
+      <br>
+      <input v-if="selected === 'Username'" id="login-username" type="text" v-model="user.username">
+      <input v-if="selected === 'Email'" id="login-email" type="text" v-model="user.email">
+
     </div>
 
     <div class="group">
@@ -53,11 +59,13 @@
         },
         forgotPasswordMessage: "",
         message: null,
+        selected: "Username"
       }
     },
     computed: {
       submitEnabled: function() {
-        return this.user.username.length > 0 && this.user.password.length > 0
+        return ((this.selected === "Username" && this.user.username.length > 0)  || (this.selected === "Email" && this.user.email.length > 0))
+        && this.user.password.length > 0
       },
       forgotPasswordEnabled: function() {
         return this.user.email && this.user.email.length > 0
@@ -67,17 +75,17 @@
         login: async function() {
             try {
                 if(!this.submitEnabled) return
-                const res = await axios.post("/api/users/login", this.user)
+                const res = await axios.post("/api/users/new_login", {user: this.user, loginType: this.selected})
                 const token = res.data.token
                 localStorage.setItem("nb.user", token);
                 eventBus.$emit('signin-success')
                 this.resetForm()
             } catch (error) {
                 if (error.response.status === 401) {
-                    this.message = "Invalid username and password. Try again!"
+                    this.message = "Invalid " + this.selected.toLowerCase() + " and password. Try again!"
                 }
 
-                console.error(`Signin failed: ${err.response.data.error}`)
+                console.error(`Signin failed: ${error.response.data.msg}`)
             }
         },
         resetForm: function() {
@@ -125,8 +133,12 @@
     align-items: center;
     padding-bottom: 15px;
   }
+  .form .group select {
+    margin-right: 10px;
+    padding: 4px 0px 4px 4px
+  }
   .form .group label {
-    margin-right: 5px;
+    margin-right: 10px;
   }
   .form .group input {
     padding: 4px 6px;
