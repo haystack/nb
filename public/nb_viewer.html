@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html dir="ltr" mozdisallowselectionprint>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
     <meta name="robots" content="noindex,nofollow">
     <title>NB PDF Viewer</title>
-    
+
     <style>
         body {
             background-color: #ffffff;
             margin: 0;
             padding: 0;
         }
-        
+
         .viewerContainer {
-            width: calc(100vw - 390px);
+            width: calc(100vw - 300px);
         }
 
         .viewerContainerWithMargin {
-            width: calc(100vw - 590px);
+            width: calc(100vw - 520px);
         }
-        
+
         #loadingNB {
             position: absolute;
             top: 50%;
-            left: calc(100vw - 350px);
+            left: calc(100vw - 300px);
             font-size: x-large;
             font-weight: bold;
         }
-        
+
         #download {
             position: absolute;
             top: 0;
@@ -43,11 +44,11 @@
             font-size: large;
             text-decoration: none;
         }
-        
+
         #download:hover {
             background: #000
         }
-        
+
         .pdfViewer .page {
             border-image: initial !important;
         }
@@ -62,9 +63,9 @@
     <div id="viewerContainer" class="viewerContainer">
         <div id="viewer" class="pdfViewer"></div>
     </div>
-    
+
     <div id="loadingNB">Loading nb... <br> (feel free to start reading!)</div>
-    
+
     <a id="download">
         Download PDF
     </a>
@@ -90,7 +91,7 @@
 
         buildPDF()
     }
-    
+
     function buildPDF() {
         /* Copyright 2014 Mozilla Foundation
         *
@@ -106,39 +107,39 @@
         * See the License for the specific language governing permissions and
         * limitations under the License.
         */
-        
+
         "use strict";
-        
+
         if (!pdfjsLib.getDocument || !pdfjsViewer.PDFViewer) {
             // eslint-disable-next-line no-alert
             alert("Please build the pdfjs-dist library using\n  `gulp dist-install`");
         }
-        
+
         // The workerSrc property shall be specified.
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.js'
-        
+
         // Some PDFs need external cmaps.
         // var CMAP_URL = "./pdfjs/web/cmaps/";
         var CMAP_URL = "https://unpkg.com/browse/pdfjs-dist@2.6.347/cmaps/";
         var CMAP_PACKED = true;
-        
+
         var SEARCH_FOR = ""; // try 'Mozilla';
-        
+
         var container = document.getElementById("viewerContainer");
-        
+
         var eventBus = new pdfjsViewer.EventBus();
-        
+
         // (Optionally) enable hyperlinks within PDF files.
         var pdfLinkService = new pdfjsViewer.PDFLinkService({
             eventBus,
         });
-        
+
         // (Optionally) enable find controller.
         var pdfFindController = new pdfjsViewer.PDFFindController({
             eventBus,
             linkService: pdfLinkService,
         });
-        
+
         var pdfViewer = new pdfjsViewer.PDFViewer({
             container,
             eventBus,
@@ -146,41 +147,41 @@
             findController: pdfFindController,
         });
         pdfLinkService.setViewer(pdfViewer);
-        
+
         eventBus.on("pagesinit", function () {
             // We can use pdfViewer now, e.g. let's change default scale.
             pdfViewer.currentScaleValue = "page-width";
-            
+
             // We can try searching for things.
             if (SEARCH_FOR) {
                 pdfFindController.executeCommand("find", { query: SEARCH_FOR });
             }
         });
-        
+
         // Loading document.
         var loadingTask = pdfjsLib.getDocument({
             url: DEFAULT_URL,
             cMapUrl: CMAP_URL,
             cMapPacked: CMAP_PACKED,
         });
-        
+
         loadingTask.promise.then(function (pdfDocument) {
             // Document loaded, specifying document for the viewer and
             // the (optional) linkService.
             pdfViewer.setDocument(pdfDocument);
-            
+
             pdfLinkService.setDocument(pdfDocument, null);
-            
-            pdfViewer.pagesPromise.then(function(pdfDocument) {
+
+            pdfViewer.pagesPromise.then(function (pdfDocument) {
                 const views = pdfViewer._pages,
-                first = views[0],
-                last = views[views.length-1];
-                
+                    first = views[0],
+                    last = views[views.length - 1];
+
                 const visible = views.map(view => {
                     const element = view.div;
                     const currentWidth = element.offsetLeft + element.clientLeft;
                     const currentHeight = element.offsetTop + element.clientTop;
-                    
+
                     return {
                         id: view.id,
                         x: currentWidth,
@@ -189,29 +190,30 @@
                         percent: 100
                     }
                 });
-                
-                pdfViewer._getVisiblePages = function() {
+
+                pdfViewer._getVisiblePages = function () {
                     return {
                         first: visible[0],
-                        last: visible[visible.length-1],
+                        last: visible[visible.length - 1],
                         views: visible
                     }
                 };
-                
+
                 eventBus.on('pagerender', (evt) => {
                     // If we've rendered the last page, load NB
                     if (evt.pageNumber === views.length) {
-                        let nb_bundle = window.location.protocol + "//" + window.location.host + "/client/js/bundle.js"
-                        //let nb_bundle = "https://127.0.0.1:3001/js/bundle.js"
-                        let s = document.createElement('script'); s.src= nb_bundle; document.body.append(s);
+                        let nbBundle = window.location.host.includes('127.0.0.1') ? "https://127.0.0.1:3001/js/bundle.js" : window.location.protocol + "//" + window.location.host + "/client/js/bundle.js"
+                        let s = document.createElement('script'); s.src = nbBundle; document.body.append(s);
+                        document.getElementById("loadingNB").remove()
                     }
                 });
-                
+
                 pdfViewer.update();
             })
         });
     }
-    
-    
+
+
 </script>
+
 </html>

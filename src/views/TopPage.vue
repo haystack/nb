@@ -147,19 +147,16 @@
     height: 100%;
     border: solid 1px #aaa;
   }
-
   .title-card {
     text-align: center;
     justify-content: center;
     font-weight: bold;
     color: #4a2770;
   }
-
   .title-card-subtitle {
     text-align: center;
     font-weight: bold;
   }
-
   .video-wrapper {
     position: absolute;
     padding: 3.5%;
@@ -167,37 +164,30 @@
     height: 100%;
     top: 400px;
   }
-
   .info-panel-images {
     height: 10vh
   }
-
   .info-panel-buttons {
     color: "875f9a";
     position: absolute;
     bottom: 5px;
   }
-
   .top-panel-cards {
     height: 100%;
     padding-bottom: 15px
   }
-
   .bottom-panel-cards {
     height: 100%;
   }
-
   .temporary-text {
     text-align: center;
     justify-content: center;
     position: absolute;
     top: 40%
   }
-
   .homepage-divider {
     border: 1;
   }
-
   .log-in {
     justify-content: center;
     position: absolute;
