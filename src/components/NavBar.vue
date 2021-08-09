@@ -1,6 +1,8 @@
 <template>
   <nav>
-    <div class="home" @click="redirect('home-page')"> nb </div>
+    <div class="home" @click="redirect('home-page')"> 
+      <img src="./inversenblogo.png" width="40px" alt="test">
+    </div>
     <div v-if="course" class="title">
       {{ course.class_name }}
     </div>
@@ -70,6 +72,19 @@
   }
   .home:hover {
     text-decoration: underline;
+  }
+  .link-bar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: #f7f6f6;
+    font-family: "Roboto";
+    font-weight: 400;
+    font-size: 20px;
+    text-align: center;
+  }
+  .linklist {
+    display: inline;
   }
   .title {
     font-weight: bold;
