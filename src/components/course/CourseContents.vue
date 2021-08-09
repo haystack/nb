@@ -49,6 +49,7 @@
           <font-awesome-icon class="trash_item" :icon="trashIcon" @click="showDeleted = !showDeleted"></font-awesome-icon>
           <span>{{ showDeleted ? "Hide Trash" : "Show Trash"}}</span>
         </div>
+        <div> {{dir}} </div>
       </div>
     </div>
 

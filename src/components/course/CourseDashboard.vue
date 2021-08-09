@@ -37,6 +37,7 @@
     <div v-if="showCourseSettingsTab" class="course-settings-tab">
       <CourseSettings :course="course" />
     </div>
+    <div> {{course}} </div>
   </div>
 
 </template>
