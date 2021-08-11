@@ -1,5 +1,5 @@
 <template>
-  <div class="form">
+  <!--<div class="form">
     <h3 class="title">Sign in</h3>
 
     <div class="group">
@@ -26,14 +26,72 @@
     <button class="password-submit" :disabled="!forgotPasswordEnabled" @click="forgotPassword">Forgot Password</button>
     <span class="forgot-password-message"><br>{{forgotPasswordMessage}}<br></span>
 
-  </div>
+  </div>-->
+  <v-form ref="form" v-model="valid" lazy-validation>
+    <v-container class="form">
+      <a class="log-in-text"> Log In </a>
+      <v-text-field
+        class="form-inputs"
+        v-model="user.username"
+        label="Username"
+        :rules="user.usernameRules"
+        required
+        @input="login-username">
+      </v-text-field>
+      <v-text-field
+        v-model="user.password"
+        label="Password"
+        :rules="user.passwordRules"
+        required
+        @input="login-password"
+        type="password">
+      </v-text-field>
+      <div v-if="message" class="message">{{ message }}</div>
+      <v-row>
+        <v-col>
+          <v-btn
+            :disabled="!valid"
+            class="sign-in-button"
+            @click="login"
+          >  Sign In 
+          </v-btn>
+        </v-col>
+        <v-col align="right">
+          <a class="forgot-password-text"
+            @click="openPasswordModal"> Forgot Password </a>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="7">
+          <a class="no-account-text"> don't have an account? </a>
+        </v-col>
+        <v-col align="right" cols="5">
+          <a 
+            class="create-account-text"
+            @click="openAccountModal"> create account </a>
+        </v-col>
+      </v-row>
+    </v-container>
+    <modal name="createaccount-modal">
+      <user-create></user-create>
+    </modal>
+    <modal name="forgotpassword-modal">
+      <div class="forgot-password-div">
+        <user-forgot-password></user-forgot-password>
+      </div>
+    </modal>
+  </v-form>
 </template>
 
 <script>
   import axios from "axios"
   import Vue from 'vue'
+  import VModal from 'vue-js-modal'
+  Vue.use(VModal)
   import loading from 'vuejs-loading-screen'
   import { eventBus } from "../../main"
+  import UserCreate from "./UserCreate.vue"
+  import UserForgotPassword from './UserForgotPassword.vue'
 
   Vue.use(loading, {
     bg: '#4a2270ad',
@@ -48,7 +106,13 @@
       return {
         user: {
           username: "",
+          usernameRules: [
+            v => !!v || "Username is required",
+          ],
           password: "",
+          passwordRules: [
+            v => !!v || "Password is required",
+          ],
           email: "",
         },
         forgotPasswordMessage: "",
@@ -105,16 +169,32 @@
             setTimeout(() => this.forgotPasswordMessage = "", 4000);
             }
         },
+        openAccountModal: function() {
+          this.$modal.show('createaccount-modal')
+        },
+        closeAccountModal: function() {
+          this.$modal.hide('createaccount-modal')
+        },
+        openPasswordModal: function() {
+          this.$modal.show('forgotpassword-modal')
+        },
+        closePasswordModal: function() {
+          this.$modal.hide('forgotpassword-modal')
+        }
     },
+    components: {
+      UserCreate,
+      UserForgotPassword
+    }
   }
 </script>
 
 <style scoped>
   .form {
-    width: 380px;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 5px;
   }
   .form .title {
     margin: 0;
@@ -138,7 +218,9 @@
   .form .message {
     color: #cf000f;
     font-size: 14px;
+    padding: 5px;
   }
+
   button.submit {
     width: 80px;
     align-self: flex-end;
@@ -172,4 +254,62 @@
     cursor: not-allowed;
     opacity: 0.5;
   }
+
+  .form-inputs {
+    text-align: left;
+    text-decoration-color: red;
+  }
+
+  .v-text-field__slot input {
+    text-align: left;
+  }
+
+  .error--text {
+    color: #ff5252 !important;
+    caret-color: #ff5252 !important;
+  }
+
+  .log-in-text {
+    color: #4a2770;
+    font-weight: bold;
+    font-size: 1.15rem
+  }
+
+  .sign-in-button {
+    color: white;
+    background-color: #4a2770 !important;
+  }
+
+  .forgot-password-text {
+    font-size: 0.75rem;
+    text-decoration-line: underline;
+  }
+
+  .no-account-text {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+  }
+
+  .create-account-text {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+    color: #4a2770;
+  }
+
+  .forgot-password-modal {
+    height: auto;
+    width: auto;
+    padding: 15px;
+  }
+
+  .forgot-password-div {
+    height: 100%;
+    width: 70%;
+    padding: 15px;
+  }
+
 </style>

@@ -1,0 +1,160 @@
+<template>
+    <!--<div>
+        <h3 class="title">Reset Your Password</h3>
+        <div class="group">
+        <label for="login-email"> Email: </label>
+        <input id="login-email" type="text" v-model="user.email">
+        </div>
+        <button class="password-submit" :disabled="!forgotPasswordEnabled" @click="forgotPassword">Forgot Password</button>
+        <span class="forgot-password-message"><br>{{forgotPasswordMessage}}<br></span>
+    </div>-->
+    <div>
+        <v-form ref="form" v-model="valid" lazy-validation>
+        <v-card class="card-format">
+                <v-card-title class="title-text"> Forgot Password </v-card-title>
+                <v-card-subtitle class="info-text"> Enter your email and instructions will be sent shortly to reset your password </v-card-subtitle>
+                <v-card-actions>
+                    <v-text-field
+                        v-model="user.email"
+                        required
+                        :rules="user.emailRules"
+                        @input="login-email"
+                        label="Email"></v-text-field>
+                </v-card-actions>
+                <v-card-actions class="reset-button">
+                    <v-btn
+                    :disabled="!valid"
+                    class="sign-in-button"
+                    @click="forgotPassword"> Reset </v-btn>
+                </v-card-actions>
+        </v-card>
+        </v-form>
+    </div>
+</template>
+
+<script>
+  import axios from "axios"
+  import Vue from 'vue'
+  import loading from 'vuejs-loading-screen'
+  import { eventBus } from "../../main"
+
+  Vue.use(loading, {
+    bg: '#4a2270ad',
+    icon: 'refresh',
+    size: 3,
+    icon_color: 'white',
+  })
+
+  export default {
+    name: "user-forgot-password",
+    data() {
+      return {
+        user: {
+          email: "",
+          emailRules: [
+            v => !!v || "Email is required",
+            v => /.+@.+/.test(v) || 'E-mail must be valid',
+          ],
+        },
+        forgotPasswordMessage: "",
+        message: null,
+        valid: true,
+      }
+    },
+    computed: {
+      forgotPasswordEnabled: function() {
+        return this.user.email && this.user.email.length > 0
+      }
+    },
+    methods: {
+        resetForm: function() {
+            this.user = {
+            username: "",
+            password: "",
+            },
+            this.message = null
+        },
+        forgotPassword: function() {
+            this.$isLoading(true) // show loading screen      
+            axios.post("/api/users/forgotpassword", this.user)
+            .then(() => {
+                this.$isLoading(false) // hide loading screen      
+                this.setForgotPasswordMessage("Email sent")
+            })
+            .catch(err => {
+                this.$isLoading(false) // hide loading screen
+                this.setForgotPasswordMessage(err.response.data.msg)
+            })
+        },
+        setForgotPasswordMessage: function(msg, disappear=true) {
+            this.forgotPasswordMessage = msg;
+            if (disappear) {
+            setTimeout(() => this.forgotPasswordMessage = "", 4000);
+            }
+        },
+    },
+  }
+</script>
+
+<style scoped>
+
+  .form-inputs {
+    text-align: left;
+    text-decoration-color: red;
+  }
+
+  .error--text {
+    color: #ff5252 !important;
+    caret-color: #ff5252 !important;
+  }
+
+  .title-text {
+    color: #4a2770;
+    font-weight: bold;
+    font-size: 1.15rem;
+    justify-content: center;
+  }
+
+  .sign-in-button {
+    color: white;
+    background-color: #4a2770 !important;
+  }
+
+  .forgot-password-text {
+    font-size: 0.75rem;
+    text-decoration-line: underline;
+  }
+
+  .no-account-text {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+  }
+
+  .create-account-text {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+    color: #4a2770;
+  }
+
+  .card-format {
+      width: 70%;
+      height: 100%;
+  }
+
+  .reset-button {
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+  }
+  
+  .info-text {
+      padding: 0px;
+      justify-content: center;
+      text-align: center;
+  }
+
+</style>
