@@ -4,7 +4,7 @@ const Class = require('../models').Class;
 const Source = require('../models').Source;
 const Section = require('../models').Section;
 const utils = require('../models/utils')(require('../models'));
-const multer  = require('multer');
+const multer = require('multer');
 const csv = require('csv-parser')
 const fs = require('fs')
 const stripBomStream = require('strip-bom-stream');
@@ -21,13 +21,13 @@ const router = express.Router();
  */
 router.post('/create', (req, res) => {
   const name = req.body.name;
-  if (!name){
-    res.status(400).json({msg: "bad name"});
+  if (!name) {
+    return res.status(400).json({ msg: "bad name" });
   }
   utils.createClass(name, req.user.id)
-  .then((nb_class) =>{
-    res.status(200).json(nb_class);
-  });
+    .then((nb_class) => {
+      res.status(200).json(nb_class);
+    });
 });
 
 /**
@@ -37,8 +37,8 @@ router.post('/create', (req, res) => {
  */
 router.post('/edit', (req, res) => {
   const id = req.body.course ? req.body.course.id : undefined;
-  if (!id){
-    res.status(400).json({msg: "bad id"});
+  if (!id) {
+    res.status(400).json({ msg: "bad id" });
     return;
   }
   utils.editClass(id, req.body.course, "").then(() => {
@@ -50,7 +50,7 @@ router.post('/edit', (req, res) => {
  * Get all classes for which current user is an instructor.
  * @name GET/api/classes/create
  */
-router.get('/instructor',(req,res) =>{
+router.get('/instructor', (req, res) => {
   User.findByPk(req.user.id).then((user) =>
     user.getInstructorClasses()
   ).then((classes) => {
@@ -62,16 +62,16 @@ router.get('/instructor',(req,res) =>{
  * Get all classes for which current user is a student.
  * @name GET/api/classes/student
  */
-router.get('/student', (req,res) =>{
+router.get('/student', (req, res) => {
   User.findByPk(req.user.id).then((user) =>
-    user.getMemberSections({raw: true})
+    user.getMemberSections({ raw: true })
   ).then((sections) => {
     return Promise.all(sections.map((section) => Class.findByPk(section.class_id)));
   }
   ).then(classes => {
     const classesIDs = classes.map(classObj => classObj["id"])
     res.status(200).json(classes.filter((value, index) => {
-        return classesIDs.indexOf(value["id"]) === index
+      return classesIDs.indexOf(value["id"]) === index
     }));
   });
 });
@@ -81,14 +81,14 @@ router.get('/student', (req,res) =>{
  * @name GET/api/classes/studentList/:id
  * @param id: id of the class
  */
-router.get('/instructorList/:id', (req,res) =>{
+router.get('/instructorList/:id', (req, res) => {
   Class.findByPk(req.params.id,
-    {include:[{association: 'Instructors', attributes:['id','username','first_name','last_name','email']}]})
-    .then((nb_class) =>{
-      if(nb_class.Instructors.filter(instructor => instructor.id == req.user.id).length < 1){
+    { include: [{ association: 'Instructors', attributes: ['id', 'username', 'first_name', 'last_name', 'email'] }] })
+    .then((nb_class) => {
+      if (nb_class.Instructors.filter(instructor => instructor.id == req.user.id).length < 1) {
         res.status(401).json(null);
       }
-      else{
+      else {
         res.status(200).json(nb_class.Instructors);
       }
     });
@@ -99,49 +99,58 @@ router.get('/instructorList/:id', (req,res) =>{
  * @name GET/api/classes/studentList/:id
  * @param id: id of the class
  */
-router.get('/studentList/:id', (req,res) =>{
-  Class.findByPk(req.params.id, { include:[
-    {association: 'GlobalSection',
-    include: [{association:'MemberStudents', 
-      attributes:['id','username','first_name','last_name','email']}
-    ]},
-    {association: 'Instructors',
-    required: true,
-    where:{id: req.user.id}}
-  ]})
-    .then((nb_class) =>{
-      if(nb_class){
+router.get('/studentList/:id', (req, res) => {
+  Class.findByPk(req.params.id, {
+    include: [
+      {
+        association: 'GlobalSection',
+        include: [{
+          association: 'MemberStudents',
+          attributes: ['id', 'username', 'first_name', 'last_name', 'email']
+        }
+        ]
+      },
+      {
+        association: 'Instructors',
+        required: true,
+        where: { id: req.user.id }
+      }
+    ]
+  })
+    .then((nb_class) => {
+      if (nb_class) {
         let ret = [];
         let counter = 0;
-         
-        if (nb_class.GlobalSection.MemberStudents.length === 0){
-            res.status(200).json([])
+
+        if (nb_class.GlobalSection.MemberStudents.length === 0) {
+          return res.status(200).json([])
         }
-        
+
         nb_class.GlobalSection.MemberStudents.forEach((student) => { // find the section assoc. w/ each student
-            Section.findOne({ where: {class_id: nb_class.id, is_global: false}, 
-                include: [{
-                  model: User,    
-                  as: 'MemberStudents',
-                  where: { id: student.id }, // filter to find a non-global section with this student
-                }]
-              })
-              .then(function (section) {
-                if (section) {
-                  student.setDataValue('section', section.section_name) // TODO: find a better fix to replace this quick fix for sending up the corresponding section name
-                  ret.push(student)
-                } else {
-                    ret.push(student)
-                }
-                counter = counter + 1; // make sure we get to all students before sending a response
-                if (counter === nb_class.GlobalSection.MemberStudents.length) {
-                    res.status(200).json(ret)
-                }
+          Section.findOne({
+            where: { class_id: nb_class.id, is_global: false },
+            include: [{
+              model: User,
+              as: 'MemberStudents',
+              where: { id: student.id }, // filter to find a non-global section with this student
+            }]
+          })
+            .then(function (section) {
+              if (section) {
+                student.setDataValue('section', section.section_name) // TODO: find a better fix to replace this quick fix for sending up the corresponding section name
+                ret.push(student)
+              } else {
+                ret.push(student)
+              }
+              counter = counter + 1; // make sure we get to all students before sending a response
+              if (counter === nb_class.GlobalSection.MemberStudents.length) {
+                return res.status(200).json(ret)
+              }
             })
         })
         // res.status(200).json(nb_class.GlobalSection.MemberStudents);
       }
-      else{
+      else {
         res.status(401).json(null);
       }
     });
@@ -153,18 +162,20 @@ router.get('/studentList/:id', (req,res) =>{
  * @param id: id of the class
  */
 router.post('/instructor/:id', (req, res) => {
-  Class.findByPk(req.params.id, {include:[
-    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
-  .then(nb_class => {
-    if (!nb_class){
-      res.status(401).json(null);
-    }
-    else{
-      User.findByPk(req.body.id).then(user =>
-        nb_class.addInstructor(user)
-      ).then(() => res.status(200).json(null));
-    }
-  });
+  Class.findByPk(req.params.id, {
+    include: [
+      { association: 'Instructors', required: true, where: { id: req.user.id } }]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
+      }
+      else {
+        User.findByPk(req.body.id).then(user =>
+          nb_class.addInstructor(user)
+        ).then(() => res.status(200).json(null));
+      }
+    });
 });
 
 /**
@@ -174,18 +185,20 @@ router.post('/instructor/:id', (req, res) => {
  * @param userid: id of the user to remove
  */
 router.delete('/instructor/:courseid/:userid', (req, res) => {
-  Class.findByPk(req.params.courseid, {include:[
-    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
-  .then(nb_class => {
-    if (!nb_class){
-      res.status(401).json(null);
-    }
-    else{
-      User.findByPk(req.params.userid).then(user =>
-        nb_class.removeInstructor(user)
-      ).then(() => res.status(200).json(null));
-    }
-  });
+  Class.findByPk(req.params.courseid, {
+    include: [
+      { association: 'Instructors', required: true, where: { id: req.user.id } }]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
+      }
+      else {
+        User.findByPk(req.params.userid).then(user =>
+          nb_class.removeInstructor(user)
+        ).then(() => res.status(200).json(null));
+      }
+    });
 });
 
 /**
@@ -194,17 +207,19 @@ router.delete('/instructor/:courseid/:userid', (req, res) => {
  * @param id: id of the class
  */
 router.post('/student/:id', (req, res) => {
-  Class.findByPk(req.params.id, {include:[
-    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
-  .then(nb_class => {
-    if (!nb_class){
-      res.status(401).json(null);
-    }
-    else{
-      utils.addStudent(req.params.id, req.body.id)
-      .then(() => res.status(200).json(null));
-    }
-  });
+  Class.findByPk(req.params.id, {
+    include: [
+      { association: 'Instructors', required: true, where: { id: req.user.id } }]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
+      }
+      else {
+        utils.addStudent(req.params.id, req.body.id)
+          .then(() => res.status(200).json(null));
+      }
+    });
 });
 
 /** 
@@ -213,39 +228,41 @@ router.post('/student/:id', (req, res) => {
  * @param id: id of the class
  */
 router.post('/user/:id', (req, res) => {
-  Class.findByPk(req.params.id, {include:[
-    {association: 'Instructors', required:true, where:{id: req.user.id}},
-    {association: 'GlobalSection'}
-  ]})
-  .then(nb_class => {
-    if (!nb_class){
-      res.status(401).json(null);
-    }
-    else{
-      User.create({
-        username: req.body.email,
-        first_name: req.body.first,
-        last_name: req.body.last,
-        email: req.body.email.toLowerCase(),
-        password: randomstring.generate(),
-    }).then((user) => {
-      if (req.body.role === "instructor") {
-        nb_class.addInstructor(user)
-      } else if (req.body.role === "student") {
-        utils.addStudentToSection(nb_class, user, req.body.section)
+  Class.findByPk(req.params.id, {
+    include: [
+      { association: 'Instructors', required: true, where: { id: req.user.id } },
+      { association: 'GlobalSection' }
+    ]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
       }
-      res.status(200).json(null)
-    }).catch((err)=>{
-      User.findOne({ where: { email: {[Op.iLike]: req.body.email} }}).then(function (user) {
-        if (user) {
-          utils.addStudentToSection(nb_class, user, req.body.section)
-        } else {
-          res.status(400).json({msg: "Error registering user"})
-        } 
-      });
-    })
-    }
-  });
+      else {
+        User.create({
+          username: req.body.email,
+          first_name: req.body.first,
+          last_name: req.body.last,
+          email: req.body.email.toLowerCase(),
+          password: randomstring.generate(),
+        }).then((user) => {
+          if (req.body.role === "instructor") {
+            nb_class.addInstructor(user)
+          } else if (req.body.role === "student") {
+            utils.addStudentToSection(nb_class, user, req.body.section)
+          }
+          res.status(200).json(null)
+        }).catch((err) => {
+          User.findOne({ where: { email: { [Op.iLike]: req.body.email } } }).then(function (user) {
+            if (user) {
+              utils.addStudentToSection(nb_class, user, req.body.section)
+            } else {
+              res.status(400).json({ msg: "Error registering user" })
+            }
+          });
+        })
+      }
+    });
 });
 
 /**
@@ -254,59 +271,62 @@ router.post('/user/:id', (req, res) => {
  * @param id: id of the class
  */
 
-router.post('/upload/:id', upload.single("file"), function(req, res) {
-  Class.findByPk(req.params.id, {include:
-    [
-      {association: 'Instructors', required:true, where:{id: req.user.id}},
-      {association: 'GlobalSection'}
-    ]})
-  .then(nb_class => {
-    if (!nb_class){
-      res.status(401).json(null);
-    } else {
-      const results = [];
-      fs.createReadStream(req.file.path)
-      .pipe(stripBomStream()) // Remove Byte Order Marks (BOM) that might be present in some CSV format files such as Excel
-      .pipe(csv())
-      .on('data', (data) => {results.push(data)})
-      .on('end', () => {
+router.post('/upload/:id', upload.single("file"), function (req, res) {
+  Class.findByPk(req.params.id, {
+    include:
+      [
+        { association: 'Instructors', required: true, where: { id: req.user.id } },
+        { association: 'GlobalSection' }
+      ]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
+      } else {
+        const results = [];
+        fs.createReadStream(req.file.path)
+          .pipe(stripBomStream()) // Remove Byte Order Marks (BOM) that might be present in some CSV format files such as Excel
+          .pipe(csv())
+          .on('data', (data) => { results.push(data) })
+          .on('end', () => {
 
-        let requests = results.map(student_entry  => {
-          return new Promise((resolve) => {
-            let section = student_entry['Section']
-            let email = student_entry['Email']
-            if (email) {
-              User.create({
-                username: email,
-                first_name: student_entry["First"],
-                last_name: student_entry["Last"],
-                email: email.toLowerCase(),
-                password: randomstring.generate(),
-              })
-              .then((user) => {
-                resolve() // resolve so that we can send a signal back to the frontend
-                utils.addStudentToSection(nb_class, user, section)
-              }).catch((err)=>{
-                resolve()
-                User.findOne({ where: { email: {[Op.iLike]: email }} })
-                  .then(function (user) {
-                    if (user) {
-                      utils.addStudentToSection(nb_class, user, section)
-                    }
+            let requests = results.map(student_entry => {
+              return new Promise((resolve) => {
+                let section = student_entry['Section']
+                let email = student_entry['Email']
+                if (email) {
+                  User.create({
+                    username: email,
+                    first_name: student_entry["First"],
+                    last_name: student_entry["Last"],
+                    email: email.toLowerCase(),
+                    password: randomstring.generate(),
                   })
-              })
-            } else {
-              resolve()
-            }
-          });
-        })
-        Promise.all(requests)
-        .then(() => {res.status(200).json(null);}) 
-        .catch((err) => {res.status(200).json(null);
-        }); 
-      })
-    }
-  });
+                    .then((user) => {
+                      resolve() // resolve so that we can send a signal back to the frontend
+                      utils.addStudentToSection(nb_class, user, section)
+                    }).catch((err) => {
+                      resolve()
+                      User.findOne({ where: { email: { [Op.iLike]: email } } })
+                        .then(function (user) {
+                          if (user) {
+                            utils.addStudentToSection(nb_class, user, section)
+                          }
+                        })
+                    })
+                } else {
+                  resolve()
+                }
+              });
+            })
+            Promise.all(requests)
+              .then(() => { res.status(200).json(null); })
+              .catch((err) => {
+                res.status(200).json(null);
+              });
+          })
+      }
+    });
 });
 
 /**
@@ -316,17 +336,19 @@ router.post('/upload/:id', upload.single("file"), function(req, res) {
  * @param userid: id of the user to remove 
  * */
 router.delete('/student/:courseid/:userid', (req, res) => {
-  Class.findByPk(req.params.courseid, {include:[
-    {association: 'Instructors', required:true, where:{id: req.user.id}}]})
-  .then(nb_class => {
-    if (!nb_class){
-      res.status(401).json(null);
-    }
-    else{
-      utils.removeStudent(req.params.courseid, req.params.userid)
-      .then(() => res.status(200).json(null));
-    }
-  });
+  Class.findByPk(req.params.courseid, {
+    include: [
+      { association: 'Instructors', required: true, where: { id: req.user.id } }]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
+      }
+      else {
+        utils.removeStudent(req.params.courseid, req.params.userid)
+          .then(() => res.status(200).json(null));
+      }
+    });
 });
 
 /**
@@ -334,7 +356,7 @@ router.delete('/student/:courseid/:userid', (req, res) => {
  * @name GET/api/classes/sourceList
  */
 router.get('/sourceList', (req, res) => {
-  Source.findAll({where:{class_id: req.query.classId}})
+  Source.findAll({ where: { class_id: req.query.classId } })
     .then(sources => res.status(200).json(sources));
 });
 

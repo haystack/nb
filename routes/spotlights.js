@@ -15,13 +15,13 @@ const { Op } = require("sequelize");
  * @param type: string enum ('IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN')
  */
 router.post('/spotlight', async (req, res) => {
-    const annotation = await Annotation.findOne({where: {id: req.body.annotation_id}})
+    const annotation = await Annotation.findOne({ where: { id: req.body.annotation_id } })
     try {
         const spotlight = await Spotlight.create(
             {
                 annotation_id: annotation.id,
                 type: req.body.type
-            }, 
+            },
         )
         res.status(200).json(spotlight)
     } catch (error) {
@@ -58,7 +58,7 @@ router.delete('/spotlight/:id', async (req, res) => {
     const spotlight = await Spotlight.findByPk(req.params.id)
 
     if (!spotlight) {
-        res.status(404).send()
+        return res.status(404).send()
     }
 
     await spotlight.update({
@@ -71,15 +71,16 @@ router.delete('/spotlight/:id', async (req, res) => {
  * Make new spotlight log for a given annotation
  * @name POST/api/spotlights/log
  * @param annotationId: annotation id to innotate
- * @param type: string enum ('IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN')
+ * @param type: string enum ('IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN', 'NOTIFICATION_LIST', 'NOTIFICATION_POPUP', 'NOTIFICATION_HIGHLIGHT')
  * @param action: string enum ('CLICK', 'HOVER', 'LIKE', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY')
  * @param role: string enum ('INSTRUCTOR', 'STUDENT')
+ * @param trigger: string enum ('NONE', 'INSTRUCTOR_COMMENTED', 'REPLY_REQUESTED', 'USER_TAGGED', 'USER_SAW_RECENT_ACTIVITY')
  */
 router.post('/log', async (req, res) => {
     const spotlight = req.body.spotlight_id ? await Spotlight.findByPk(req.body.spotlight_id) : {}
     const annotation = await Annotation.findByPk(req.body.annotation_id)
     const user = await User.findByPk(req.user.id)
-    const source = await Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.body.class_id} ] }})
+    const source = await Source.findOne({ where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.body.class_id }] } })
 
     try {
         const spotlightLog = await SpotlightLog.create(
@@ -92,7 +93,8 @@ router.post('/log', async (req, res) => {
                 role: req.body.role.toUpperCase(),
                 class_id: req.body.class_id,
                 source_id: source.id,
-            }, 
+                trigger: req.body.trigger ? req.body.trigger : 'NONE'
+            },
         )
         res.status(200).json(spotlightLog)
     } catch (error) {
@@ -107,7 +109,7 @@ router.post('/log', async (req, res) => {
  */
 router.post('/log/session/start', async (req, res) => {
     const user = await User.findByPk(req.user.id)
-    const source = await Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.body.class_id} ] }})
+    const source = await Source.findOne({ where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.body.class_id }] } })
 
     try {
         const spotlightLog = await SpotlightLog.create(
@@ -118,7 +120,7 @@ router.post('/log/session/start', async (req, res) => {
                 role: req.body.role.toUpperCase(),
                 class_id: req.body.class_id,
                 source_id: source.id,
-            }, 
+            },
         )
         res.status(200).json(spotlightLog)
     } catch (error) {
@@ -133,7 +135,7 @@ router.post('/log/session/start', async (req, res) => {
  */
 router.post('/log/session/end', async (req, res) => {
     const user = await User.findByPk(req.user.id)
-    const source = await Source.findOne({ where: { [Op.and]: [ {filepath: req.query.url}, {class_id: req.body.class_id} ] }})
+    const source = await Source.findOne({ where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.body.class_id }] } })
 
     try {
         const spotlightLog = await SpotlightLog.create(
@@ -144,7 +146,7 @@ router.post('/log/session/end', async (req, res) => {
                 role: req.body.role.toUpperCase(),
                 class_id: req.body.class_id,
                 source_id: source.id,
-            }, 
+            },
         )
         res.status(200).json(spotlightLog)
     } catch (error) {
