@@ -53,6 +53,7 @@
             :disabled="!valid"
             class="sign-in-button"
             @click="login"
+            this.message=null
           >  Sign In 
           </v-btn>
         </v-col>
@@ -117,6 +118,7 @@
         },
         forgotPasswordMessage: "",
         message: null,
+        valid: true,
       }
     },
     computed: {

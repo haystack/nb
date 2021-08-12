@@ -6,7 +6,7 @@ const nbConfig = (sequelize, DataTypes) => {
             allowNull: false
         },
         value: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             unique: false,
             allowNull: false
         },
@@ -16,11 +16,11 @@ const nbConfig = (sequelize, DataTypes) => {
             allowNull: true
         }
     },
-    {
-        timestamps: false,
-        createdAt: false,
-        updatedAt: false,
-    });
+        {
+            timestamps: false,
+            createdAt: false,
+            updatedAt: false,
+        });
     return NbConfig;
 };
 

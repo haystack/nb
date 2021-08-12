@@ -18,17 +18,56 @@
             v-for="dir in directories"
             class="item"
             :key="dir.id"
-            @click="switchDirectory(dir)">
-          <font-awesome-icon :icon="folderIcon"></font-awesome-icon>
-          <span>{{ dir.filename }}</span>
+            >
+          <font-awesome-icon 
+              class="jj"
+              :icon="folderIcon"
+              @click="switchDirectory(dir)">
+          </font-awesome-icon>
+          <span v-if="(userType === 'instructor' && !showDeleted)" class="editdir">
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="editIcon"
+                  @click="editFolder(dir)">
+              </font-awesome-icon>
+            </span>
+            <span v-else-if="(userType == 'instructor' && showDeleted)" class="editdir">
+              <font-awesome-icon
+                  v-if="userType === 'instructor'"
+                  class="clickable"
+                  :icon="restoreIcon"
+                  @click="restoreFolder(dir)">
+              </font-awesome-icon>
+            </span>
+          <span>
+          {{ dir.filename }}
+          </span>
         </div>
-        <div v-if="(trashExists || showDeleted) && userType==='instructor'" class="item" :key="trash" @click="showDeleted = !showDeleted">
+        <div v-if="(trashExists || showDeleted) && userType==='instructor'" class="item" :key="trash">
         
-          <font-awesome-icon :icon="trashIcon"></font-awesome-icon>
+          <font-awesome-icon class="trash_item" :icon="trashIcon" @click="showDeleted = !showDeleted"></font-awesome-icon>
           <span>{{ showDeleted ? "Hide Trash" : "Show Trash"}}</span>
         </div>
       </div>
     </div>
+
+    <modal name="edit-folder-modal" height="auto">
+      <!-- TODO: add options to edit filename, URL, etc -->
+      <div v-if="edittingFolder.folder" class="edit-file-form">
+        <h3>{{edittingFolder.folder.filename}}</h3>
+        <div class="group">
+        <label for="edit-filename"> Name: </label>
+        <input id="edit-filename" type="text" v-model="edittingFolder.newFoldername">
+        </div>
+        
+        <div class="group form-buttons">
+          <button class="delete" @click="deleteFolderEdit"> {{deleteText}} </button>
+          <button class="cancel" @click="closeFolderEdit"> Cancel </button>
+          <button class="save" @click="saveFolderEdit" :disabled="!editFolderEnabled"> Save </button>
+        </div>
+      </div>
+    </modal>
 
     <div v-if="userType === 'instructor' && !showDeleted" class="add-folder">
       <h3>New Folder</h3>
@@ -101,7 +140,7 @@
                 v-model="edittingFile.newDeadline"
                 type="datetime"
                 :inline="true"
-                minute-step="15"
+                minute-step="1"
                 use12-hour="true"
                 :bootstrap-styling="true">
             </Datetime>
@@ -140,7 +179,6 @@
 <script>
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
   import { faFolder, faFile, faEdit, faTrash, faTrashRestore } from '@fortawesome/free-solid-svg-icons'
-
   import Vue from 'vue'
   import VModal from 'vue-js-modal'
   import moment from 'moment'
@@ -154,14 +192,11 @@
     size: 3,
     icon_color: 'white',
 })
-
   import 'vue-good-table/dist/vue-good-table.css'
   import { VueGoodTable } from 'vue-good-table'
   import { Datetime } from 'vue-datetime'
   import 'vue-datetime/dist/vue-datetime.css'
-
   import axios from 'axios'
-
   export default {
     name: "course-contents",
     props:{
@@ -229,6 +264,10 @@
           newFilename: "",
           newFilepath: ""
         },
+        edittingFolder: {
+          folder: null,
+          newFoldername: ""
+        },
         deleteText: "Delete",
         showDeleted: false
       }
@@ -252,6 +291,10 @@
         catch (_) {
           ans = false
         }
+        return ans
+      },
+      editFolderEnabled: function() {
+        let ans = this.edittingFolder.newFoldername.length > 0
         return ans
       },
       directories: function() {
@@ -309,7 +352,6 @@
               type: 'error',
               text: 'You have added this file in the past. Try looking through your files (or deleted files) for it!'
               })
-
             }
           })
       },
@@ -321,20 +363,24 @@
           
             for (let file of res.data) {
               file.updatedAtString = moment(String(file.updatedAt)).format('MM/DD/YYYY HH:mm');
-
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
-	      
-
+        
             
             this.contents = res.data
           })
         
       },
       switchDirectory: function(directory) {
+        this.showDeleted = false
         this.$emit('switch-directory', directory)
+      },
+      editFolder: function(directory) {
+        this.edittingFolder.folder = directory
+        this.edittingFolder.newFoldername = directory.filename
+        this.$modal.show('edit-folder-modal')
       },
       editAssignment: function(file) {
         this.edittingFile.file = file
@@ -355,6 +401,15 @@
             
           })
       },
+      restoreFolder: function(dir) {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/restore/${dir.id}`, {}, headers)
+          .then(() =>{
+            this.loadFiles()
+            
+          })
+      },
       saveEdit: function() {
         const body = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
         const token = localStorage.getItem("nb.user");
@@ -366,12 +421,30 @@
             
           })
       },
+      saveFolderEdit: function() {
+        const body = {filename: this.edittingFolder.newFoldername}
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/update/${this.edittingFolder.folder.id}`, body, headers)
+          .then(() =>{
+            this.closeFolderEdit()
+            this.loadFiles()
+            
+          })
+      },
       closeEdit: function() {
         this.$modal.hide('edit-file-modal')
         this.edittingFile = {
           file: null,
           newFilename: "",
           newFilepath: ""
+        }
+      },
+      closeFolderEdit: function() {
+        this.$modal.hide('edit-folder-modal')
+        this.edittingFolder = {
+          folder: null,
+          newFoldername: "",
         }
       },
       deleteEdit: function() {
@@ -389,6 +462,22 @@
             this.closeEdit()
             this.loadFiles()
             this.deleteText = "Delete"
+          })
+      },
+      deleteFolderEdit: function() {
+        /*
+        Confirm whether they want to delete
+        if(this.deleteText == "Delete") {
+          this.deleteText = "Confirm Delete"
+          return
+        }
+        */
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.post(`/api/files/file/delete/${this.edittingFolder.folder.id}`, {}, headers)
+          .then(() =>{
+            this.closeFolderEdit()
+            this.loadFiles()
           })
       },
       handleFileUpload(){
@@ -426,11 +515,9 @@
               type: 'error',
               text: 'You have added this file in the past. Try looking through your files (or deleted files) for it!'
               })
-
             }
           })
         
-
       },
     },
     mounted: function() {
@@ -448,7 +535,6 @@
   .course-contents {
     padding-top: 10px;
   }
-
   .breadcrumb {
     display: flex;
     font-size: 16px;
@@ -472,12 +558,10 @@
     color: #000;
     font-weight: bold;
   }
-
   p.empty {
     text-align: left;
     color: #444;
   }
-
   .directories {
     padding: 10px 0;
   }
@@ -501,15 +585,28 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    cursor: pointer;
-  }
-  .directories .listing .item:hover {
-    background-color: #eee;
   }
   .directories .listing .item span {
     margin-left: 10px;
   }
-
+  .directories .listing .item .editdir .clickable {
+    cursor: pointer;
+  }
+  .directories .listing .item .editdir .clickable:hover {
+    color: #007bff;
+  }
+  .directories .listing .item .jj {
+    cursor: pointer;
+  }
+  .directories .listing .item .jj:hover {
+    color: #007bff;
+  }
+  .directories .listing .item .trash_item {
+    cursor: pointer;
+  }
+  .directories .listing .item .trash_item:hover {
+    color: #007bff;
+  }
   .add-folder {
     display: flex;
     align-items: center;
@@ -545,7 +642,6 @@
   .add-folder button:enabled:hover {
     background-color: #0069d9;
   }
-
   .files {
     padding: 10px 0;
   }
@@ -564,7 +660,6 @@
   .files .listing .filename span {
     margin-left: 5px;
   }
-
   .edit-file-form {
     height: 100%;
     overflow: scroll;
@@ -600,7 +695,6 @@
   .edit-file-form .form-buttons button.delete:hover {
     background-color: #ff7961;
   }
-
   .edit-file-form .form-buttons button.cancel {
     background-color: #6c757d;
     border: solid 1px #6c757d;
@@ -616,12 +710,10 @@
   .edit-file-form .form-buttons button.save:hover {
     background-color: #0069d9;
   }
-
   .edit-file-form .form-buttons button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }
-
   .edit-file-form .group label {
     margin-right: 5px;
   }
@@ -636,7 +728,6 @@
     color: #cf000f;
     font-size: 14px;
   }
-
   .add-file {
     display: flex;
     align-items: center;
@@ -671,6 +762,5 @@
   .add-file button:enabled:hover {
     background-color: #0069d9;
   }
-
   
 </style>
