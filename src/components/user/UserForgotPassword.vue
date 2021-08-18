@@ -8,28 +8,28 @@
         <button class="password-submit" :disabled="!forgotPasswordEnabled" @click="forgotPassword">Forgot Password</button>
         <span class="forgot-password-message"><br>{{forgotPasswordMessage}}<br></span>
     </div>-->
-    <div>
-        <v-form ref="form" v-model="valid" lazy-validation>
-        <v-card class="card-format">
-                <v-card-title class="title-text"> Forgot Password </v-card-title>
-                <v-card-subtitle class="info-text"> Enter your email and instructions will be sent shortly to reset your password </v-card-subtitle>
-                <v-card-actions>
-                    <v-text-field
-                        v-model="user.email"
-                        required
-                        :rules="user.emailRules"
-                        @input="login-email"
-                        label="Email"></v-text-field>
-                </v-card-actions>
-                <v-card-actions class="reset-button">
-                    <v-btn
-                    :disabled="!valid"
-                    class="sign-in-button"
-                    @click="forgotPassword"> Reset </v-btn>
-                </v-card-actions>
-        </v-card>
-        </v-form>
-    </div>
+  <div>
+    <v-form ref="form" v-model="valid" lazy-validation>
+      <v-card>
+        <v-card-title class="title-text"> Forgot Password </v-card-title>
+        <v-card-subtitle class="info-text"> Enter your email and instructions will be sent shortly to reset your password </v-card-subtitle>
+        <v-card-actions>
+          <v-text-field
+            v-model="user.email"
+            required
+            :rules="user.emailRules"
+            id="login-email"
+            label="Email"></v-text-field>
+        </v-card-actions>
+        <v-card-actions class="reset-button">
+          <v-btn
+            :disabled="!forgotPasswordEnabled"
+            class="sign-in-button"
+            @click="forgotPassword"> Reset </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+  </div>
 </template>
 
 <script>
@@ -63,7 +63,7 @@
     },
     computed: {
       forgotPasswordEnabled: function() {
-        return this.user.email && this.user.email.length > 0
+        return (this.user.email.length > 0 && this.user.emailRules)
       }
     },
     methods: {
@@ -216,7 +216,7 @@
 
   .card-format {
       width: 70%;
-      height: 100%;
+      height: 70%;
   }
 
   .reset-button {

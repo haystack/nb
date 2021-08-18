@@ -36,21 +36,21 @@
         label="Username"
         :rules="user.usernameRules"
         required
-        @input="login-username">
+        id="login-username">
       </v-text-field>
       <v-text-field
         v-model="user.password"
         label="Password"
         :rules="user.passwordRules"
         required
-        @input="login-password"
+        id="login-password"
         type="password">
       </v-text-field>
       <div v-if="message" class="message">{{ message }}</div>
       <v-row>
         <v-col>
           <v-btn
-            :disabled="!valid"
+            :disabled="!submitEnabled"
             class="sign-in-button"
             @click="login"
             this.message=null
@@ -73,10 +73,12 @@
         </v-col>
       </v-row>
     </v-container>
-    <modal name="createaccount-modal">
-      <user-create></user-create>
+    <modal classes="modal-background" name="createaccount-modal" :scrollable="true" :height="395" :width="350" :background-color="purple">
+      <div class="create-account-div">
+        <user-create></user-create>
+      </div>
     </modal>
-    <modal name="forgotpassword-modal">
+    <modal classes="modal-background" name="forgotpassword-modal" :scrollable="true" :height="265" :width="350">
       <div class="forgot-password-div">
         <user-forgot-password></user-forgot-password>
       </div>
@@ -123,7 +125,10 @@
     },
     computed: {
       submitEnabled: function() {
-        return this.user.username.length > 0 && this.user.password.length > 0
+        return (this.user.username.length > 0 && 
+                this.user.password.length > 0 && 
+                this.user.usernameRules &&
+                this.user.passwordRules )
       },
       forgotPasswordEnabled: function() {
         return this.user.email && this.user.email.length > 0
@@ -288,7 +293,7 @@
   }
 
   .no-account-text {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     white-space: nowrap;
     overflow: hidden;
     font-weight: bold;
@@ -296,22 +301,27 @@
 
   .create-account-text {
     font-size: 0.75rem;
-    white-space: nowrap;
     overflow: hidden;
     font-weight: bold;
     color: #4a2770;
   }
 
-  .forgot-password-modal {
+  .forgot-password-div {
     height: auto;
     width: auto;
     padding: 15px;
+    align-content: center;
   }
 
-  .forgot-password-div {
-    height: 100%;
-    width: 70%;
+  .create-account-div {
+    height: auto;
+    width: auto;
     padding: 15px;
+    align-content: center;
+  }
+
+  .modal-background {
+    background-color: purple !important;
   }
 
 </style>
