@@ -1,14 +1,14 @@
 <template>
   <div class="app-wrapper">
-    <nav-bar></nav-bar>
     <!--<div class="app-body">
       <user-create></user-create>
       <div class="v-divide"></div>
       <user-login></user-login>
     </div>-->
-    <v-container>
-      <v-row>
-        <v-col cols="8">
+    <div class="homepage-container">
+      <v-container fluid>
+      <v-row class="info-container">
+        <v-col cols="9">
           <v-row>
             <v-col>
               <v-card tile> 
@@ -66,12 +66,22 @@
           vertical
           class="homepage-divider"
         ></v-divider>
-        <v-col cols="4">
+        <v-col cols="3">
           <user-login class="log-in"></user-login>
         </v-col>
       </v-row>
-    </v-container>
+      </v-container>
+    </div>
+    <div class="nav-bar">
+    <nav-bar></nav-bar>
+    </div>
     <a href="https://forms.gle/6YERC3jSu1W1zUzS8" class="nb-bug-link" target="_blank">Report Bug</a>
+    <div class="bottom-text"> 
+      <v-row class="bottom-text">
+      <a> Developed in the Haystack Group at CSAIL, MIT |&nbsp;</a>
+      <a class="haystack-link" href="http://haystack.csail.mit.edu/"> http://haystack.csail.mit.edu/ </a>
+      </v-row>
+    </div>
   </div>
 </template>
 
@@ -133,7 +143,7 @@
     left: 25px;
   }
   .app-wrapper {
-    height: 100%;
+    position: absolute; top: 0; left: 0; height: 100%; width: 100%;
   }
   .app-body {
     width: 100%;
@@ -190,8 +200,48 @@
   }
   .log-in {
     justify-content: center;
-    position: absolute;
-    top: 30%;
+    position: fixed;
+    top: 32.5%;
+    bottom:67.5%;
+  }
+
+  .bottom-text {
+    background-color: #4a2770;
+    overflow: hidden;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: var(--navbar-height);
+    color: white;
+    justify-content: center;
+    font: Roboto;
+  }
+
+
+  .haystack-link {
+    color: white;
+  }
+
+  .nav-bar {
+    position: fixed; 
+    top: 0; 
+    width: 100%;
+    overflow: hidden;
+    height: var(--navbar-height)
+  }
+
+  .homepage-container {
+    overflow: hidden;
+    margin-top: 50px;
+    top: 50px;
+    padding: 20px;
+    justify-content: center;
+  }
+
+  .info-container {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
   }
 
 </style>

@@ -63,6 +63,7 @@
     background-color: #4a2270;
     color: #fff;
   }
+  
   .home {
     margin-left: 20px;
     font-size: 26px;
