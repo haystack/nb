@@ -1,5 +1,5 @@
 <template>
-  <!--<div class="form">
+  <div class="form">
     <h3 class="title">Create a New Account</h3>
 
     <div class="group">
@@ -31,58 +31,7 @@
       Sign up
     </button>
     <span class="register-message"><br>{{registerMessage}}<br></span>
-  </div>-->
-  <div>
-    <v-form ref="form" lazy-validation>
-      <v-card>
-        <v-card-title class="title-text"> Create Account </v-card-title>
-        <v-card-subtitle class="info-text"> Enter your information to create an account! </v-card-subtitle>
-        <!--<v-container class="input-container">-->
-          <v-text-field
-            class="input-style"
-            v-model="newUser.username"
-            :rules="newUser.usernameRules"
-            required
-            id="new-user-username"
-            label="Username"></v-text-field>
-          <v-text-field
-            class="input-style"
-            v-model="newUser.first"
-            :rules="newUser.firstRules"
-            required
-            id="new-user-first"
-            label="First Name"></v-text-field>
-          <v-text-field
-            class="input-style"
-            v-model="newUser.last"
-            :rules="newUser.lastRules"
-            required
-            id="new-user-last"
-            label="Last Name"></v-text-field>
-          <v-text-field
-            class="input-style"
-            v-model="newUser.email"
-            :rules="newUser.emailRules"
-            required
-            id="new-user-email"
-            label="Email"></v-text-field>
-          <v-text-field
-            class="input-style"
-            v-model="newUser.password"
-            :rules="newUser.passwordRules"
-            required
-            id="new-user-password"
-            label="Password"></v-text-field>
-        <!--</v-container>-->
-        <v-card-actions class="reset-button">
-          <v-btn
-            :disabled="!submitEnabled"
-            class="sign-in-button"
-            @click="createUser"> Sign Up </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-form>
-  </div>  
+  </div>
 </template>
 
 <script>
@@ -95,37 +44,21 @@
       return {
         newUser: {
           username: "",
-          usernameRules: [
-            v => !!v || "Username is required",
-          ],
           first: "",
-          firstRules: [
-            v => !!v || "First name is required",
-          ],
           last: "",
-          lastRules: [
-            v => !!v || "Last name is required",
-          ],
           email: "",
-          emailRules: [
-            v => !!v || "Email is required",
-            v => /.+@.+/.test(v) || 'E-mail must be valid',
-          ],
           password: "",
-          passwordRules: [
-            v => !!v || "Password is required",
-          ],
         },
         registerMessage: "",
       }
     },
     computed: {
       submitEnabled: function() {
-        return (this.newUser.username.length > 0
+        return this.newUser.username.length > 0
           && this.newUser.first.length > 0
           && this.newUser.last.length > 0
           && this.newUser.email.length > 0
-          && this.newUser.password.length > 0)
+          && this.newUser.password.length > 0
       },
     },
     methods: {
@@ -213,44 +146,5 @@
   }
   button.submit:enabled:hover {
     background-color: #0069d9;
-  }
-
-  .title-text {
-    color: #4a2770;
-    font-weight: bold;
-    font-size: 1.15rem;
-    justify-content: center;
-  }
-
-  .input-container {
-    height: 100%;
-    padding: 0px;
-  }
-
-  .input-style {
-    height: 45px;
-    padding: 10px;
-  }
-
-  .reset-button {
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
-  }
-
-  .sign-in-button {
-    color: white;
-    background-color: #4a2770 !important;
-  }
-
-  .info-text {
-      padding: 0px;
-      justify-content: center;
-      text-align: center;
-  }
-
-  .error--text {
-    color: #ff5252 !important;
-    caret-color: #ff5252 !important;
   }
 </style>
