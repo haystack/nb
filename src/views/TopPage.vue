@@ -48,7 +48,7 @@
             const token = localStorage.getItem("nb.user");
             const decoded = VueJwtDecode.decode(token);
             this.user = decoded.user
-            this.$router.push('home')
+            this.$router.push('home').catch(err => {})
         } catch (error) {
             console.error(error, 'error from decoding token')
         }
@@ -87,6 +87,7 @@
   }
 
   .video-wrapper {
+    display: none;
     position: absolute;
     padding: 3.5%;
     width: 40%;
