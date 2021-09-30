@@ -1,6 +1,9 @@
 <template>
   <div class="app-wrapper">
     <nav-bar></nav-bar>
+    <div class="video-wrapper">
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/G0ghiJWkHYY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
     <div class="app-body">
       <user-create></user-create>
       <div class="v-divide"></div>
@@ -45,7 +48,7 @@
             const token = localStorage.getItem("nb.user");
             const decoded = VueJwtDecode.decode(token);
             this.user = decoded.user
-            this.$router.push('home')
+            this.$router.push('home').catch(err => {})
         } catch (error) {
             console.error(error, 'error from decoding token')
         }
@@ -81,5 +84,14 @@
     width: 0;
     height: 100%;
     border: solid 1px #aaa;
+  }
+
+  .video-wrapper {
+    display: none;
+    position: absolute;
+    padding: 3.5%;
+    width: 40%;
+    height: 40%;
+    top: 400px;
   }
 </style>
