@@ -13,6 +13,7 @@ const spotlightsRouter = require('./routes/spotlights')
 const gradesRouter = require('./routes/grades')
 const adminRouter = require('./routes/admin')
 const expRouter = require('./routes/experiment')
+const consentRouter = require('./routes/consents')
 const auth = require('./auth/auth')
 const socketapi = require("./socketapi") // used for socket.io
 
@@ -54,6 +55,7 @@ app.use('/api/annotations', passport.authenticate('jwt', { session: false }), an
 app.use('/api/spotlights', passport.authenticate('jwt', { session: false }), spotlightsRouter)
 app.use('/api/grades', passport.authenticate('jwt', { session: false }), gradesRouter)
 app.use('/api/exp', passport.authenticate('jwt', { session: false }), expRouter)
+app.use('/api/consent', passport.authenticate('jwt', { session: false }), consentRouter)
 app.use('/api/admin', passport.authenticate('jwt', { session: false }), auth.isAdmin(), adminRouter)
 
 // Handle errors.

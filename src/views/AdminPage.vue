@@ -2,97 +2,135 @@
     <div class="app-wrapper">
         <nav-bar :course="title" :user="user"></nav-bar>
         <div v-if="!isAdmin">You are not authorized!</div>
-        <div v-else class="nb-admin">
-            <div class="nb-side">
-                <div 
-                    v-for="course in courses"
-                    @click="selectCourse(course)">
-                    {{course.class_name}}
+        <div v-else>
+            <div class="nb-admin-tabs">
+                <span @click="selectTab('classes')" v-bind:class="{ active: currentTab === 'classes' }">Classes</span>
+                <span @click="selectTab('consents')" v-bind:class="{ active: currentTab === 'consents' }">Consents</span>
+            </div>
+            <div v-if="currentTab === 'classes'" class="tab">
+                <div class="nb-side">
+                    <div 
+                        v-for="course in courses"
+                        @click="selectCourse(course)">
+                        {{course.class_name}}
+                    </div>
+                </div>
+                <div class="nb-main">
+                    <template v-if="isNotSaved">
+                        Some changes are not saved yet, please click update once you'r done!
+                    </template>
+                    <div class="nb-globle-area">
+                        <fieldset>
+                            <legend>Global configs</legend>
+                            <table>
+                                <tr v-for="config in globalConfigs">
+                                    <td>{{config.name}}</td>
+                                    <td>{{config.value}}</td>
+                                </tr>
+                            </table>
+                        </fieldset>
+                    </div>
+
+                    <template v-if="selectedCourse.class_name">
+                        <h1>{{selectedCourse.class_name}}</h1> 
+                        <fieldset>
+                            <legend>Info</legend>
+                            <ul>
+                                <li>ID: <code>{{selectedCourse.id}}</code></li>
+                                <li>createdAt: <code>{{selectedCourse.createdAt}}</code></li>
+                                <li>Creator: <code>{{selectedCourse.Creator.name.first}} {{selectedCourse.Creator.name.last}}</code></li>
+                                <li># of Instructors: <code>{{selectedCourse.Instructors.length}}</code></li>
+                                <li># of Sections: <code>{{selectedCourse.Sections.length}}</code></li>
+                                <li># of Sources: <code>{{selectedCourse.Sources.length}}</code></li>
+                                <li># of Students: <code>{{selectedCourseStudents.length}}</code></li>
+                            </ul>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Class configs</legend>
+                            <table>
+                                <tr v-for="(value, name) in selectedCourseConfigs">
+                                    <td>{{name}}</td>
+                                    <td>
+                                        <button v-bind:class="{ 'selected-config': value == 'true' }" @click="setConfig(name, 'true')">ture</button>
+                                        <button v-bind:class="{ 'selected-config': value == 'false' }" @click="setConfig(name, 'false')">false</button>
+                                        <button v-bind:class="{ 'selected-config': value == 'Globle' }" @click="setConfig(name, 'Globle')">Globle</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Spotlight Exp.</legend>
+                            <template v-if="!expSpotlight">
+                            # of control users: <input v-model="controlUsersCount"> <button @click="createExpSpotlight()">Create</button>
+                            </template>
+                            <template v-if="expSpotlight">
+                                <fieldset>
+                                    <legend>Groups</legend>
+                                    <details>
+                                        <summary>Control: {{controlStudents.length}}</summary>
+                                        <ul>
+                                            <li v-for="student in controlStudents"><kbd>[{{student.id}}] </kbd>{{student.first_name}} {{student.last_name}} <kbd>({{student.username}})</kbd></li>
+                                        </ul>
+                                    </details>
+                                    <details>
+                                        <summary>Treatment: {{treatmentStudents.length}}</summary>
+                                        <ul>
+                                            <li v-for="student in treatmentStudents"><kbd>[{{student.id}}] </kbd>{{student.first_name}} {{student.last_name}} <kbd>({{student.username}})</kbd></li>
+                                        </ul>
+                                    </details>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Sources</legend>
+                                    <ul>
+                                        <li v-for="source in selectedCourse.Sources">
+                                            <span v-if="source.Files[0].deleted">🗑️</span>
+                                            <span v-else-if="!source.Files.deleted && assignedSources.includes(source.id)">✔️</span>
+                                            <button v-else @click="assignSource(source)">Assign</button> 
+                                            <kbd>[{{source.id}}] </kbd>{{source.filename}}
+                                        </li>
+                                    </ul>
+                                </fieldset>
+                            </template>
+                        </fieldset>
+                        <fieldset>
+                            <button @click="updateConfig()">Update</button>
+                        </fieldset>
+                        
+                    </template>
                 </div>
             </div>
-            <div class="nb-main">
-                <template v-if="isNotSaved">
-                    Some changes are not saved yet, please click update once you'r done!
-                </template>
-                <div class="nb-globle-area">
-                    <fieldset>
-                        <legend>Global configs</legend>
-                        <table>
-                            <tr v-for="config in globalConfigs">
-                                <td>{{config.name}}</td>
-                                <td>{{config.value}}</td>
-                            </tr>
-                        </table>
-                    </fieldset>
-                </div>
-
-                <template v-if="selectedCourse.class_name">
-                    <h1>{{selectedCourse.class_name}}</h1> 
-                    <fieldset>
-                        <legend>Info</legend>
-                        <ul>
-                            <li>ID: <code>{{selectedCourse.id}}</code></li>
-                            <li>createdAt: <code>{{selectedCourse.createdAt}}</code></li>
-                            <li>Creator: <code>{{selectedCourse.Creator.name.first}} {{selectedCourse.Creator.name.last}}</code></li>
-                            <li># of Instructors: <code>{{selectedCourse.Instructors.length}}</code></li>
-                            <li># of Sections: <code>{{selectedCourse.Sections.length}}</code></li>
-                            <li># of Sources: <code>{{selectedCourse.Sources.length}}</code></li>
-                            <li># of Students: <code>{{selectedCourseStudents.length}}</code></li>
-                        </ul>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Class configs</legend>
-                        <table>
-                            <tr v-for="(value, name) in selectedCourseConfigs">
-                                <td>{{name}}</td>
-                                <td>
-                                    <button v-bind:class="{ 'selected-config': value == 'true' }" @click="setConfig(name, 'true')">ture</button>
-                                    <button v-bind:class="{ 'selected-config': value == 'false' }" @click="setConfig(name, 'false')">false</button>
-                                    <button v-bind:class="{ 'selected-config': value == 'Globle' }" @click="setConfig(name, 'Globle')">Globle</button>
-                                </td>
-                            </tr>
-                        </table>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Spotlight Exp.</legend>
-                        <template v-if="!expSpotlight">
-                        # of control users: <input v-model="controlUsersCount"> <button @click="createExpSpotlight()">Create</button>
-                        </template>
-                        <template v-if="expSpotlight">
-                            <fieldset>
-                                <legend>Groups</legend>
-                                <details>
-                                    <summary>Control: {{controlStudents.length}}</summary>
-                                    <ul>
-                                        <li v-for="student in controlStudents"><kbd>[{{student.id}}] </kbd>{{student.first_name}} {{student.last_name}} <kbd>({{student.username}})</kbd></li>
-                                    </ul>
-                                </details>
-                                <details>
-                                    <summary>Treatment: {{treatmentStudents.length}}</summary>
-                                    <ul>
-                                        <li v-for="student in treatmentStudents"><kbd>[{{student.id}}] </kbd>{{student.first_name}} {{student.last_name}} <kbd>({{student.username}})</kbd></li>
-                                    </ul>
-                                </details>
-                            </fieldset>
-                            <fieldset>
-                                <legend>Sources</legend>
+             <div v-if="currentTab === 'consents'" class="tab consents">
+                <fieldset>
+                    <legend>New Consent</legend>
+                        Name: <input v-model="newConsentName">
+                    <button @click="createConsent">New Consent</button>
+                </fieldset>
+                 <fieldset>
+                    <legend>Consents</legend>
+                     <table>
+                        <tr v-for="consent in consents">
+                            <details>
+                                <summary>{{consent.name}} ({{consent.id}}) ✔️:{{consent.Consentees.length}} ❌:{{consent.Dissenters.length}}</summary>
+                                ✔️:
                                 <ul>
-                                    <li v-for="source in selectedCourse.Sources">
-                                        <span v-if="source.Files[0].deleted">🗑️</span>
-                                        <span v-else-if="!source.Files.deleted && assignedSources.includes(source.id)">✔️</span>
-                                        <button v-else @click="assignSource(source)">Assign</button> 
-                                        <kbd>[{{source.id}}] </kbd>{{source.filename}}
+                                    <li v-for="consentee in consent.Consentees">
+                                        <kbd>[{{consentee.id}}]</kbd>
+                                        {{consentee.email}}
                                     </li>
                                 </ul>
-                            </fieldset>
-                        </template>
-                    </fieldset>
-                    <fieldset>
-                        <button @click="updateConfig()">Update</button>
-                     </fieldset>
-                    
-                </template>
-            </div>
+                                ❌:
+                                <ul>
+                                    <li v-for="dissenter in consent.Dissenters">
+                                        <kbd>[{{dissenter.id}}]</kbd>
+                                        {{dissenter.email}}
+                                    </li>
+                                </ul>
+
+                            </details>
+                        </tr>
+                    </table>
+                </fieldset>
+             </div>
         </div>
     </div>
 </template>
@@ -110,6 +148,7 @@ export default {
             title: {class_name: 'Admin Page'},
             isAdmin: false,
             courses: [],
+            consents: [],
             selectedCourse: {},
             selectedCourseStudents: [],
             selectedCourseConfigs: {},
@@ -120,6 +159,8 @@ export default {
             controlStudents: [],
             treatmentStudents: [],
             assignedSources: [],
+            currentTab: 'classes',
+            newConsentName: null,
         }
     },
     created: async function() {
@@ -135,6 +176,9 @@ export default {
                 this.courses = coursesRes.data
                 const configsRes = await axios.get(`/api/admin/configs`, headers)
                 this.globalConfigs = configsRes.data
+                const consentsRes = await axios.get(`/api/admin/consent`, headers)
+                this.consents = consentsRes.data
+                console.log(this.consents)
             }
         } else {
             localStorage.removeItem("nb.user");
@@ -181,6 +225,17 @@ export default {
         }
     },
     methods: {
+        selectTab: function(tab) {
+            this.currentTab = tab
+        },
+        createConsent: async function() {
+            if (this.newConsentName) {
+                console.log('new onsent: ' + this.newConsentName)
+                const token = localStorage.getItem("nb.user");
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                await axios.post(`/api/admin/consent`, {name:this.newConsentName}, headers)
+            }
+        },
         selectCourse: function(course) {
             this.selectedCourse = course
         },
@@ -266,6 +321,35 @@ export default {
 }
 .nb-main {
     padding: 15px;
+    width: 100%;
+}
+.nb-admin-tabs {
+    display: flex;
+    height: 40px;
+    background: #60348a;
+    margin: 0;
+    color: white;
+    align-content: center;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    padding: 0 20px;
+}
+.nb-admin-tabs span {
+    margin: 0px 15px;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    padding: 0 10px;
+}
+.nb-admin-tabs span.active {
+    background: #4a2270;
+    cursor: not-allowed;
+}
+.tab {
+    display: flex;
     width: 100%;
 }
 .nb-side {
@@ -354,4 +438,7 @@ kbd {
     color: #9f7bc1;
 }
 
+.tab.consents {
+    flex-direction: column;
+}
 </style>
