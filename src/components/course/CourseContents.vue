@@ -90,6 +90,9 @@
               <span>&nbsp</span>
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
+            <span v-else-if="props.column.field === 'annotations'">
+              {{props.row.Source.Locations.length}}
+            </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
                 {{ props.row.Source.Assignment ?
@@ -228,6 +231,11 @@
             // filterOptions: {
             //   enabled: true,
             // },
+          },
+          {
+            label: 'Annotations', 
+            field: 'annotations', 
+            sortable: true
           },
           {
             label: 'Assignment Due',
@@ -372,6 +380,14 @@
             this.contents = res.data
           })
         
+      },
+      getNumberAnnotations: function(filepath, class_id){
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/annotations/annotation`, {url: filepath, class: class_id}, headers)
+          .then(res => {
+            return res.length
+          })
       },
       switchDirectory: function(directory) {
         this.showDeleted = false

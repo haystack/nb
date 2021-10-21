@@ -111,6 +111,7 @@ router.get('/allTagTypes', (req, res) => {
  * }]
  */
 router.get('/annotation', (req, res) => {
+    console.log(req)
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
         include: [{
