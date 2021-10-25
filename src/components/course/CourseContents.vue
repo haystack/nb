@@ -91,7 +91,9 @@
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
             <span v-else-if="props.column.field === 'annotations'">
-              {{props.row.Source.Locations.length}}
+              {{props.row.Source.Locations.length}} total annotations
+              {{getRequestReply(props.row.Source.Locations)}} total reply requests
+
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
@@ -388,6 +390,17 @@
           .then(res => {
             return res.length
           })
+      },
+      getRequestReply: function(locations){
+        let numReqs = 0
+        for (let i = 0; i < locations.length; i++){
+          if(locations[i].Thread){
+            for(let j = 0; j < locations[i].Thread.AllAnnotations.length; j++){
+              numReqs += locations[i].Thread.AllAnnotations[j].ReplyRequesters.length
+            }
+          }
+        }
+        return numReqs
       },
       switchDirectory: function(directory) {
         this.showDeleted = false
