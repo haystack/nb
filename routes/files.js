@@ -26,6 +26,7 @@ router.get('/folder/:id', (req, res) => {
   FileSystemObject.findByPk(req.params.id)
   .then((file) => file.getChildren({include:[{association:'Source', 
                                       include:[{association:'Assignment', required: false}, 
+                                      {association:'Class'},
                                       {association: 'Locations', required: false, 
                                         include:[{association: 'Thread', required: false, 
                                           include: [{association: 'AllAnnotations', required: false, 

@@ -91,8 +91,12 @@
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
             <span v-else-if="props.column.field === 'annotations'">
-              {{props.row.Source.Locations.length}} total annotations
-              {{getRequestReply(props.row.Source.Locations)}} total reply requests
+              <!-- {{props.row.Source.Locations.length}} total annotations
+              {{getRequestReply(props.row.Source.Locations)}} total reply requests -->
+              <!-- {{props.row.Source}} -->
+              {{annotations}}
+              
+              <!-- {{props.row.Source}} -->
 
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
@@ -279,7 +283,8 @@
           newFoldername: ""
         },
         deleteText: "Delete",
-        showDeleted: false
+        showDeleted: false,
+        annotations: {}
       }
     },
     computed:{
@@ -318,7 +323,7 @@
       },
       trashExists: function() {
         return this.contents.filter((a)=>{return a.deleted}).length > 0
-      }
+      }, 
     },
     watch:{
       currentDir: function() {
@@ -327,7 +332,7 @@
       showDeleted: function() {
         if(this.showDeleted) this.fileColumns[0].label = "Restore"
         else this.fileColumns[0].label = "Edit"
-      }
+      }, 
     },
     methods:{
       addFolder: function() {
@@ -376,20 +381,42 @@
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
+              if (file.Source && file.Source.Class){
+                this.annotations[file.id] = this.numberAnnotations(file.Source.filepath, file.Source.Class.id)
+              } else{
+                this.annotations[file.id] = [0,0,0,0]
+              }
+              
             }
         
             
             this.contents = res.data
+            console.log(this.annotations)
           })
         
       },
-      getNumberAnnotations: function(filepath, class_id){
+      numberAnnotations: function(filepath, class_id){
         const token = localStorage.getItem("nb.user");
-        const headers = { headers: { Authorization: 'Bearer ' + token }}
-        axios.get(`/api/annotations/annotation`, {url: filepath, class: class_id}, headers)
-          .then(res => {
-            return res.length
+        const request =  axios.get(`/api/annotations/annotation?url=${filepath}&class=${class_id}`, {headers: { Authorization: 'Bearer ' + token }})
+         request.then(res => {
+            let out = [0,0,0,0] //me, unread, replyrequest, total 
+            for (let a in res.data){
+              if (token === res.data[a].author){
+                out[0] += 1
+              } 
+              if (!res.data[a].seenByMe){
+                out[1] += 1
+              }
+              out[2] += res.data[a].replyRequestCount
+              out[3] += 1
+            }
+            console.log(out)
+            return out
           })
+      },
+      myannotations: function(filepath){
+        console.log(filepath)
+        return this.annotations[filepath][0]
       },
       getRequestReply: function(locations){
         let numReqs = 0

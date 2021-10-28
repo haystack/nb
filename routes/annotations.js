@@ -111,7 +111,7 @@ router.get('/allTagTypes', (req, res) => {
  * }]
  */
 router.get('/annotation', (req, res) => {
-    console.log(req)
+    console.log(req.query.url)
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
         include: [{
@@ -132,6 +132,9 @@ router.get('/annotation', (req, res) => {
         }]
     })
         .then(source => {
+            if (source == null){
+                console.log("here")
+            }
             let instructors = source.Class.Instructors.map(user => user.id);
             let isUserInstructor = instructors.indexOf(req.user.id) >= 0;
             let isUserStudent = source.Class.GlobalSection.MemberStudents.find(user => user.id === req.user.id);
