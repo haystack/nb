@@ -378,7 +378,17 @@ router.get('/new_annotation', (req, res) => {
 });
 
 /**
- * 
+ * Get the stats for thetop-level annotation for a given source
+ * The stats are: my annotations, reply requests, unread, and total 
+ * @name GET/api/annotations/stats
+ * @param url: source url
+ * @param class: source class id
+ * @return [{
+ * me: number of annotations written by user
+ * unread: number of unread annotations,
+ * replyRequests: number of replyRequests annotation,
+ * total: total number of annotations
+ * }] 
  */
 router.get('/stats', (req, res) => {
     Source.findOne({

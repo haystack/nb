@@ -380,11 +380,7 @@
               }
 
               if (file.Source && file.Source.Class){
-                // this.annotations[file.Source.filepath] = {}
                 this.numberAnnotations(file.Source.filepath, file.Source.Class.id)
-              }
-              else{
-                // this.annotations[file.id] = [0,0,0,0]
               }
               
             }
@@ -809,7 +805,6 @@
   
   .annotations {
     color: black;
-    /* border: 2px solid #8649af; */
     background-color:  #8c58af46;
     border-radius: 5px; 
     padding: 3px;
