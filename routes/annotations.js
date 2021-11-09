@@ -111,7 +111,6 @@ router.get('/allTagTypes', (req, res) => {
  * }]
  */
 router.get('/annotation', (req, res) => {
-    console.log(req.query.url)
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
         include: [{
@@ -132,9 +131,6 @@ router.get('/annotation', (req, res) => {
         }]
     })
         .then(source => {
-            if (source == null){
-                console.log("here")
-            }
             let instructors = source.Class.Instructors.map(user => user.id);
             let isUserInstructor = instructors.indexOf(req.user.id) >= 0;
             let isUserStudent = source.Class.GlobalSection.MemberStudents.find(user => user.id === req.user.id);
@@ -476,12 +472,9 @@ router.get('/stats', (req, res) => {
 
             goodLocations.forEach((location) => {
                 let annot = location.Thread.HeadAnnotation
-                console.log(req.user.id)
                 if (annot.Author.id === req.user.id ){
                     me += 1
                 }
-                console.log(req.query.url)
-                console.log(location.Thread.SeenUsers)
                 if (!(location.Thread.SeenUsers
                     .reduce((bool, user) => bool || user.id == req.user.id, false))){
                     unread += 1
