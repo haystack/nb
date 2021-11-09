@@ -90,14 +90,11 @@
               <span>&nbsp</span>
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
-            <span v-else-if="props.column.field === 'annotations'">
-              <!-- {{props.row.Source.Locations.length}} total annotations
-              {{getRequestReply(props.row.Source.Locations)}} total reply requests -->
-              <!-- {{props.row.Source}} -->
-              {{annotations}}
-              
-              <!-- {{props.row.Source}} -->
-
+            <span v-else-if="props.column.field === 'annotations'" style="display:flex; justify-content:space-around;">
+              <div class="annotations"> Mine:  {{myannotations(props.row.Source.filepath)[0]["me"]}} </div>
+              <div class="annotations"> Unread:  {{myannotations(props.row.Source.filepath)[0]["unread"]}} </div>
+              <div class="annotations"> Reply Requests:  {{myannotations(props.row.Source.filepath)[0]["replyRequests"]}} </div>
+              <div class="annotations"> Total:  {{myannotations(props.row.Source.filepath)[0]["total"]}} </div>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
@@ -284,7 +281,7 @@
         },
         deleteText: "Delete",
         showDeleted: false,
-        annotations: {}
+        annotations: []
       }
     },
     computed:{
@@ -323,7 +320,7 @@
       },
       trashExists: function() {
         return this.contents.filter((a)=>{return a.deleted}).length > 0
-      }, 
+      }
     },
     watch:{
       currentDir: function() {
@@ -381,42 +378,33 @@
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
+
               if (file.Source && file.Source.Class){
-                this.annotations[file.id] = this.numberAnnotations(file.Source.filepath, file.Source.Class.id)
-              } else{
-                this.annotations[file.id] = [0,0,0,0]
+                // this.annotations[file.Source.filepath] = {}
+                this.numberAnnotations(file.Source.filepath, file.Source.Class.id)
+              }
+              else{
+                // this.annotations[file.id] = [0,0,0,0]
               }
               
             }
         
             
             this.contents = res.data
-            console.log(this.annotations)
           })
         
       },
       numberAnnotations: function(filepath, class_id){
         const token = localStorage.getItem("nb.user");
-        const request =  axios.get(`/api/annotations/annotation?url=${filepath}&class=${class_id}`, {headers: { Authorization: 'Bearer ' + token }})
-         request.then(res => {
-            let out = [0,0,0,0] //me, unread, replyrequest, total 
-            for (let a in res.data){
-              if (token === res.data[a].author){
-                out[0] += 1
-              } 
-              if (!res.data[a].seenByMe){
-                out[1] += 1
-              }
-              out[2] += res.data[a].replyRequestCount
-              out[3] += 1
-            }
-            console.log(out)
-            return out
+        const config = {headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
+          .then((res) => {
+            res.data.filepath = filepath
+            this.annotations.push(res.data)
           })
       },
       myannotations: function(filepath){
-        console.log(filepath)
-        return this.annotations[filepath][0]
+        return this.annotations.filter(a => a.filepath === filepath)
       },
       getRequestReply: function(locations){
         let numReqs = 0
@@ -819,4 +807,11 @@
     background-color: #0069d9;
   }
   
+  .annotations {
+    color: black;
+    /* border: 2px solid #8649af; */
+    background-color:  #8c58af46;
+    border-radius: 5px; 
+    padding: 3px;
+  }
 </style>
