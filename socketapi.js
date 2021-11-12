@@ -1,57 +1,45 @@
 const io = require( "socket.io" )();
+const crypto = require('crypto');
+
 const socketapi = {
     io: io
 };
 
-let global_section_connections = {}
-let section_connections = {}
 let dict = {}
 
 // Add your socket.io logic here!
 io.on('connection', function( socket ) {
-    // socket.emit('id', socket.id) // send each client their socket id
+    socket.on("disconnect", (d) => {
+        console.log('disconnect');
+        
+        if (socket.sectionRoomId) {
+            io.to(socket.sectionRoomId).emit('connections', {online: io.sockets.adapter.rooms.get(socket.sectionRoomId).size + (io.sockets.adapter.rooms.get(socket.globalRoomId)?.size || 0)})
+        }
+        
+        const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(socket.globalRoomId))
+        io.to(socket.globalRoomId).emit('connections', {online: classAllRooms.reduce((acc, curr) => acc + io.sockets.adapter.rooms.get(curr).size, 0)})
+    });
     
     socket.on('joined', function(data) {
-        let username = data.username
-        let classId = data.classId
-        let sectionId = data.sectionId
-        if (sectionId && sectionId.length > 0) { // use the section_connections and sectionId
-            if (!(sectionId in section_connections)) {
-                section_connections[sectionId] = []
-            }
-            section_connections[sectionId].push(username)
-            io.emit('connections', {classId: classId, sectionId: sectionId, connections: section_connections[sectionId]})
-        } else if (classId && classId.length >0) { // use the global_section_connections and classId
-            if (!(classId in global_section_connections)) {
-                global_section_connections[classId] = []
-            }
-            global_section_connections[classId].push(username)
-            io.emit('connections', {classId: classId, sectionId: sectionId, connections: global_section_connections[classId]})
+        console.log("******** SOCKETIO JOINED *********");
+        console.log(data);
+        const urlHash = crypto.createHash('md5').update(data.sourceURL).digest('hex');
+        const globalRoomId = `${urlHash}:${data.classId}`
+        const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+
+        if (data.sectionId && data.sectionId.length > 0) {
+            const sectionRoomId = `${urlHash}:${data.classId}:${data.sectionId}`
+            socket.sectionRoomId = sectionRoomId
+            socket.join(sectionRoomId)
+            io.to(sectionRoomId).emit('connections', {online: io.sockets.adapter.rooms.get(sectionRoomId).size + (io.sockets.adapter.rooms.get(globalRoomId)?.size || 0)})
+        } else {
+            socket.join(globalRoomId)
+            classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('connections', {online: io.sockets.adapter.rooms.get(sectionRoomId).size + (io.sockets.adapter.rooms.get(globalRoomId)?.size || 0)}))
         }
-    })
-    
-    socket.on('left', function(data) {
-        let username = data.username
-        let classId = data.classId
-        let sectionId = data.sectionId
-        if (sectionId && sectionId.length > 0) { // use the section_connections and sectionId
-            if (sectionId in section_connections) {
-                let idx = section_connections[sectionId].indexOf(username)
-                if (idx >= 0) {
-                    section_connections[sectionId].splice(idx, 1)
-                    io.emit('connections', {classId: classId, sectionId: sectionId, connections: section_connections[sectionId]})
-                }
-            }
-            
-        } else if (classId && classId.length > 0){ // use the global_section_connections and classId
-            if (classId in global_section_connections) {
-                let idx = global_section_connections[classId].indexOf(username)
-                if (idx >= 0) {
-                    global_section_connections[classId].splice(idx, 1)
-                    io.emit('connections', {classId: classId, sectionId: sectionId, connections: section_connections[classId]})
-                }
-            }
-        }
+
+        socket.globalRoomId = globalRoomId
+        const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(globalRoomId))
+        io.to(globalRoomId).emit('connections', {online: classAllRooms.reduce((acc, curr) => acc + io.sockets.adapter.rooms.get(curr).size, 0)})
     })
     
     socket.on('thread-typing', function(data) { 
