@@ -91,10 +91,10 @@
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
             <span v-else-if="props.column.field === 'annotations'" style="display:flex; justify-content:space-around;">
-              <div class="annotations"> Mine:  {{myannotations(props.row.Source.filepath)[0]["me"]}} </div>
-              <div class="annotations"> Unread:  {{myannotations(props.row.Source.filepath)[0]["unread"]}} </div>
-              <div class="annotations"> Reply Requests:  {{myannotations(props.row.Source.filepath)[0]["replyRequests"]}} </div>
-              <div class="annotations"> Total:  {{myannotations(props.row.Source.filepath)[0]["total"]}} </div>
+              <div class="annotations"> Mine:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["me"]}} </div>
+              <div class="annotations"> Unread:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["unread"]}} </div>
+              <div class="annotations"> Reply Requests:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["replyRequests"]}} </div>
+              <div class="annotations"> Total:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["total"]}} </div>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
@@ -399,9 +399,6 @@
             this.annotations.push(res.data)
           })
       },
-      myannotations: function(filepath){
-        return this.annotations.filter(a => a.filepath === filepath)
-      },
       getRequestReply: function(locations){
         let numReqs = 0
         for (let i = 0; i < locations.length; i++){
@@ -562,6 +559,21 @@
     },
     mounted: function() {
       this.loadFiles()
+      window.setInterval(()=> {
+        let new_annotations = []
+        for (let file of this.contents){
+          if (file.Source && file.Source.Class){
+            const token = localStorage.getItem("nb.user");
+            const config = {headers: { Authorization: 'Bearer ' + token }}
+            axios.get(`/api/annotations/stats?url=${escape(file.Source.filepath)}&class=${file.Source.Class.id}`, config)
+            .then((res) => {
+              res.data.filepath = file.Source.filepath
+              new_annotations.push(res.data)
+            })
+          }
+        }
+        this.annotations = new_annotations
+      }, 60000)
     },
     components: {
       FontAwesomeIcon,
