@@ -65,7 +65,7 @@ JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
 1. SSH to the server `ssh -i [YOUR_KEY].key [USER]@[HOST].csail.mit.edu`
 
 2. Install NodeJS 
-`curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+`curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 sudo apt-get install -y nodejs` [Helpful resource](https://github.com/nodesource/distributions#installation-instructions).
 
 3. Install PM2 `sudo npm install -g pm2` [Helpful resource](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04).
