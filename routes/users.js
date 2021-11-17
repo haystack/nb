@@ -124,6 +124,7 @@ router.put('/editPersonal', passport.authenticate('jwt', { session: false }), (r
         last_name: req.body.last,
         email: req.body.email.toLowerCase(),
         username: req.body.username,
+        // profile_photo: req.body.profilephoto
       }).then((updatedUser) => {
         const token = jwt.sign({ user: updatedUser }, process.env.JWT_SECRET);
         res.status(200).json({ token });

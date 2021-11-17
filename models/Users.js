@@ -24,6 +24,9 @@ const user = (sequelize, DataTypes) => {
                 return { first: this.getDataValue('first_name'), last: this.getDataValue('last_name') };
             }
         },
+        // profile_photo: {
+        //     type: DataTypes.STRING
+        // },
         password: {
             type: DataTypes.STRING,
             allowNull: false
