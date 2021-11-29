@@ -19,6 +19,10 @@
             width: calc(100vw - 300px);
         }
 
+        .nb-documap .viewerContainer {
+            width: 100%;
+        }
+
         .viewerContainerWithMargin {
             width: calc(100vw - 520px);
         }
@@ -45,9 +49,19 @@
             text-decoration: none;
         }
 
+        .nb-documap #loadingNB {
+            display: none !important;
+        }
+
+        .nb-documap #download {
+            display: none !important;
+        }
+
         #download:hover {
             background: #000
         }
+
+        .nb-documap {}
 
         .pdfViewer .page {
             border-image: initial !important;
@@ -87,6 +101,11 @@
             const elm = document.getElementById("viewerContainer")
             elm.classList.remove('viewerContainer')
             elm.classList.add('viewerContainerWithMargin')
+        }
+
+        if (window.location.search.includes('documap=true')) {
+            document.body.classList.add('nb-documap')
+            document.getElementsByTagName('html')[0].setAttribute('style', 'overflow: hidden;')
         }
 
         buildPDF()
