@@ -1,24 +1,6 @@
 <template>
   <div class="follow">
-      <div class="tabs">
-      <div
-          v-for="tab in tabs"
-          class="tab"
-          :key="tab"
-          :style="styleTab(tab)"
-          @click="openTab(tab)">
-        {{ tab }}
-      </div>
-        <div
-          v-for="tab in tabs"
-          class="tab"
-          :key="tab"
-          :style="styleTab(tab)"
-          @click="openTab(tab)">
-        {{ tab }}
-      </div>
-    </div>
-
+    <h1> Following </h1>
   </div>
 </template>
 
@@ -48,18 +30,9 @@
 </script>
 
 <style scoped>
-  .tabs {
+  h1 {
     display: flex;
     justify-content: space-around;
-    padding: 10px 0;
-  }
-  .tabs .tab {
-    color: #444;
-    cursor: pointer;
-  }
-  .tabs .tab:hover {
-    color: #000;
-    font-weight: bold;
   }
 
 </style>

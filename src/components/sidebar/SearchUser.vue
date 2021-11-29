@@ -1,6 +1,7 @@
 <template>
   <div class="search-user">
       <input type="text" placeholder="Follow more..">
+      
   </div>
 </template>
 
