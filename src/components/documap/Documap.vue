@@ -1,6 +1,8 @@
 <template>
     <div class="documap">
-        <title>{{reading.name}}</title>
+        <a :href="reading.url" target="_blank">
+            <title>{{reading.name}}</title>
+        </a>
         <iframe :id="reading.id" :src="src"></iframe>
     </div>
 </template>
@@ -13,10 +15,14 @@ export default {
             type: Object,
             default: () => {}
         },
+        settings: {
+            type: Object,
+            default: () => {}
+        },
     },
     computed: {
         src: function () {
-            let url =  `${this.reading.url}${this.reading.url.includes('?')? '&documap=true' : '?documap=true'}`
+            let url =  `${this.reading.url}${this.reading.url.includes('?')? '&documap=true' : '?documap=true'}&doucsettings=${encodeURIComponent(JSON.stringify(this.settings))}`
             console.log(url)
             return url
         }
@@ -31,6 +37,11 @@ export default {
     margin: 5px;
     border: none;
 }
+
+.documap a {
+    text-decoration: none;
+}
+
 .documap title {
     display: flex;
     align-items: center;
@@ -40,6 +51,8 @@ export default {
     text-transform: uppercase;
     font-size: 10px;
     height: 30px;
+    font-family: 'Flow Block', cursive;
+    text-align: center;
 }
 .documap iframe {
     height:98%;

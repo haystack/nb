@@ -3,7 +3,8 @@
         <documap
             v-for="reading in readings"
             :key="reading.id"
-            :reading="reading">
+            :reading="reading"
+            :settings="settings">
         </documap>
     </div>
 </template>
@@ -17,6 +18,10 @@ export default {
         readings: {
             type: Array,
             default: () => []
+        },
+        settings: {
+            type: Object,
+            default: () => {}
         },
     },
     methods: {
