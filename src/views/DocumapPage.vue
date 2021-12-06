@@ -3,7 +3,7 @@
         <div class="step one" v-bind:class="{ active: currentStep === 1 }">
             <div>
                 <div class="text-div">
-                    <h1>Let's take you on a journey through colorful books</h1>
+                    <h1>Documap, paint by book annotations</h1>
                     <h2 class="text-focus-in">Mooooor color more colorrrr, mooor color more colorrrr, color and colors!</h2>
                 </div>
                 <div class="button-right-div">
@@ -30,6 +30,7 @@
                         <ul>
                             <li v-for="desir in desires" v-bind:class="{ active: desir.selected }" class="desir">
                                 <a @click="toggleSelection(desir)">{{desir.name}}</a>
+                                <input v-bind:class="{ disabled: !desir.selected }" type="color" v-model="desir.color">
                             </li>
                         </ul>
                     </div>
@@ -55,7 +56,9 @@
                                     </documaps>
                                     <div class="keys">
                                         <ul>
-                                            <li v-for="desir in filterDesires" :class="desir.name.toLowerCase()">{{desir.name}}</li>
+                                            <li v-for="desir in filterDesires" :class="desir.name.toLowerCase()" >
+                                                <span v-bind:style="{ backgroundColor: desir.color }"></span>{{desir.name}}
+                                            </li>
                                         </ul>
                                     </div>
                                 </template>
@@ -83,15 +86,54 @@ export default {
             desires: [
                 {   name: 'Me',
                     selected: false,
+                    color: '#ff7777',
                  },
-                 {   name: 'Tags',
+                 {   name: 'Discuss',
                     selected: false,
+                    color: '#ff6666',
+                 },
+                 {   name: 'Interesting',
+                    selected: false,
+                    color: '#ff3333',
+                 },
+                 {   name: 'Lost',
+                    selected: false,
+                    color: '#ff4444',
                  },
                  {   name: 'Others',
                     selected: false,
+                    color: '#ff5555',
                  },
             ],
-            readings: [
+            // readings: [
+            //     {   id: '123',
+            //         name: '2011 Ferrell Modeling the cell cycle why do certa copy',
+            //         url: 'https://127.0.0.1:8080/nb_viewer.html?id=2de847ab523a56c0378bf7f6f29931f7',
+            //         selected: false,
+            //      },
+            //      {   id: '12263',
+            //         name: '2009 Tigges A tunable synthetic mammalian oscillat',
+            //         url: 'https://127.0.0.1:8080/nb_viewer.html?id=c574362cc0c66929b528bc8ff2e7d174',
+            //         selected: false,
+            //      },
+            //      {   id: '12523',
+            //         name: '2009 Kumar Conditional RNA interference mediated b copy',
+            //         url: 'https://127.0.0.1:8080/nb_viewer.html?id=95d99f0f17637227b0d49c9fe4c5c093',
+            //         selected: false,
+            //      },
+            //      {   id: '12344',
+            //         name: '2011 Ferrell Modeling the cell cycle why do certa copy',
+            //         url: 'https://127.0.0.1:8080/nb_viewer.html?id=2de847ab523a56c0378bf7f6f29931f7',
+            //         selected: false,
+            //      },
+            //       {   id: '122333',
+            //         name: '2009 Kumar Conditional RNA interference mediated b copy',
+            //         url: 'https://127.0.0.1:8080/nb_viewer.html?id=95d99f0f17637227b0d49c9fe4c5c093',
+            //         selected: false,
+            //      },
+                
+            // ]
+             readings: [
                 {   id: '1',
                     name: '1984 - Chapter 1',
                     url: 'https://127.0.0.1:8080/nb_viewer.html?id=4abe31e4659ea421e0cc99b5c0089298',
@@ -151,7 +193,7 @@ export default {
         },
         settings: function () {
             let s = {}
-            this.desires.forEach( d => s[d.name] = d.selected)
+            this.desires.forEach( d => s[d.name] = {status: d.selected, color: d.color})
             return s
         }
     },
@@ -173,6 +215,12 @@ export default {
     flex-direction: column;
     align-content: center;
     justify-content: center;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none;
 }
 
 .step {
@@ -362,6 +410,11 @@ button.disabled {
     cursor: pointer;
 }
 
+.step.two ul li.desir a {
+    justify-content: flex-start;
+    padding-left: 15px;
+}
+
 .step.three {
     background:#f4ad3e;
 }
@@ -405,22 +458,12 @@ button.disabled {
     margin: 0 20px;
 }
 
-.keys ul li::before {
-    content: "—";
-    font-weight: bold;
-    font-size: 40px;
-}
-
-.keys ul li.me::before {
-    color: red;
-}
-
-.keys ul li.tags::before {
-    color: green;
-}
-
-.keys ul li.others::before {
-    color: white;
+.keys ul li span {
+    height: 5px;
+    width: 25px;
+    display: inline-flex;
+    margin-right: 5px;
+    margin-left: 0px;
 }
 
 .nb-main {
@@ -442,5 +485,18 @@ button.disabled {
 
 .nb-documap {
     height: calc(100% - 80px);
+}
+
+.desir {
+    transition: all 1s;
+}
+
+.desir input {
+    transition: all 1s;
+}
+
+.desir input.disabled {
+    transition: all 1s;
+    display: none;
 }
 </style>
