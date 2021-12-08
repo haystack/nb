@@ -38,6 +38,11 @@ export default new Router({
             path: '/admin',
             name: 'admin-page',
             component: () => import('./views/AdminPage.vue'),
+        },
+        {
+            path: '/documap',
+            name: 'documap-page',
+            component: () => import('./views/DocumapPage.vue'),
         }
     ]
 })
