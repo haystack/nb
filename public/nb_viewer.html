@@ -10,13 +10,17 @@
 
     <style>
         body {
-            background-color: #ffffff;
+            /* background-color: #ffffff; */
             margin: 0;
             padding: 0;
         }
 
         .viewerContainer {
             width: calc(100vw - 300px);
+        }
+
+        .nb-documap .viewerContainer {
+            width: 100%;
         }
 
         .viewerContainerWithMargin {
@@ -45,14 +49,48 @@
             text-decoration: none;
         }
 
+        .nb-documap #loadingNB {
+            display: none !important;
+        }
+
+        .nb-documap #download {
+            display: none !important;
+        }
+
         #download:hover {
             background: #000
         }
 
+        .nb-documap {}
+
         .pdfViewer .page {
             border-image: initial !important;
         }
+
+        ::-webkit-scrollbar {
+            width: 2px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            /* background: #f1f1f11f; */
+            background: #49217014;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            /* background: #49217059; */
+            background: #f4ad3e;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #492170;
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf_viewer.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf_viewer.js"></script>
@@ -75,6 +113,7 @@
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const DEFAULT_URL = "uploads/" + urlParams.get('id')
+    let isDocumap = false
     document.getElementById("download").setAttribute("href", DEFAULT_URL)
     run()
 
@@ -87,6 +126,12 @@
             const elm = document.getElementById("viewerContainer")
             elm.classList.remove('viewerContainer')
             elm.classList.add('viewerContainerWithMargin')
+        }
+
+        if (window.location.search.includes('documap=true')) {
+            isDocumap = true
+            document.body.classList.add('nb-documap')
+            document.getElementsByTagName('html')[0].setAttribute('style', 'overflow: hidden;')
         }
 
         buildPDF()
@@ -205,6 +250,15 @@
                         let nbBundle = window.location.host.includes('127.0.0.1') ? "https://127.0.0.1:3001/js/bundle.js" : window.location.protocol + "//" + window.location.host + "/client/js/bundle.js"
                         let s = document.createElement('script'); s.src = nbBundle; document.body.append(s);
                         document.getElementById("loadingNB").remove()
+
+                        if (isDocumap) {
+                            setTimeout(() => {
+                                $('html, body').animate({ scrollTop: $(document).height() - $(window).height() }, 3000, function () {
+                                    $(this).animate({ scrollTop: 0 }, 3000);
+                                });
+                            }, 2000);
+                        }
+
                     }
                 });
 
