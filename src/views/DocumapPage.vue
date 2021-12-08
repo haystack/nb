@@ -163,14 +163,22 @@ export default {
         }
     },
     created: async function() {
-        const token = localStorage.getItem("nb.user");
-        const decoded = VueJwtDecode.decode(token);
-        if (decoded.user.username && decoded.user.username !== '') {} else {
+        try {
+            const token = localStorage.getItem("nb.user");
+            const decoded = VueJwtDecode.decode(token);
+            if (decoded.user.username && decoded.user.username !== '') {} else {
+                localStorage.removeItem("nb.user");
+                localStorage.removeItem("nb.current.course");
+                this.user = null
+                this.redirect('top-page')
+            }
+        } catch (error) {
             localStorage.removeItem("nb.user");
             localStorage.removeItem("nb.current.course");
             this.user = null
             this.redirect('top-page')
         }
+        
     },
     watch: {
         
@@ -182,7 +190,10 @@ export default {
         },
         toggleSelection: function(item) {
             item.selected = !item.selected
-        }
+        },
+	redirect: function(page) {
+            this.$router.push({ name: page, params: { class: null } })
+        },
     },
     computed: {
         filterReadings: function () {
