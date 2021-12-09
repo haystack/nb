@@ -121,17 +121,17 @@
         const res = await axios.get('/api/nb/config')
         const configs = res.data
 
-        if (configs['SPOTLIGHT_MARGIN'] === 'true') {
-            // change page size
-            const elm = document.getElementById("viewerContainer")
-            elm.classList.remove('viewerContainer')
-            elm.classList.add('viewerContainerWithMargin')
-        }
-
         if (window.location.search.includes('documap=true')) {
             isDocumap = true
             document.body.classList.add('nb-documap')
             document.getElementsByTagName('html')[0].setAttribute('style', 'overflow: hidden;')
+        }
+
+        if (configs['SPOTLIGHT_MARGIN'] === 'true' && !isDocumap) {
+            // change page size
+            const elm = document.getElementById("viewerContainer")
+            elm.classList.remove('viewerContainer')
+            elm.classList.add('viewerContainerWithMargin')
         }
 
         buildPDF()
