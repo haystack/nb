@@ -50,10 +50,14 @@
                             <table>
                                 <tr v-for="(value, name) in selectedCourseConfigs">
                                     <td>{{name}}</td>
-                                    <td>
-                                        <button v-bind:class="{ 'selected-config': value == 'true' }" @click="setConfig(name, 'true')">ture</button>
+                                    <td v-if="name.startsWith('CONFIG_')">
+                                        <input v-bind:class="{ 'selected-config': value !== 'Global' }" :value="value" @input="setConfig(name, $event.target.value)" />
+                                        <button v-bind:class="{ 'selected-config': value == 'Global' }" @click="setConfig(name, 'Global')">Global</button>
+                                    </td>
+                                    <td v-else>
+                                        <button v-bind:class="{ 'selected-config': value == 'true' }" @click="setConfig(name, 'true')">true</button>
                                         <button v-bind:class="{ 'selected-config': value == 'false' }" @click="setConfig(name, 'false')">false</button>
-                                        <button v-bind:class="{ 'selected-config': value == 'Globle' }" @click="setConfig(name, 'Globle')">Globle</button>
+                                        <button v-bind:class="{ 'selected-config': value == 'Global' }" @click="setConfig(name, 'Global')">Global</button>
                                     </td>
                                 </tr>
                             </table>
@@ -175,7 +179,7 @@ export default {
                 const coursesRes = await axios.get(`/api/admin/courses`, headers)
                 this.courses = coursesRes.data
                 const configsRes = await axios.get(`/api/admin/configs`, headers)
-                this.globalConfigs = configsRes.data
+                this.globalConfigs = configsRes.data.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
                 const consentsRes = await axios.get(`/api/admin/consent`, headers)
                 this.consents = consentsRes.data
                 console.log(this.consents)
@@ -198,7 +202,7 @@ export default {
             this.assignedSources= []
 
             let cs = JSON.parse(JSON.stringify(this.globalConfigs))
-            cs.forEach( c => c.value = 'Globle')
+            cs.forEach( c => c.value = 'Global')
             let m = {}
             cs.forEach( c => m[c.name] = c.value)
             this.selectedCourseConfigs = m
@@ -250,7 +254,7 @@ export default {
                 Object.keys(obj).forEach(k => arr.push({name: k, value: obj[k]}))
                 let course = {}
                 course.configs = arr
-                course.configs = course.configs.filter(c => c.value !== 'Globle')
+                course.configs = course.configs.filter(c => c.value !== 'Global')
 
                 if (this.expSpotlight) {
                     course.expSpotlight = this.expSpotlight

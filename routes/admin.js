@@ -38,7 +38,8 @@ router.get('/courses', async (req, res) => {
  */
 router.get('/configs', async (req, res) => {
     let q = await NbConfig.findAll({ attributes: ['name', 'value'] }) // TODO: querey only global
-    q = q.filter(c => c.value === 'true' || c.value === 'false')
+    const regexUUID = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+    q = q.filter(c => !regexUUID.test(c.name))
     res.status(200).json(q)
 })
 

@@ -17,7 +17,8 @@ router.get('/', (req, res) => {
 router.get('/api/nb/config', async (req, res) => {
     let configs = {}
     let allConfigs = await NbConfig.findAll({ attributes: ['name', 'value'] })
-    allConfigs = allConfigs.filter(c => c.value === 'true' || c.value === 'false')
+    const regexUUID = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+    allConfigs = allConfigs.filter(c => !regexUUID.test(c.name))
     allConfigs.forEach((c, i) => configs[c.name] = c.value)
 
     if (req.query.course) {
