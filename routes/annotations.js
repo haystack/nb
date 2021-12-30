@@ -551,6 +551,7 @@ router.post('/new_annotation', (req, res) => {
                                 const globalRoomId = `${urlHash}:${req.body.class}`
                                 const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
 
+                                // TODO: check the sync here
                                 if (annotation.visibility === 'INSTRUCTORS') {
                                     // Since instructors are only part of the global section, only emit to the global room
                                     io.to(globalRoomId).emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
@@ -796,16 +797,10 @@ router.post('/reply/:id', (req, res) => {
 * @param replyRequest: boolean
 * @param star: boolean
 */
+//TODO: check this endpoint
 router.post('/new_reply/:id', (req, res) => {
     let username = ""
-    Annotation.findByPk(req.params.id,
-        {
-            include: [{
-                association: 'Thread',
-                include: [{ association: 'HeadAnnotation', attributes: ['id'] }]
-            }]
-        }
-    ).then((parent) =>
+    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }] }] }).then((parent) =>
         Annotation.create({
             content: req.body.content,
             visibility: req.body.visibility,
@@ -816,8 +811,7 @@ router.post('/new_reply/:id', (req, res) => {
         }, {
             include: [{ association: 'Tags' }]
         }).then((child) => {
-            req.body.userTags.forEach(user_id =>
-                User.findByPk(user_id).then(user => child.addTaggedUser(user)));
+            req.body.userTags.forEach(user_id => User.findByPk(user_id).then(user => child.addTaggedUser(user)));
             User.findByPk(req.user.id).then(user => {
                 if (req.body.replyRequest) child.addReplyRequester(user);
                 if (req.body.star) child.addStarrer(user);
@@ -829,7 +823,6 @@ router.post('/new_reply/:id', (req, res) => {
                 const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
                 const globalRoomId = `${urlHash}:${req.body.class}`
                 const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
-
                 io.to(globalRoomId).emit('new_reply', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id })
                 classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id }))
             });

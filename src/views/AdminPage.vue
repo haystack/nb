@@ -63,40 +63,6 @@
                             </table>
                         </fieldset>
                         <fieldset>
-                            <legend>Spotlight Exp.</legend>
-                            <template v-if="!expSpotlight">
-                            # of control users: <input v-model="controlUsersCount"> <button @click="createExpSpotlight()">Create</button>
-                            </template>
-                            <template v-if="expSpotlight">
-                                <fieldset>
-                                    <legend>Groups</legend>
-                                    <details>
-                                        <summary>Control: {{controlStudents.length}}</summary>
-                                        <ul>
-                                            <li v-for="student in controlStudents"><kbd>[{{student.id}}] </kbd>{{student.first_name}} {{student.last_name}} <kbd>({{student.username}})</kbd></li>
-                                        </ul>
-                                    </details>
-                                    <details>
-                                        <summary>Treatment: {{treatmentStudents.length}}</summary>
-                                        <ul>
-                                            <li v-for="student in treatmentStudents"><kbd>[{{student.id}}] </kbd>{{student.first_name}} {{student.last_name}} <kbd>({{student.username}})</kbd></li>
-                                        </ul>
-                                    </details>
-                                </fieldset>
-                                <fieldset>
-                                    <legend>Sources</legend>
-                                    <ul>
-                                        <li v-for="source in selectedCourse.Sources">
-                                            <span v-if="source.Files[0].deleted">🗑️</span>
-                                            <span v-else-if="!source.Files.deleted && assignedSources.includes(source.id)">✔️</span>
-                                            <button v-else @click="assignSource(source)">Assign</button> 
-                                            <kbd>[{{source.id}}] </kbd>{{source.filename}}
-                                        </li>
-                                    </ul>
-                                </fieldset>
-                            </template>
-                        </fieldset>
-                        <fieldset>
                             <button @click="updateConfig()">Update</button>
                         </fieldset>
                         
@@ -158,7 +124,6 @@ export default {
             selectedCourseConfigs: {},
             globalConfigs: [],
             controlUsersCount: null,
-            expSpotlight: null,
             isNotSaved: false,
             controlStudents: [],
             treatmentStudents: [],
@@ -195,7 +160,6 @@ export default {
         selectedCourse: async function(newCourse, oldCourse) {
             this.selectedCourseConfigs = {}
             this.controlUsersCount = null
-            this.expSpotlight = null
             this.isNotSaved = false
             this.controlStudents= []
             this.treatmentStudents= []
@@ -216,13 +180,6 @@ export default {
             if (configsRes.data) {
                 let course = JSON.parse(configsRes.data.value)
                 course.configs.forEach(c => this.selectedCourseConfigs[c.name] = c.value )
-
-                if (course.expSpotlight) {
-                    const assignmentsRes = await axios.get(`/api/admin/course/${this.selectedCourse.id}/assignments`, headers)
-                    this.assignedSources = assignmentsRes.data.map(s => s.source_id)
-                    this.setExpSpotlightGroups(selectedCourseStudents, course.expSpotlight.control, course.expSpotlight.treatment)
-                    this.expSpotlight = course.expSpotlight
-                }
             }
 
             this.selectedCourseStudents = selectedCourseStudents
@@ -254,34 +211,12 @@ export default {
                 Object.keys(obj).forEach(k => arr.push({name: k, value: obj[k]}))
                 let course = {}
                 course.configs = arr
-                course.configs = course.configs.filter(c => c.value !== 'Global')
-
-                if (this.expSpotlight) {
-                    course.expSpotlight = this.expSpotlight
-                }
-                
+                course.configs = course.configs.filter(c => c.value !== 'Global')                
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 const updateConfigRes = await axios.post(`/api/admin/course/${this.selectedCourse.id}/configs`, course, headers)
                 this.isNotSaved = false
             }
-        },
-        createExpSpotlight: function() {
-            this.isNotSaved = true
-            const exp = {}
-            const controlStudents = []
-            let treatmentStudents = JSON.parse(JSON.stringify(this.selectedCourseStudents))
-            treatmentStudents = treatmentStudents.map(s => s.id)
-
-            for(let i=0; i < this.controlUsersCount; i++) {
-                let random = Math.floor(Math.random() * treatmentStudents.length)
-                controlStudents.push(treatmentStudents.splice(random, 1)[0])
-            }
-
-            exp.treatment = treatmentStudents
-            exp.control = controlStudents
-            this.setExpSpotlightGroups(this.selectedCourseStudents, controlStudents, treatmentStudents)
-            this.expSpotlight = exp
         },
         assignSource: async function(source) {
             console.log(source)
