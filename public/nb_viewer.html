@@ -53,10 +53,10 @@
             border-image: initial !important;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf_viewer.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf_viewer.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script src="res/pdf.min.js"></script>
+    <link rel="stylesheet" href="res/pdf_viewer.css">
+    <script src="res/pdf_viewer.js"></script>
+    <script src="res/axios.min.js"></script>
 </head>
 
 <body tabindex="1">
@@ -116,7 +116,7 @@
         }
 
         // The workerSrc property shall be specified.
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.js'
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'res/pdf.worker.js'
 
         // Some PDFs need external cmaps.
         // var CMAP_URL = "./pdfjs/web/cmaps/";
