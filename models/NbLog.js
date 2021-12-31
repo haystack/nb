@@ -50,6 +50,10 @@ const nbLog = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: false
         },
+        notification_trigger: {
+            type: DataTypes.ENUM,
+            values: ['NONE', 'INSTRUCTOR_COMMENTED', 'REPLY_REQUESTED', 'USER_TAGGED', 'USER_SAW_RECENT_ACTIVITY', 'USER_COMMENT_REPLIED_TO']
+        },
         page_position: {
             type: DataTypes.ENUM,
             values: ['1/4', '2/4', '3/4', '4/4']

@@ -2,9 +2,8 @@ const express = require('express')
 const router = express.Router()
 const User = require('../models').User;
 const Source = require('../models').Source
-const { Op } = require("sequelize")
-
 const NbLog = require('../models').NbLog
+const { Op } = require("sequelize")
 
 /**
  * log nb event
@@ -31,6 +30,7 @@ router.post('/nb', async (req, res) => {
                 count_online_instructors: req.body.count_online_instructors,
                 is_sync_annotation: req.body.is_sync_annotation,
                 has_sync_annotation: req.body.has_sync_annotation,
+                notification_trigger: req.body.notification_trigger,
                 page_position: req.body.page_position.toUpperCase(),
                 page_y_offset: req.body.page_y_offset,
                 page_height: req.body.page_height,
