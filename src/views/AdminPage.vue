@@ -23,9 +23,10 @@
                         <fieldset>
                             <legend>Global configs</legend>
                             <table>
-                                <tr v-for="config in globalConfigs">
+                                <tr v-for="config in globalConfigs" v-bind:class="{ 'true': config.value === 'true' }">
                                     <td>{{config.name}}</td>
                                     <td>{{config.value}}</td>
+                                    <td>{{config.description}}</td>
                                 </tr>
                             </table>
                         </fieldset>
@@ -211,7 +212,7 @@ export default {
                 Object.keys(obj).forEach(k => arr.push({name: k, value: obj[k]}))
                 let course = {}
                 course.configs = arr
-                course.configs = course.configs.filter(c => c.value !== 'Global')                
+                course.configs = course.configs.filter(c => c.value !== 'Global')
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 const updateConfigRes = await axios.post(`/api/admin/course/${this.selectedCourse.id}/configs`, course, headers)
@@ -252,6 +253,11 @@ export default {
 </script>
 
 <style>
+.true {
+    font-weight: bold;
+    font-style: italic;
+    background: #260942;
+}
 .app-wrapper {
     height: 100%;
 }

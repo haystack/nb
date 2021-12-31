@@ -4,18 +4,18 @@ const User = require('../models').User;
 const Source = require('../models').Source
 const { Op } = require("sequelize")
 
-const SyncLog = require('../models').SyncLog
+const NbLog = require('../models').NbLog
 
 /**
- * log sync event
- * @name POST/api/log/sync
+ * log nb event
+ * @name POST/api/log/nb
  */
-router.post('/sync', async (req, res) => {
+router.post('/nb', async (req, res) => {
     const user = await User.findByPk(req.user.id)
     const source = await Source.findOne({ where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.body.class_id }] } })
 
     try {
-        const syncLog = await SyncLog.create(
+        const nbLog = await NbLog.create(
             {
                 class_id: req.body.class_id,
                 source_id: source.id,
@@ -29,15 +29,17 @@ router.post('/sync', async (req, res) => {
                 count_annotation_replies: req.body.count_annotation_replies,
                 count_online_students: req.body.count_online_students,
                 count_online_instructors: req.body.count_online_instructors,
-                is_sync_event: req.body.is_sync_event,
-                has_sync_event: req.body.has_sync_event,
+                is_sync_annotation: req.body.is_sync_annotation,
+                has_sync_annotation: req.body.has_sync_annotation,
                 page_position: req.body.page_position.toUpperCase(),
                 page_y_offset: req.body.page_y_offset,
                 page_height: req.body.page_height,
-                role: req.body.role
+                role: req.body.role,
+                applied_filter: req.body.applied_filter,
+                applied_sort: req.body.applied_sort,
             },
         )
-        res.status(200).json(syncLog)
+        res.status(200).json(nbLog)
     } catch (error) {
         console.log(error);
         res.status(400).json(error)

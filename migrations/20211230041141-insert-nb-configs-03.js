@@ -11,12 +11,27 @@ module.exports = {
             {
                 name: 'CONFIG_SYNC_SPOTLIGHT_NEW_THREAD',
                 value: '{"type":"RIGHT","color":"#334455"}',
-                description: 'Configurations for new thread (sync) spotlight'
+                description: 'Configurations for new thread (sync) spotlight [type("TYPE"), color("#FFFFFF"), background("#000000"), showTime(true/false)]'
             },
             {
-                name: 'SYNC_LOG',
+                name: 'NB_LOG',
                 value: 'false',
-                description: 'Enable/Disable logging for sync events'
+                description: 'Enable/Disable logging for NB'
+            },
+            {
+                name: 'NB_LOG_SCROLL',
+                value: 'false',
+                description: 'Enable/Disable scroll logging'
+            },
+            {
+                name: 'CONFIG_NB_LOG_SCROLL',
+                value: '2000',
+                description: 'Configurations for scroll log timer (ms)'
+            },
+            {
+                name: 'SHOW_QUICK_EDITOR',
+                value: 'false',
+                description: 'Enable/Disable quick comment editor'
             },
         ])
     },

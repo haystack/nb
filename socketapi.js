@@ -103,10 +103,15 @@ function fetchOnlineUsers(socketIds) {
         Array.from(io.sockets.adapter.rooms.get(socketId)).forEach(connection => {
             if (!users.ids.includes(socketUserMapping[connection].id)) {
                 users.ids.push(socketUserMapping[connection].id)
-                if (socketUserMapping[connection].role.toLowerCase() === 'instructor') {
-                    users.instructors.push(socketUserMapping[connection])
-                } else {
-                    users.students.push(socketUserMapping[connection])
+                // TODO: check why it crashed here
+                try {
+                    if (socketUserMapping[connection].role.toLowerCase() === 'instructor') {
+                        users.instructors.push(socketUserMapping[connection])
+                    } else {
+                        users.students.push(socketUserMapping[connection])
+                    }
+                } catch (error) {
+                    console.log(error);
                 }
             }
         })

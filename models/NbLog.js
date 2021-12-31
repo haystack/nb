@@ -1,5 +1,5 @@
-const syncLog = (sequelize, DataTypes) => {
-    const SyncLog = sequelize.define('sync_log', {
+const nbLog = (sequelize, DataTypes) => {
+    const NbLog = sequelize.define('nb_log', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV1,
@@ -7,7 +7,7 @@ const syncLog = (sequelize, DataTypes) => {
         },
         event: {
             type: DataTypes.ENUM,
-            values: ['CLICK', 'HOVER', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END', 'HIDE_HIGHLIGHT', 'SHOW_HIGHLIGHT', 'NEW_ANNOTATION', 'SYNC_RECEIVED_ANNOTATION', 'SYNC_RECEIVED_REPLY', 'SCROLL', 'FILTER']
+            values: ['CLICK', 'HOVER', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END', 'HIDE_HIGHLIGHT', 'SHOW_HIGHLIGHT', 'NOTIFICATION_ON', 'NOTIFICATION_OFF', 'NEW_ANNOTATION', 'SYNC_RECEIVED_ANNOTATION', 'SYNC_RECEIVED_REPLY', 'SYNC_RECEIVED_CONNECTION', 'SCROLL', 'FILTER', 'SORT']
         },
         initiator: {
             type: DataTypes.ENUM,
@@ -40,12 +40,12 @@ const syncLog = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0.
         },
-        is_sync_event: {
+        is_sync_annotation: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
         },
-        has_sync_event: {
+        has_sync_annotation: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
@@ -68,19 +68,24 @@ const syncLog = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             unique: false,
             allowNull: true
+        },
+        applied_sort: {
+            type: DataTypes.TEXT,
+            unique: false,
+            allowNull: true
         }
     },
         {
             classMethods: {
                 associate: (models) => {
-                    SyncLog.belongsTo(models.Annotation, { as: 'Annotation', foreignKey: { name: 'annotation_id' }, onDelete: 'CASCADE' });
-                    SyncLog.belongsTo(models.User, { as: 'User', foreignKey: { name: 'user_id' }, onDelete: 'CASCADE' });
-                    SyncLog.belongsTo(models.Class, { as: 'Class', foreignKey: { name: 'class_id' }, onDelete: 'CASCADE' });
-                    SyncLog.belongsTo(models.Source, { as: 'Source', foreignKey: { name: 'source_id' }, onDelete: 'CASCADE' });
+                    NbLog.belongsTo(models.Annotation, { as: 'Annotation', foreignKey: { name: 'annotation_id' }, onDelete: 'CASCADE' });
+                    NbLog.belongsTo(models.User, { as: 'User', foreignKey: { name: 'user_id' }, onDelete: 'CASCADE' });
+                    NbLog.belongsTo(models.Class, { as: 'Class', foreignKey: { name: 'class_id' }, onDelete: 'CASCADE' });
+                    NbLog.belongsTo(models.Source, { as: 'Source', foreignKey: { name: 'source_id' }, onDelete: 'CASCADE' });
                 }
             }
         });
-    return SyncLog;
+    return NbLog;
 };
 
-module.exports = syncLog;
+module.exports = nbLog;

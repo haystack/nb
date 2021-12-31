@@ -62,7 +62,7 @@ if (!global.hasOwnProperty('db')) {
         ExpSpotlighAssignment: sequelize.import('./Exps/ExpSpotlightAssignment'),
         ExpSpotlightLog: sequelize.import('./Exps/ExpSpotlightLog'),
         Consent: sequelize.import('./Consents'),
-        SyncLog: sequelize.import('./Sync/SyncLog')
+        NbLog: sequelize.import('./NbLog')
     }
 
     global.db = {
