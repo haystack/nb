@@ -159,36 +159,26 @@ export default {
                     url: 'https://127.0.0.1:8080/nb_viewer.html?id=f8fbaeba6d1460aad433c411ffde2baf',
                     selected: false,
                  },
-                 {   id: '2',
-                    name: '1984 - Chapter 2',
-                    url: 'https://127.0.0.1:8080/nb_viewer.html?id=f4dfd23bce03ae7ed9807407997acc75',
-                    selected: false,
-                 },
-                 {   id: '1',
-                    name: '1984 - Chapter 1',
-                    url: 'https://127.0.0.1:8080/nb_viewer.html?id=4abe31e4659ea421e0cc99b5c0089298',
-                    selected: false,
-                 },
-                  {   id: '4',
-                    name: '1984 - Chapter 4',
-                    url: 'https://127.0.0.1:8080/nb_viewer.html?id=79f7e591b4f7b58164f0b6dbaed16c42',
-                    selected: false,
-                 },
 
             ]
         }
     },
     created: async function() {
-        const token = localStorage.getItem("nb.user");
-        const decoded = VueJwtDecode.decode(token);
-        if (decoded.user.username && decoded.user.username !== '') {} else {
+        try {
+            const token = localStorage.getItem("nb.user");
+            const decoded = VueJwtDecode.decode(token);
+            if (decoded.user.username && decoded.user.username !== '') {} else {
+                localStorage.removeItem("nb.user");
+                localStorage.removeItem("nb.current.course");
+                this.user = null
+                this.redirect('top-page')
+            }
+        } catch (error) {
             localStorage.removeItem("nb.user");
             localStorage.removeItem("nb.current.course");
             this.user = null
             this.redirect('top-page')
         }
-    },
-    watch: {
         
     },
     methods: {
@@ -198,7 +188,10 @@ export default {
         },
         toggleSelection: function(item) {
             item.selected = !item.selected
-        }
+        },
+        redirect: function(page) {
+            this.$router.push({ name: page, params: { class: null } })
+        },
     },
     computed: {
         filterReadings: function () {
