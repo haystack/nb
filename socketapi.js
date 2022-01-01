@@ -45,7 +45,7 @@ function handleOnDisconnect(socket, data) {
     delete socketUserMapping[socket.id]
 
     if (socket.sectionRoomId) {
-        io.to(socket.sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(socket.sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(socket.globalRoomId)?.size || 0), users: fetchOnlineUsers([globalRoomId, sectionRoomId]) })
+        io.to(socket.sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(socket.sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(socket.globalRoomId)?.size || 0), users: fetchOnlineUsers([socket.globalRoomId, socket.sectionRoomId]) })
     }
 
     const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(socket.globalRoomId))
@@ -99,23 +99,29 @@ function fetchOnlineUsers(socketIds) {
     users.instructors = []
     users.ids = []
 
-    socketIds.forEach(socketId => {
-        Array.from(io.sockets.adapter.rooms.get(socketId)).forEach(connection => {
-            if (!users.ids.includes(socketUserMapping[connection].id)) {
-                users.ids.push(socketUserMapping[connection].id)
-                // TODO: check why it crashed here
-                try {
-                    if (socketUserMapping[connection].role.toLowerCase() === 'instructor') {
-                        users.instructors.push(socketUserMapping[connection])
-                    } else {
-                        users.students.push(socketUserMapping[connection])
+    try {
+        socketIds.forEach(socketId => {
+            // TODO: check here
+            Array.from(io.sockets.adapter.rooms.get(socketId) || []).forEach(connection => {
+                if (!users.ids.includes(socketUserMapping[connection].id)) {
+                    users.ids.push(socketUserMapping[connection].id)
+                    // TODO: check why it crashed here
+                    try {
+                        if (socketUserMapping[connection].role.toLowerCase() === 'instructor') {
+                            users.instructors.push(socketUserMapping[connection])
+                        } else {
+                            users.students.push(socketUserMapping[connection])
+                        }
+                    } catch (error) {
+                        console.log(error);
                     }
-                } catch (error) {
-                    console.log(error);
                 }
-            }
+            })
         })
-    })
+    } catch (error) {
+        console.error(error);
+    }
+    
 
     return users
 }
