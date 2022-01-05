@@ -64,4 +64,8 @@ app.use(function (err, req, res, next) {
     res.json({ success: false, error: err })
 })
 
+process.on('uncaughtException', function(err) {
+    console.log('Caught exception: ' + err);
+})
+
 module.exports = app
