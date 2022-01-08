@@ -10,13 +10,18 @@ module.exports = {
             },
             {
                 name: 'CONFIG_FILTER_MAX_THREADS',
-                value: '20',
+                value: 20,
                 description: 'Configurations for max number of threads displayed'
             },
             {
                 name: 'SHOW_SPOTLIGHT_CONTROLS',
                 value: 'true',
                 description: 'Enable/Disable spotlight controls for instructors'
+            },
+            {
+                name: 'CONFIG_SYNC_NOTIFICATION_POPUP_TIMER',
+                value: 60000,
+                description: 'Configurations for notification popup timer'
             },
         ])
     },
