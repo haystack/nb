@@ -13,6 +13,11 @@ module.exports = {
                 value: '20',
                 description: 'Configurations for max number of threads displayed'
             },
+            {
+                name: 'SHOW_SPOTLIGHT_CONTROLS',
+                value: 'true',
+                description: 'Enable/Disable spotlight controls for instructors'
+            },
         ])
     },
 
