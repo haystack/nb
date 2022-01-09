@@ -238,7 +238,7 @@
           {
             label: 'Annotations', 
             field: 'annotations', 
-            sortable: true
+            sortable: false
           },
           {
             label: 'Assignment Due',
