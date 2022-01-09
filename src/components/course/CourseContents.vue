@@ -94,6 +94,7 @@
               <div class="annotations"> Mine:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["me"]}} </div>
               <div class="annotations"> Unread:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["unread"]}} </div>
               <div class="annotations"> Reply Requests:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["replyRequests"]}} </div>
+              <div class="annotations"> Threads:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["thread"]}} </div>
               <div class="annotations"> Total:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["total"]}} </div>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
@@ -236,7 +237,7 @@
             // },
           },
           {
-            label: 'Annotations', 
+            label: 'Comments', 
             field: 'annotations', 
             sortable: false
           },

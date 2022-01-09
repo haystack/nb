@@ -450,6 +450,13 @@ router.get('/stats', (req, res) => {
                                     { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
                                 ]
                             },
+                            {
+                                association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                                include: [
+                                    { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                                    { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                                ]
+                            },
                             { association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
                         ]
                     }
@@ -459,18 +466,18 @@ router.get('/stats', (req, res) => {
             let unread = 0
             let replyRequests = 0
             let total = 0
+            let thread = 0
 
             // TODO: is this the correct way to filter replies?
             let goodLocations = locations.filter((location) => {
                 try {
-                    let head = location.Thread.HeadAnnotation;
-
-                    if (head.visibility === 'MYSELF' && head.Author.id !== req.user.id) {
+                    let comment = location.Thread.AllAnnotations;
+                    if (comment.visibility === 'MYSELF' && comment.Author.id !== req.user.id) {
                         return false;
                     }
-                    if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
+                    if (comment.visibility === 'INSTRUCTORS' && !isUserInstructor) {
                         return false;
-                    } if (req.query.sectioned === 'true' && isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id)) {
+                    } if (req.query.sectioned === 'true' && isUserStudent && comment.Author.id !== req.user.id && !usersICanSee.has(comment.Author.id) && !instructors.has(comment.Author.id)) {
                         return false;
                     }
                     return true;
@@ -481,19 +488,25 @@ router.get('/stats', (req, res) => {
             })
 
             goodLocations.forEach((location) => {
-                let annot = location.Thread.HeadAnnotation
-                if (annot.Author.id === req.user.id ){
-                    me += 1
-                }
+                
+                location.Thread.AllAnnotations.forEach((annot) => {
+                    console.log(annot)
+                    if (annot.Author.id === req.user.id ){
+                        me += 1
+                    }
+                    
+                    replyRequests += annot.ReplyRequesters.length
+                    total += 1
+                })
                 if (!(location.Thread.SeenUsers
                     .reduce((bool, user) => bool || user.id == req.user.id, false))){
                     unread += 1
                 }
-                replyRequests += annot.ReplyRequesters.length
-                total += 1
+                thread += 1
+
             });
 
-            res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'total': total });
+            res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'thread': thread, 'total': total });
 
         })
     });
