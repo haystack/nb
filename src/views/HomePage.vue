@@ -1,6 +1,6 @@
 <template>
   <div class="app-wrapper">
-    <nav-bar :course="selectedCourse" :user="user"></nav-bar>
+    <nav-bar :course="$route.params.course_id? selectedCourse : introString" :user="user"></nav-bar>
     <div class="app-body">
       <div class="sidebar">
         <h2 class="title"> My Classes </h2>
@@ -39,7 +39,7 @@
         </modal>
         <a href="https://forms.gle/6YERC3jSu1W1zUzS8" class="nb-bug-link" target="_blank">Report Bug</a>
       </div>
-      <div class="dashboard-wrapper">
+      <div v-if="$route.params.course_id" class="dashboard-wrapper">
         <course-dashboard
             v-if="selectedCourse"
             :course="selectedCourse"
@@ -79,6 +79,7 @@
           student: [],
         },
         selectedCourse: null,
+        introString: "Hello",
       }
     },
     computed: {
@@ -101,7 +102,21 @@
       },
       bookmarklet: function() {
         return "javascript:(function(){let s = document.createElement('script'); s.src= '" + window.location.protocol + "//" + window.location.host + "/client/js/bundle.js'; document.body.append(s);})()"
-      }
+      },
+      onSelectCourse: function() {
+          if (
+            this.courses.instructor.find(x => x.id === this.$route.params.course_id)
+          ) {
+            this.selectedCourse = this.courses.instructor.find(x => x.id === this.$route.params.course_id)
+            localStorage.setItem('nb.current.course', JSON.stringify(this.selectedCourse))
+            console.log(this.$route.params.course_id)
+          } else if (
+            this.courses.student.find(x => x.id === this.$route.params.course_id)
+          ) {
+            this.selectedCourse = this.courses.student.find(x => x.id === this.$route.params.course_id)
+            localStorage.setItem('nb.current.course', JSON.stringify(this.selectedCourse))
+          }
+      },
     },
     methods: {
       loadCourses: function() {
@@ -119,10 +134,6 @@
         if (currentCourse) {
             this.selectedCourse = JSON.parse(currentCourse)
         }
-      },
-      onSelectCourse: function(course) {
-          localStorage.setItem('nb.current.course', JSON.stringify(course))
-          this.selectedCourse = course
       },
       onCreateCourse: function() {
         this.loadCourses()

@@ -10,6 +10,7 @@ node_modules
 config.js
 email-config.js
 config/config.json
+package-lock.json
 
 # local env files
 .env.local
