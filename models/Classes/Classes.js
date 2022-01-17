@@ -10,6 +10,11 @@ const nb_class = (sequelize, DataTypes) => {
       unique: true,
       allowNull: false
     },
+    link_id:{
+      type: DataTypes.INTEGER,
+      unique: true,
+      allowNull: true
+    },
     /*
     description: {
       type: DataTypes.STRING,

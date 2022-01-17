@@ -1,10 +1,10 @@
 <template>
-  <div class="course-contents">
+  <div id = "app" class="course-contents">
     <div class="breadcrumb">
       <h3
           v-for="(ancestor, idx) in path"
           :key="ancestor.id"
-          @click="switchDirectory(ancestor)">
+          @click="urlChange(ancestor.id)">
         {{ idx === 0 ? "Home" : ancestor.filename }}
       </h3>
     </div>
@@ -20,9 +20,9 @@
             :key="dir.id"
             >
           <font-awesome-icon 
-              class="jj"
+              class="folder_specs"
               :icon="folderIcon"
-              @click="switchDirectory(dir)">
+              @click="urlChange(dir.id)">
           </font-awesome-icon>
           <span v-if="(userType === 'instructor' && !showDeleted)" class="editdir">
               <font-awesome-icon
@@ -49,6 +49,7 @@
           <font-awesome-icon class="trash_item" :icon="trashIcon" @click="showDeleted = !showDeleted"></font-awesome-icon>
           <span>{{ showDeleted ? "Hide Trash" : "Show Trash"}}</span>
         </div>
+        <div> {{dir}} </div>
       </div>
     </div>
 
@@ -180,6 +181,7 @@
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
   import { faFolder, faFile, faEdit, faTrash, faTrashRestore } from '@fortawesome/free-solid-svg-icons'
   import Vue from 'vue'
+  import Router from 'vue-router'
   import VModal from 'vue-js-modal'
   import moment from 'moment'
   import Notifications from 'vue-notification'
@@ -367,15 +369,39 @@
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
             }
-        
-            
+
             this.contents = res.data
           })
         
       },
-      switchDirectory: function(directory) {
+      addHashToLocation(params) {
+        history.pushState(
+          {},
+          null,
+          this.$route.path + '#' + encodeURIComponent(params)
+        )
+      },
+      urlChange: function(id) {
+        let cur_course = this.$route.params.course_id
+        let cur_dir = this.$route.params.folder_id
+        if (cur_dir == undefined) {
+          cur_dir = this.currentDir.id
+        }
+        let builder = ""
+        for(let element of this.path){
+          builder += element.id + '+'
+          if(element.id == id){
+            builder = builder.slice(0, -1)
+            console.log(builder)
+            this.$router.push({name: 'dir-page', params: {course_id: cur_course, tab: 'contents', folder_id: builder}})
+            this.showDeleted = false
+            return;
+          }
+          console.log(builder)
+        }
+        id = cur_dir + '+' + id
+        this.$router.push({name: 'dir-page', params: {course_id: cur_course, tab: 'contents', folder_id: id}})
         this.showDeleted = false
-        this.$emit('switch-directory', directory)
       },
       editFolder: function(directory) {
         this.edittingFolder.folder = directory
@@ -595,10 +621,12 @@
   .directories .listing .item .editdir .clickable:hover {
     color: #007bff;
   }
-  .directories .listing .item .jj {
+  
+  .directories .listing .item .folder_specs {
     cursor: pointer;
   }
-  .directories .listing .item .jj:hover {
+
+  .directories .listing .item .folder_specs:hover {
     color: #007bff;
   }
   .directories .listing .item .trash_item {

@@ -14,8 +14,7 @@
       <course-contents
           v-if="filePath.length"
           :userType="userType"
-          :path="filePath"
-          @switch-directory="switchDirectory">
+          :path="filePath"">
       </course-contents>
     </div>
     <div v-if="showUsersTab" class="users-tab">
@@ -38,6 +37,7 @@
     <div v-if="showCourseSettingsTab" class="course-settings-tab">
       <CourseSettings :course="course" />
     </div>
+    
   </div>
 
 </template>
@@ -71,7 +71,8 @@ export default {
       instructors: [],
       students: [],
       allUsers:[],
-      currentTab: 'contents'
+      currentTab: 'contents',
+      candidates: []
     };
   },
   computed: {
@@ -90,16 +91,19 @@ export default {
       }
     },
     showContentsTab: function() {
-      return this.currentTab === 'contents'
+      return this.$route.params.tab === 'contents'
     },
     showUsersTab: function() {
-      return this.userType === 'instructor' && this.currentTab === 'users'
+      return this.userType === 'instructor' && this.$route.params.tab === 'users'
     },
     showGradesTab: function() {
-      return this.userType === 'instructor' && this.currentTab === 'grades'
+      return this.userType === 'instructor' && this.$route.params.tab === 'grades'
     },
     showCourseSettingsTab: function() {
-      return this.userType === 'instructor' && this.currentTab === 'courseSettings'
+      return this.userType === 'instructor' && this.$route.params.tab === 'courseSettings'
+    },
+    idpath: function() {
+      return this.$route.params.folder_id.split('+')
     },
   },
   watch: {
@@ -113,8 +117,10 @@ export default {
       this.loadStudents()
       this.loadInstructors()
     },
+    '$route': 'switchDirectory'
   },
-  mounted: function(){
+  created: async function(){
+    console.log(this.$route.name)
     this.loadFiles()
     this.loadStudents()
     this.loadInstructors()
@@ -128,6 +134,7 @@ export default {
     },
     openTab: function(type) {
       this.currentTab = type
+      this.$router.push({params: {tab: type}})
     },
     icon: (file) => {
       if(file.is_directory){
@@ -243,15 +250,31 @@ export default {
           this.filePath = [res.data]
         })
     },
-    switchDirectory: function(directory) {
-      let idx = this.filePath.indexOf(directory)
-      if (idx < 0) { // file doesn't exist in the path yet
-        this.filePath.push(directory)
-      } else if (idx < this.filePath.length - 1) {
-        // file exists, but not at the end of path
-        this.filePath.splice(idx + 1)
+    switchDirectory: async function() {
+      let len = this.idpath.length
+
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: 'Bearer ' + token }}
+
+      let newFilePath = this.filePath
+      let res = await axios.get(`/api/files/class/${this.course.id}`, headers)
+      newFilePath = [res.data]
+      newFilePath.length = len
+      console.log(this.idpath)
+      for(let i = 1; i < len; i++){
+        console.log(i)
+        let res2 = await axios.get(`/api/files/folder/${this.idpath[i-1]}`, headers)
+        this.candidates = res2.data
+        console.log(this.candidates)
+        for (let j = 0; j < this.candidates.length; j++){
+          if (this.candidates[j].id == this.idpath[i]) {
+            newFilePath[i] = this.candidates[j]
+          }
+        }
       }
-    },
+      this.filePath = newFilePath
+      console.log(this.filePath)
+    }
   },
   components: {
     CourseContents,

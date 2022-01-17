@@ -5,7 +5,7 @@
         class="item"
         :key="course.id"
         :style="styleItem(course)"
-        @click="$emit('select-course', course)">
+        @click="changeToCourse(course)">
       {{ course.class_name}}
     </div>
     <p v-if="courses.length === 0" class="empty"> No classes yet </p>
@@ -24,9 +24,12 @@
     },
     methods: {
       styleItem: function(course) {
-        if (this.selectedCourse && this.selectedCourse.id === course.id) {
+        if (this.selectedCourse && this.selectedCourse.id === course.id && this.$route.params.course_id) {
           return 'background-color: #875f9a; color: #fff;'
         }
+      },
+      changeToCourse: function(course) {
+        this.$router.push({name: 'course-page', params: {course_id: course.id, tab: 'contents'}})
       }
     },
   }
