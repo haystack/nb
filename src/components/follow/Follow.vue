@@ -1,14 +1,13 @@
 <template>
   <div class="follow">
     <h1> Following </h1>
-    <button v-on:click="follow()">Click me!</button>
-    <button v-on:click="unfollow()">Unfollow me!</button>
-    <button v-on:click="getFollowing()">aaa me!</button>
+    <follow-list :following="following"> </follow-list>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import FollowList from "./FollowList.vue"
   export default {
     name: "follow",
     props: {
@@ -18,7 +17,9 @@
         tabs: ['Followers', 'Following'],
         currentTab: 'Followers',
         userlist:[],
+        following: [],
     }},
+
     methods: {
         styleTab: function(type) {
         if (type === this.currentTab) {
@@ -50,9 +51,25 @@
           axios.get(`/api/follow/user`, headers)
           .then(res => {
             console.log(res)
+            // this.following = res.data
+            for (let u of res.data){
+              console.log(u)
+              axios.get(`/api/users/${u.follower_id}`, headers)
+              .then(res2 => {
+                console.log(res2)
+                this.following.push(res2.data)
+              })
+            }
+
           })
         }
     },
+    beforeMount(){
+      this.getFollowing()
+    },
+    components: {
+    FollowList,
+  },
   }
   
 </script>

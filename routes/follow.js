@@ -25,13 +25,13 @@ const User = require('../models').User;
  */
  router.post('/user', (req, res) => {
     if (!req.body.username) {
-      res.status(200).json(null);
+      res.status(401).json(null);
       return null;
     }
     User.findOne({ where: { username: req.body.username }})
       .then(function (user) {
         if (!user) {
-          res.status(200).json(null);
+          res.status(400).json({ msg: "user does not exist" });
           return null;
         } else if (user.id === req.user.id){
           res.status(401).json({msg: "You cannot follow yourself"});

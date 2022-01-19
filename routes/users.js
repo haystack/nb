@@ -32,6 +32,22 @@ router.post('/getuser', (req, res) => {
 })
 
 /**
+ * Get user
+ * @name GET/api/users/getuser
+ */
+ router.get('/:id', (req, res) => {
+  User.findOne({ where: { id: req.params.id }})
+    .then(function (user) {
+      if (!user) {
+        res.status(200).json(null);
+        return null;
+      } else {
+        res.status(200).json(user);
+      }
+    });
+})
+
+/**
  * Get all users.
  * @name POST/api/users/all
  */
