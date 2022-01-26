@@ -65,7 +65,7 @@ JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
 1. SSH to the server `ssh -i [YOUR_KEY].key [USER]@[HOST].csail.mit.edu`
 
 2. Install NodeJS 
-`curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+`curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 sudo apt-get install -y nodejs` [Helpful resource](https://github.com/nodesource/distributions#installation-instructions).
 
 3. Install PM2 `sudo npm install -g pm2` [Helpful resource](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04).
@@ -104,11 +104,19 @@ JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
 
 7. To generate UI bundle, run `npm run build`.
 
-8. To start NB, run the following command `sudo pm2 start npm --name "NB" --time -- start`.
+8. If you are runing `npm v7` or above, run `sudo chown root .`. 
 
-9. To make PM2 run automatically after reboot, run the following command `sudo pm2 startup` then run `sudo pm2 save`. 
+9. To start NB, run the following command `sudo pm2 start npm --name "NB" --time -- start`.
 
-10. You should be able to access NB using `[HOST].csail.mit.edu`.
+10. To make PM2 run automatically after reboot, run the following command `sudo pm2 startup` then run `sudo pm2 save`. 
+
+11. You should be able to access NB using `[HOST].csail.mit.edu`.
+
+12. Redirect HTTP to HTTPS as follow
+   - run `sudo apt install nginx`.
+   - run `sudo ufw allow 'Nginx HTTP'`.
+   - edit `/etc/nginx/sites-enabled/default` and add `return 301 https://$host$request_uri;` under `server_name`.
+   - run `sudo systemctl reload nginx`. 
 
 ### Useful PM2 Commands
 ```
