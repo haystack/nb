@@ -56,7 +56,7 @@
               console.log(u)
               axios.get(`/api/users/${u.follower_id}`, headers)
               .then(res2 => {
-                console.log(res2)
+                console.log(res2.data)
                 this.following.push(res2.data)
               })
             }
