@@ -54,5 +54,6 @@
     color: #fff;
     font-size: 16px;
     cursor: pointer;
+    width: auto;
   }
 </style>

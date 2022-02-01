@@ -29,22 +29,6 @@
         openTab: function(type) {
             this.currentTab = type
         },
-        follow: function() {
-          const token = localStorage.getItem("nb.user");
-          const headers = { headers: { Authorization: 'Bearer ' + token }}
-          axios.post(`/api/follow/user`, {username: "student"}, headers)
-          .then(res => {
-            console.log(res)
-          })
-        },
-        unfollow: function() {
-          const token = localStorage.getItem("nb.user");
-          const headers ={ headers: { Authorization: 'Bearer ' + token }}
-          axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: "student"}})
-          .then(res => {
-            console.log(res)
-          })
-        },
         getFollowing: function(){
           const token = localStorage.getItem("nb.user");
           const headers = { headers: { Authorization: 'Bearer ' + token }}
