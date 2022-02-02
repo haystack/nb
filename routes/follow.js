@@ -31,10 +31,10 @@ const User = require('../models').User;
     User.findOne({ where: { username: req.body.username }})
       .then(function (user) {
         if (!user) {
-          res.status(400).json({ msg: "user does not exist" });
+          res.status(400).json({ msg: "This user does not exist." });
           return null;
         } else if (user.id === req.user.id){
-          res.status(401).json({msg: "You cannot follow yourself"});
+          res.status(401).json({msg: "You cannot follow yourself."});
         } else {
           Followers.create({
             user_id: req.user.id,
@@ -42,7 +42,6 @@ const User = require('../models').User;
           }).then(() => {
             res.status(200).json({ msg: "followed" });
           }).catch((err) => {
-            console.log("error:" + err);
             res.status(400).json({ msg: err.errors[0].message })
           })
         }

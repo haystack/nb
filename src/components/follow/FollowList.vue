@@ -31,7 +31,6 @@
           const headers ={ headers: { Authorization: 'Bearer ' + token }}
           axios.delete(`/api/follow/user`, {headers: { Authorization: 'Bearer ' + token }, data: {username: username}})
           .then(res => {
-            console.log(res)
             location.reload()
           })
         },

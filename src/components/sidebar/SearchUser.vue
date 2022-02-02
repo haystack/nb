@@ -2,6 +2,12 @@
   <div class="search-user">
       <input class ="usernamesearch" type="text" placeholder="Follow more..">
       <button class="enteruser" v-on:click="follow()">Follow</button>
+      <div class="error-msg">
+        {{ error }}
+      </div>
+      <div class="success-msg">
+        {{ success }}
+      </div>
   </div>
 </template>
 
@@ -9,23 +15,43 @@
   import axios from 'axios'
   export default {
     name: "search-user",
-    props: {
+    data (){
+      return {
+        error: "",
+        success: "",
+      }
     },
     methods: {
       follow: function() {
           let user_input = document.getElementsByClassName("usernamesearch")[0].value;
+          if(user_input.length == 0){
+            this.error = "You must enter a username"
+            this.clearMessages();
+            return;
+          } 
           const token = localStorage.getItem("nb.user");
           const headers = { headers: { Authorization: 'Bearer ' + token }}
           axios.post(`/api/follow/user`, {username: user_input}, headers)
           .then(res => {
             console.log(res)
-            location.reload()
+            this.success = "Success! You are following this user."
           })
           .catch(err => {
-            console.log(err)
-            console.log(err.data)
+            this.error = err.response.data.msg
+          })
+          .then (() => {
+            this.clearMessages();
           })
         },
+    clearMessages: function () {
+      setTimeout(() => {
+        this.error = "";
+        if (this.success != "") {
+          location.reload();
+          this.success = "";
+        }
+      }, 1000);
+    },
     },
   }
 </script>

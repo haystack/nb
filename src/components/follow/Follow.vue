@@ -34,13 +34,11 @@
           const headers = { headers: { Authorization: 'Bearer ' + token }}
           axios.get(`/api/follow/user`, headers)
           .then(res => {
-            console.log(res)
             // this.following = res.data
             for (let u of res.data){
               console.log(u)
               axios.get(`/api/users/${u.follower_id}`, headers)
               .then(res2 => {
-                console.log(res2.data)
                 this.following.push(res2.data)
               })
             }
