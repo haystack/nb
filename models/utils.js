@@ -149,7 +149,7 @@ module.exports = function (models) {
           )
         );
     },
-    createAnnotation: function (location, head, instructors, sessionUserId) {
+    createAnnotation: function (location, head, instructors, sessionUserId, follows) {
       let annotation = {}
       let range = location.HtmlLocation;
       
@@ -182,6 +182,8 @@ module.exports = function (models) {
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.bookmarked = head.Bookmarkers
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
+        annotation.followed = follows 
+          .reduce((bool, user) => bool || user.follower_id == head.Author.id, false);
       } catch(err) {
         console.log('\n\n\nIN createAnnotation')
         console.log(location)
@@ -191,7 +193,7 @@ module.exports = function (models) {
 
       return annotation
     },
-    createAnnotationFromThread: function (htmlLocation, head, seenUsers, instructors, sessionUserId) {
+    createAnnotationFromThread: function (htmlLocation, head, seenUsers, instructors, sessionUserId, follows) {
       let annotation = {}
       let range = htmlLocation;
 
@@ -222,7 +224,8 @@ module.exports = function (models) {
         .reduce((bool, user) => bool || user.id == sessionUserId, false);
       annotation.bookmarked = head.Bookmarkers
         .reduce((bool, user) => bool || user.id == sessionUserId, false);
-
+      annotation.followed = follows 
+        .reduce((bool, user) => bool || user.follower_id == head.Author.id, false);
       return annotation
     },
     createFile: function (parentId, filename, filepath) {
