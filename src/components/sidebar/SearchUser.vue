@@ -33,7 +33,6 @@
           const headers = { headers: { Authorization: 'Bearer ' + token }}
           axios.post(`/api/follow/user`, {username: user_input}, headers)
           .then(res => {
-            console.log(res)
             this.success = "Success! You are following this user."
           })
           .catch(err => {

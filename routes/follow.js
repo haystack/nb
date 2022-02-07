@@ -40,7 +40,10 @@ const User = require('../models').User;
             user_id: req.user.id,
             follower_id: user.id
           }).then(() => {
-            res.status(200).json({ msg: "followed" });
+            Followers.findAll({ where: { user_id: req.user.id}})
+            .then((data) => {
+              res.status(200).json(data);
+            })
           }).catch((err) => {
             res.status(400).json({ msg: err.errors[0].message })
           })
@@ -70,7 +73,10 @@ const User = require('../models').User;
           user_id: req.user.id,
           follower_id: user.id
         }}).then(() => {
-          res.status(200).json({ msg: "unfollowed" });
+          Followers.findAll({ where: { user_id: req.user.id}})
+          .then((data) => {
+            res.status(200).json(data);
+          })
         }).catch((err) => {
           console.log("error:" + err);
           res.status(400).json({ msg: err.errors[0].message })
