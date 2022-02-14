@@ -87,14 +87,13 @@
                 v-if="props.column.field === 'filename'"
                 class="clickable filename">
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
-              <span>&nbsp</span>
+              <span>&nbsp;</span>
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
             <span v-else-if="props.column.field === 'annotations'" style="display:flex; justify-content:space-around;">
               <div class="annotations"> Mine:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["me"]}} </div>
               <div class="annotations"> Unread:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["unread"]}} </div>
               <div class="annotations"> Reply Requests:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["replyRequests"]}} </div>
-              <div class="annotations"> Threads:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["thread"]}} </div>
               <div class="annotations"> Total:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["total"]}} </div>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
@@ -817,9 +816,12 @@
   }
   
   .annotations {
-    color: black;
-    background-color:  #8c58af46;
-    border-radius: 5px; 
+    color: #5f6266;
+    background-color: #f1f4f7;
+    border-radius: 5px;
     padding: 3px;
+    margin: 1px;
+    font-size: 80%;
+    text-align: center;
   }
 </style>
