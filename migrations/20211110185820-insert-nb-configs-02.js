@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        queryInterface.bulkInsert('nb_configs',[
+        queryInterface.bulkInsert('nb_configs', [
             {
                 name: 'SYNC_NOTIFICATION_AUDIO',
                 value: 'false',
@@ -15,7 +15,7 @@ module.exports = {
             }
         ])
     },
-    
+
     down: async (queryInterface, Sequelize) => {
     }
 };

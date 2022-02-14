@@ -10,14 +10,15 @@ const Tag = require('../models').Tag;
 const router = express.Router();
 const { Op } = require("sequelize");
 const utils = require('../models/utils')(require('../models'));
-let socketapi = require("../socketapi"); // used for socket.io
+let socketapi = require("../socketapi")
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 
 
 /**
- * Get my classes for a given source
- * @name GET/api/annotations/myClasses
- */
+* Get my classes for a given source
+* @name GET/api/annotations/myClasses
+*/
 router.get('/myClasses', async (req, res) => {
     const allSourcesByFilepath = await Source.findAll({ where: { filepath: req.query.url } })
     const user = await User.findByPk(req.user.id)
@@ -48,9 +49,9 @@ router.get('/myCurrentSection', (req, res) => {
 
 })
 /**
- * Get all users for a given source
- * @name GET/api/annotations/allUsers
- */
+* Get all users for a given source
+* @name GET/api/annotations/allUsers
+*/
 router.get('/allUsers', (req, res) => {
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] }, include: [{
@@ -73,9 +74,9 @@ router.get('/allUsers', (req, res) => {
 });
 
 /**
- * Get all users for a given source
- * @name GET/api/annotations/allTagTypes
- */
+* Get all users for a given source
+* @name GET/api/annotations/allTagTypes
+*/
 router.get('/allTagTypes', (req, res) => {
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] }, include: [{
@@ -93,23 +94,23 @@ router.get('/allTagTypes', (req, res) => {
 });
 
 /**
- * Get all top-level annotation for a given source
- * @name GET/api/annotations/annotation
- * @param url: source url
- * @param class: source class id
- * @return [{
- * id: id of annotation
- * content: text content of annotation,
- * range: json for location range,
- * author: id of author,
- * tags: list of ids of tag types,
- * userTags: list of ids of users tagged,
- * visibility: string enum,
- * anonymity: string enum,
- * replyRequest: boolean,
- * star: boolean
- * }]
- */
+* Get all top-level annotation for a given source
+* @name GET/api/annotations/annotation
+* @param url: source url
+* @param class: source class id
+* @return [{
+* id: id of annotation
+* content: text content of annotation,
+* range: json for location range,
+* author: id of author,
+* tags: list of ids of tag types,
+* userTags: list of ids of users tagged,
+* visibility: string enum,
+* anonymity: string enum,
+* replyRequest: boolean,
+* star: boolean
+* }]
+*/
 router.get('/annotation', (req, res) => {
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
@@ -233,23 +234,23 @@ router.get('/annotation', (req, res) => {
 });
 
 /**
- * Get all top-level annotation (+ replies) for a given source
- * @name GET/api/annotations/new_annotation
- * @param url: source url
- * @param class: source class id
- * @return [{
- * id: id of annotation
- * content: text content of annotation,
- * range: json for location range,
- * author: id of author,
- * tags: list of ids of tag types,
- * userTags: list of ids of users tagged,
- * visibility: string enum,
- * anonymity: string enum,
- * replyRequest: boolean,
- * star: boolean
- * }]
- */
+* Get all top-level annotation (+ replies) for a given source
+* @name GET/api/annotations/new_annotation
+* @param url: source url
+* @param class: source class id
+* @return [{
+* id: id of annotation
+* content: text content of annotation,
+* range: json for location range,
+* author: id of author,
+* tags: list of ids of tag types,
+* userTags: list of ids of users tagged,
+* visibility: string enum,
+* anonymity: string enum,
+* replyRequest: boolean,
+* star: boolean
+* }]
+*/
 router.get('/new_annotation', (req, res) => {
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
@@ -350,7 +351,7 @@ router.get('/new_annotation', (req, res) => {
                         return false;
                     }
                     return true;
-                } catch(e) {
+                } catch (e) {
                     console.log(e)
                     return false;
                 }
@@ -528,6 +529,7 @@ router.get('/stats', (req, res) => {
  * @param star: boolean
  * @param bookmark: boolean
  */
+
 router.post('/annotation', (req, res) => {
     let range = req.body.range;
     Source.findOne({ where: { [Op.and]: [{ filepath: req.body.url }, { class_id: req.body.class }] } })
@@ -578,21 +580,21 @@ router.post('/annotation', (req, res) => {
 
 
 /**
- * Make new thread for a given annotation (and tell users with visbility permissions to query for this specific thread w/ socketio)
- * @name POST/api/annotations/new_annotation
- * @param url: source url
- * @param class: source class id
- * @param content: text content of annotation
- * @param range: json for location range
- * @param author: id of author
- * @param tags: list of ids of tag types
- * @param userTags: list of ids of users tagged
- * @param visibility: string enum
- * @param anonymity: string enum
- * @param replyRequest: boolean
- * @param star: boolean
- * @param bookmark: boolean
- */
+* Make new thread for a given annotation (and tell users with visbility permissions to query for this specific thread w/ socketio)
+* @name POST/api/annotations/new_annotation
+* @param url: source url
+* @param class: source class id
+* @param content: text content of annotation
+* @param range: json for location range
+* @param author: id of author
+* @param tags: list of ids of tag types
+* @param userTags: list of ids of users tagged
+* @param visibility: string enum
+* @param anonymity: string enum
+* @param replyRequest: boolean
+* @param star: boolean
+* @param bookmark: boolean
+*/
 router.post('/new_annotation', (req, res) => {
     let range = req.body.range;
     Source.findOne({
@@ -679,12 +681,19 @@ router.post('/new_annotation', (req, res) => {
                             });
                             annotation.setThread(thread).then(() => {
                                 res.status(200).json(annotation)
-                                var io = socketapi.io
+                                const io = socketapi.io
+
+                                const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex');
+                                const globalRoomId = `${urlHash}:${req.body.class}`
+                                const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+
+                                // TODO: check the sync here
                                 if (annotation.visibility === 'INSTRUCTORS') {
-                                    io.emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
-                                }
-                                if (annotation.visibility === 'EVERYONE') {
-                                    io.emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
+                                    // Since instructors are only part of the global section, only emit to the global room
+                                    io.to(globalRoomId).emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
+                                } else if (annotation.visibility === 'EVERYONE') {
+                                    io.to(globalRoomId).emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
+                                    classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] }))
                                 }
 
                             });
@@ -696,13 +705,13 @@ router.post('/new_annotation', (req, res) => {
 });
 
 /**
- * Get a specific thread (+ respective reply annotations) for a given source
- * Assume that the user requesting is authorized to view the thread (part of the section, and nt only visible to instructors/myself)
- * @name GET/api/annotations/specific_thread
- * @param source_url: source url
- * @param class_id: source class id
- * @param id: id of thread
- */
+* Get a specific thread (+ respective reply annotations) for a given source
+* Assume that the user requesting is authorized to view the thread (part of the section, and nt only visible to instructors/myself)
+* @name GET/api/annotations/specific_thread
+* @param source_url: source url
+* @param class_id: source class id
+* @param id: id of thread
+*/
 router.get('/specific_thread', (req, res) => {
     let classInstructors = new Set([])
     Source.findOne({
@@ -777,22 +786,22 @@ router.get('/specific_thread', (req, res) => {
 
 
 /**
- * Get all reply annotation for a given parent
- * @name GET/api/annotations/reply/:id
- * @param id: parent id
- * @return [{
- * id: id of annotation
- * content: text content of annotation,
- * range: json for location range,
- * author: id of author,
- * tags: list of ids of tag types,
- * userTags: list of ids of users tagged,
- * visibility: string enum,
- * anonymity: string enum,
- * replyRequest: boolean,
- * star: boolean
- * }]
- */
+* Get all reply annotation for a given parent
+* @name GET/api/annotations/reply/:id
+* @param id: parent id
+* @return [{
+* id: id of annotation
+* content: text content of annotation,
+* range: json for location range,
+* author: id of author,
+* tags: list of ids of tag types,
+* userTags: list of ids of users tagged,
+* visibility: string enum,
+* anonymity: string enum,
+* replyRequest: boolean,
+* star: boolean
+* }]
+*/
 router.get('/reply/:id', (req, res) => {
     Annotation.findByPk(req.params.id, {
         include: [{
@@ -871,18 +880,18 @@ router.get('/reply/:id', (req, res) => {
 });
 
 /**
- * Make new reply for a given annotation
- * @name POST/api/annotations/reply/:id
- * @param id: id of parent annotation
- * @param content: text content of annotation
- * @param author: id of author
- * @param tags: list of ids of tag types
- * @param userTags: list of ids of users tagged
- * @param visibility: string enum
- * @param anonymity: string enum
- * @param replyRequest: boolean
- * @param star: boolean
- */
+* Make new reply for a given annotation
+* @name POST/api/annotations/reply/:id
+* @param id: id of parent annotation
+* @param content: text content of annotation
+* @param author: id of author
+* @param tags: list of ids of tag types
+* @param userTags: list of ids of users tagged
+* @param visibility: string enum
+* @param anonymity: string enum
+* @param replyRequest: boolean
+* @param star: boolean
+*/
 router.post('/reply/:id', (req, res) => {
     Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then((parent) =>
         Annotation.create({
@@ -912,28 +921,22 @@ router.post('/reply/:id', (req, res) => {
 
 
 /**
- * Make new reply for a given annotation and emit socket io message
- * @name POST/api/annotations/new_reply/:id
- * @param id: id of parent annotation
- * @param content: text content of annotation
- * @param author: id of author
- * @param tags: list of ids of tag types
- * @param userTags: list of ids of users tagged
- * @param visibility: string enum
- * @param anonymity: string enum
- * @param replyRequest: boolean
- * @param star: boolean
- */
+* Make new reply for a given annotation and emit socket io message
+* @name POST/api/annotations/new_reply/:id
+* @param id: id of parent annotation
+* @param content: text content of annotation
+* @param author: id of author
+* @param tags: list of ids of tag types
+* @param userTags: list of ids of users tagged
+* @param visibility: string enum
+* @param anonymity: string enum
+* @param replyRequest: boolean
+* @param star: boolean
+*/
+//TODO: check this endpoint
 router.post('/new_reply/:id', (req, res) => {
     let username = ""
-    Annotation.findByPk(req.params.id,
-        {
-            include: [{
-                association: 'Thread',
-                include: [{ association: 'HeadAnnotation', attributes: ['id'] }]
-            }]
-        }
-    ).then((parent) =>
+    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }] }] }).then((parent) =>
         Annotation.create({
             content: req.body.content,
             visibility: req.body.visibility,
@@ -944,8 +947,7 @@ router.post('/new_reply/:id', (req, res) => {
         }, {
             include: [{ association: 'Tags' }]
         }).then((child) => {
-            req.body.userTags.forEach(user_id =>
-                User.findByPk(user_id).then(user => child.addTaggedUser(user)));
+            req.body.userTags.forEach(user_id => User.findByPk(user_id).then(user => child.addTaggedUser(user)));
             User.findByPk(req.user.id).then(user => {
                 if (req.body.replyRequest) child.addReplyRequester(user);
                 if (req.body.star) child.addStarrer(user);
@@ -953,17 +955,12 @@ router.post('/new_reply/:id', (req, res) => {
                 parent.Thread.setSeenUsers([user]);
                 parent.Thread.setRepliedUsers([user]);
                 username = user.username;
-                var io = socketapi.io
-                io.emit('new_reply',
-                    {
-                        sourceUrl: req.body.url,
-                        classId: req.body.class,
-                        authorId: req.user.id,
-                        threadId: parent.Thread.id,
-                        headAnnotationId: parent.Thread.HeadAnnotation.id,
-                        taggedUsers: [...req.body.userTags],
-                        newAnnotationId: child.id
-                    })
+                const io = socketapi.io
+                const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
+                const globalRoomId = `${urlHash}:${req.body.class}`
+                const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+                io.to(globalRoomId).emit('new_reply', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id })
+                classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id }))
             });
             parent.addChild(child);
             res.status(200).json(child);
@@ -972,16 +969,16 @@ router.post('/new_reply/:id', (req, res) => {
 });
 
 /**
- * Edit a given annotation
- * @name GET/api/annotations/reply/:id
- * @param id: id of parent annotation
- * @param content: text content of annotation
- * @param tags: list of ids of tag types
- * @param userTags: list of ids of users tagged
- * @param visibility: string enum
- * @param anonymity: string enum
- * @param replyRequest: boolean
- */
+* Edit a given annotation
+* @name GET/api/annotations/reply/:id
+* @param id: id of parent annotation
+* @param content: text content of annotation
+* @param tags: list of ids of tag types
+* @param userTags: list of ids of users tagged
+* @param visibility: string enum
+* @param anonymity: string enum
+* @param replyRequest: boolean
+*/
 router.put('/annotation/:id', (req, res) => {
     Annotation.findByPk(req.params.id)
         .then(annotation =>
@@ -1010,10 +1007,10 @@ router.put('/annotation/:id', (req, res) => {
 });
 
 /**
- * Deletes a given annotation
- * @name DELETE/api/annotations/annotation/:id
- * @param id: id of annotation
- */
+* Deletes a given annotation
+* @name DELETE/api/annotations/annotation/:id
+* @param id: id of annotation
+*/
 router.delete('/annotation/:id', (req, res) => {
     Annotation.findByPk(req.params.id, {
         include: [
@@ -1034,10 +1031,10 @@ router.delete('/annotation/:id', (req, res) => {
 });
 
 /**
- * Sets seen for a given annotation and user
- * @name POST/api/annotations/star/:id
- * @param id: id of annotation
- */
+* Sets seen for a given annotation and user
+* @name POST/api/annotations/star/:id
+* @param id: id of annotation
+*/
 router.post('/seen/:id', (req, res) => {
     Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
         User.findByPk(req.user.id).then(user => {
@@ -1050,10 +1047,10 @@ router.post('/seen/:id', (req, res) => {
 });
 
 /**
- * Toggles a star for a given annotation
- * @name POST/api/annotations/star/:id
- * @param id: id of annotation
- */
+* Toggles a star for a given annotation
+* @name POST/api/annotations/star/:id
+* @param id: id of annotation
+*/
 router.post('/star/:id', (req, res) => {
     Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
         User.findByPk(req.user.id).then(user => {
@@ -1071,10 +1068,10 @@ router.post('/star/:id', (req, res) => {
 });
 
 /**
- * Toggles a replyRequest for a given annotation
- * @name POST/api/annotations/replyRequest/:id
- * @param id: id of annotation
- */
+* Toggles a replyRequest for a given annotation
+* @name POST/api/annotations/replyRequest/:id
+* @param id: id of annotation
+*/
 router.post('/replyRequest/:id', (req, res) => {
     Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
         User.findByPk(req.user.id).then(user => {
@@ -1092,10 +1089,10 @@ router.post('/replyRequest/:id', (req, res) => {
 });
 
 /**
- * Toggles a bookmark for a given annotation
- * @name POST/api/annotations/bookmark/:id
- * @param id: id of annotation
- */
+* Toggles a bookmark for a given annotation
+* @name POST/api/annotations/bookmark/:id
+* @param id: id of annotation
+*/
 router.post('/bookmark/:id', (req, res) => {
     Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
         User.findByPk(req.user.id).then(user => {

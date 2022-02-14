@@ -12,7 +12,7 @@ const annotationsRouter = require('./routes/annotations')
 const spotlightsRouter = require('./routes/spotlights')
 const gradesRouter = require('./routes/grades')
 const adminRouter = require('./routes/admin')
-const expRouter = require('./routes/experiment')
+const logRouter = require('./routes/log')
 const consentRouter = require('./routes/consents')
 const auth = require('./auth/auth')
 const socketapi = require("./socketapi") // used for socket.io
@@ -54,7 +54,7 @@ app.use('/api/files', passport.authenticate('jwt', { session: false }), filesRou
 app.use('/api/annotations', passport.authenticate('jwt', { session: false }), annotationsRouter)
 app.use('/api/spotlights', passport.authenticate('jwt', { session: false }), spotlightsRouter)
 app.use('/api/grades', passport.authenticate('jwt', { session: false }), gradesRouter)
-app.use('/api/exp', passport.authenticate('jwt', { session: false }), expRouter)
+app.use('/api/log', passport.authenticate('jwt', { session: false }), logRouter)
 app.use('/api/consent', passport.authenticate('jwt', { session: false }), consentRouter)
 app.use('/api/admin', passport.authenticate('jwt', { session: false }), auth.isAdmin(), adminRouter)
 
@@ -62,6 +62,10 @@ app.use('/api/admin', passport.authenticate('jwt', { session: false }), auth.isA
 app.use(function (err, req, res, next) {
     res.status(err.status || 500)
     res.json({ success: false, error: err })
+})
+
+process.on('uncaughtException', function(err) {
+    console.log('Caught exception: ' + err);
 })
 
 module.exports = app
