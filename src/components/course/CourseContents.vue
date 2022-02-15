@@ -87,14 +87,8 @@
                 v-if="props.column.field === 'filename'"
                 class="clickable filename">
               <font-awesome-icon :icon="fileIcon"></font-awesome-icon>
-              <span>&nbsp;</span>
+              <span>&nbsp</span>
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
-            </span>
-            <span v-else-if="props.column.field === 'annotations'" style="display:flex; justify-content:space-around;">
-              <div class="annotations"> Mine:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["me"]}} </div>
-              <div class="annotations"> Unread:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["unread"]}} </div>
-              <div class="annotations"> Reply Requests:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["replyRequests"]}} </div>
-              <div class="annotations"> Total:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["total"]}} </div>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
@@ -236,11 +230,6 @@
             // },
           },
           {
-            label: 'Comments', 
-            field: 'annotations', 
-            sortable: false
-          },
-          {
             label: 'Assignment Due',
             field: 'Source.Assignment.deadlineString',
             type: 'date',
@@ -280,8 +269,7 @@
           newFoldername: ""
         },
         deleteText: "Delete",
-        showDeleted: false,
-        annotations: []
+        showDeleted: false
       }
     },
     computed:{
@@ -329,7 +317,7 @@
       showDeleted: function() {
         if(this.showDeleted) this.fileColumns[0].label = "Restore"
         else this.fileColumns[0].label = "Edit"
-      }, 
+      }
     },
     methods:{
       addFolder: function() {
@@ -378,37 +366,12 @@
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
-
-              if (file.Source && file.Source.Class){
-                this.numberAnnotations(file.Source.filepath, file.Source.Class.id)
-              }
-              
             }
         
             
             this.contents = res.data
           })
         
-      },
-      numberAnnotations: function(filepath, class_id){
-        const token = localStorage.getItem("nb.user");
-        const config = {headers: { Authorization: 'Bearer ' + token }}
-        axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
-          .then((res) => {
-            res.data.filepath = filepath
-            this.annotations.push(res.data)
-          })
-      },
-      getRequestReply: function(locations){
-        let numReqs = 0
-        for (let i = 0; i < locations.length; i++){
-          if(locations[i].Thread){
-            for(let j = 0; j < locations[i].Thread.AllAnnotations.length; j++){
-              numReqs += locations[i].Thread.AllAnnotations[j].ReplyRequesters.length
-            }
-          }
-        }
-        return numReqs
       },
       switchDirectory: function(directory) {
         this.showDeleted = false
@@ -559,21 +522,6 @@
     },
     mounted: function() {
       this.loadFiles()
-      window.setInterval(()=> {
-        let new_annotations = []
-        for (let file of this.contents){
-          if (file.Source && file.Source.Class){
-            const token = localStorage.getItem("nb.user");
-            const config = {headers: { Authorization: 'Bearer ' + token }}
-            axios.get(`/api/annotations/stats?url=${escape(file.Source.filepath)}&class=${file.Source.Class.id}`, config)
-            .then((res) => {
-              res.data.filepath = file.Source.filepath
-              new_annotations.push(res.data)
-            })
-          }
-        }
-        this.annotations = new_annotations
-      }, 60000)
     },
     components: {
       FontAwesomeIcon,
@@ -815,13 +763,4 @@
     background-color: #0069d9;
   }
   
-  .annotations {
-    color: #5f6266;
-    background-color: #f1f4f7;
-    border-radius: 5px;
-    padding: 3px;
-    margin: 1px;
-    font-size: 80%;
-    text-align: center;
-  }
 </style>
