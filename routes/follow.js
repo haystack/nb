@@ -86,7 +86,7 @@ const User = require('../models').User;
 });
 
 
-  
+
   // /**
   //  * Get all users.
   //  * @name POST/api/users/all
