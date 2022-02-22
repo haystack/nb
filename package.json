@@ -46,6 +46,7 @@
     "randomstring": "^1.1.5",
     "sequelize": "^5.7.1",
     "socket.io": "^3.0.5",
+    "socket.io-client": "^4.4.1",
     "strip-bom-stream": "^4.0.0",
     "v-tooltip": "^2.0.2",
     "vue": "^2.6.14",

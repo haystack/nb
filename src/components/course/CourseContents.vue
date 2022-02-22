@@ -91,11 +91,11 @@
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
             <span v-else-if="props.column.field === 'annotations'" style="display:flex; justify-content:space-around;">
-              <div class="annotations"> Mine:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["me"]}} </div>
-              <div class="annotations"> Unread:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["unread"]}} </div>
-              <div class="annotations"> Reply Requests:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["replyRequests"]}} </div>
-              <div class="annotations"> Threads:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["thread"]}} </div>
-              <div class="annotations"> Total:  {{annotations.filter(a => a.filepath === props.row.Source.filepath)[0]["total"]}} </div>
+              <div class="annotations"> Mine:  {{getAnnotationStats('me', props.row.Source.filepath)}} </div>
+              <div class="annotations"> Unread:  {{getAnnotationStats('unread', props.row.Source.filepath)}} </div>
+              <div class="annotations"> Reply Requests:  {{getAnnotationStats('replyRequests', props.row.Source.filepath)}} </div>
+              <div class="annotations"> Threads:  {{getAnnotationStats('thread', props.row.Source.filepath)}} </div>
+              <div class="annotations"> Total:  {{getAnnotationStats('total', props.row.Source.filepath)}} </div>
             </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
@@ -204,6 +204,12 @@
   import { Datetime } from 'vue-datetime'
   import 'vue-datetime/dist/vue-datetime.css'
   import axios from 'axios'
+  import io from "socket.io-client";
+  import { Environments } from '../../../environments'
+  const currentEnv = Environments.dev
+  const socket = io(currentEnv.baseURL, { reconnect: true })
+  // import socketapi from '../../../socketapi'
+  // let sock = require("../../../socketapi.js"); // used for socket.io
   export default {
     name: "course-contents",
     props:{
@@ -214,7 +220,8 @@
       path: {
         type: Array,
         default: () => []
-      }
+      },
+      user_id: String,
     },
     data() {
       return {
@@ -332,6 +339,106 @@
         else this.fileColumns[0].label = "Edit"
       }, 
     },
+    created: async function(){
+      socket.on("reply_request", (data) => {
+        if (this.currentDir.class_id === data.class_id){
+          for (let i = 0; i < this.annotations.length; i++) {
+            if (this.annotations[i].filepath === data.filepath){
+              if (data.add_request && data.reply_requesters.length == 0){
+                this.annotations[i]['replyRequests'] += 1
+              } else if (!data.add_request && data.reply_requesters.length == 1) {
+                this.annotations[i]['replyRequests'] -=1
+              }
+              break
+            }
+        }
+        }
+      })
+      socket.on("new_thread", (data) => {
+        if (this.currentDir.class_id === data.classId){
+          for (let i = 0; i < this.annotations.length; i++) {
+            if (this.annotations[i].filepath === data.sourceUrl){
+              if (this.user_id === data.authorId){
+                this.annotations[i]['me'] += 1
+              } else {
+                this.annotations[i]['unread'] +=1
+              }
+              if(data.replyRequest){
+                this.annotations[i]['replyRequests'] += 1
+              }
+               this.annotations[i]['thread'] +=1
+               this.annotations[i]['total'] +=1
+               break
+            }
+        }
+        }
+      })
+
+      socket.on("new_reply", (data) => {
+        if (this.currentDir.class_id === data.classId){
+          for (let i = 0; i < this.annotations.length; i++) {
+            if (this.annotations[i].filepath === data.sourceUrl){
+              if (this.user_id === data.authorId){
+                this.annotations[i]['me'] += 1
+              } else {
+                this.annotations[i]['unread'] +=1
+              }
+              if(data.replyRequest){
+                this.annotations[i]['replyRequests'] += 1
+              }
+               this.annotations[i]['total'] +=1
+               break
+            }
+        }
+        }
+      })
+
+      socket.on("delete_comment", (data) => {
+        if (this.currentDir.class_id === data.class_id){
+          for (let i = 0; i < this.annotations.length; i++) {
+            if (this.annotations[i].filepath === data.filepath){
+              if (this.user_id === data.user_id){
+                this.annotations[i]['me'] -= 1
+              } else {
+                let seen = false
+                for(let j = 0; j < data.seen_user; j++){
+                  if(data.seen_user[j].id === this.user_id){
+                    seen = true
+                    break
+                  }
+                }
+                if(!seen){
+                  this.annotations[i]['unread'] -= 1
+                }
+              }
+              if (data.reply_requests.length > 0 ){
+                this.annotations[i]['replyRequests'] -= 1
+              }
+              if (!data.parent){
+                this.annotations[i]['thread'] -= 1
+              }
+              this.annotations[i]['total'] -=1
+              break
+            }
+        }
+        }
+      })
+
+      socket.on("read_thread", (data) => {
+        
+        if (this.currentDir.class_id === data.class_id && this.user_id === data.user_id){
+          console.log("here")
+          for (let i = 0; i < this.annotations.length; i++) {
+            if (this.annotations[i].filepath === data.filepath){
+              this.annotations[i]['unread'] -= 1
+              break
+            }
+        }
+        }
+      })
+
+      
+    },
     methods:{
       addFolder: function() {
         const token = localStorage.getItem("nb.user");
@@ -386,7 +493,6 @@
               
             }
         
-            
             this.contents = res.data
           })
         
@@ -394,6 +500,7 @@
       numberAnnotations: function(filepath, class_id){
         const token = localStorage.getItem("nb.user");
         const config = {headers: { Authorization: 'Bearer ' + token }}
+ 
         axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
           .then((res) => {
             res.data.filepath = filepath
@@ -557,24 +664,16 @@
           })
         
       },
+      getAnnotationStats(type, filepath){
+        let stat = this.annotations.filter(a => a.filepath === filepath)
+        if (stat.length > 0){
+          return stat[0][type]
+        } 
+        return 0
+      }
     },
     mounted: function() {
       this.loadFiles()
-      window.setInterval(()=> {
-        let new_annotations = []
-        for (let file of this.contents){
-          if (file.Source && file.Source.Class){
-            const token = localStorage.getItem("nb.user");
-            const config = {headers: { Authorization: 'Bearer ' + token }}
-            axios.get(`/api/annotations/stats?url=${escape(file.Source.filepath)}&class=${file.Source.Class.id}`, config)
-            .then((res) => {
-              res.data.filepath = file.Source.filepath
-              new_annotations.push(res.data)
-            })
-          }
-        }
-        this.annotations = new_annotations
-      }, 60000)
     },
     components: {
       FontAwesomeIcon,

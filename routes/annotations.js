@@ -490,17 +490,18 @@ router.get('/stats', (req, res) => {
             goodLocations.forEach((location) => {
                 
                 location.Thread.AllAnnotations.forEach((annot) => {
-                    console.log(annot)
                     if (annot.Author.id === req.user.id ){
                         me += 1
                     }
+                    if(annot.ReplyRequesters.length > 0){
+                        replyRequests += 1
+                    }
                     
-                    replyRequests += annot.ReplyRequesters.length
                     total += 1
                 })
                 if (!(location.Thread.SeenUsers
                     .reduce((bool, user) => bool || user.id == req.user.id, false))){
-                    unread += 1
+                    unread += location.Thread.AllAnnotations.length
                 }
                 thread += 1
 
@@ -681,10 +682,10 @@ router.post('/new_annotation', (req, res) => {
                                 res.status(200).json(annotation)
                                 var io = socketapi.io
                                 if (annotation.visibility === 'INSTRUCTORS') {
-                                    io.emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
+                                    io.emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags], replyRequest: req.body.replyRequest })
                                 }
                                 if (annotation.visibility === 'EVERYONE') {
-                                    io.emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
+                                    io.emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags],replyRequest: req.body.replyRequest  })
                                 }
 
                             });
@@ -962,7 +963,8 @@ router.post('/new_reply/:id', (req, res) => {
                         threadId: parent.Thread.id,
                         headAnnotationId: parent.Thread.HeadAnnotation.id,
                         taggedUsers: [...req.body.userTags],
-                        newAnnotationId: child.id
+                        newAnnotationId: child.id,
+                        replyRequest: req.body.replyRequest
                     })
             });
             parent.addChild(child);
@@ -1017,8 +1019,17 @@ router.put('/annotation/:id', (req, res) => {
 router.delete('/annotation/:id', (req, res) => {
     Annotation.findByPk(req.params.id, {
         include: [
-            { association: 'Thread', include: [{ association: 'Location' }] },
-            { association: 'Parent' }
+            { association: 'Author', attributes: ['id'] },
+            {association: 'ReplyRequesters'},
+            { association: 'Thread', include: [{
+                association: 'SeenUsers'},{
+                association: 'Location', include: [{
+                    association: 'Source',  attributes: ['filepath'], include: [{
+                        association: 'Class', attributes: ['id'],
+                    }]
+                }]
+            }]},
+            { association: 'Parent', attributes: ['id'] }
         ]
     })
         .then(annotation => {
@@ -1027,7 +1038,14 @@ router.delete('/annotation/:id', (req, res) => {
                 annotation.Thread.destroy();
                 annotation.Thread.Location.destroy();
             }
-
+            var io = socketapi.io
+            const class_id = annotation.Thread.Location.Source.Class.id
+            const filepath = annotation.Thread.Location.Source.filepath
+            const user_id = annotation.Author.id
+            const seen_users = annotation.Thread.SeenUsers
+            const parent = annotation.Parent
+            const reply_requests = annotation.ReplyRequesters
+            io.emit('delete_comment', {filepath:filepath, class_id: class_id, user_id: user_id, seen_user: seen_users, parent:parent, reply_requests: reply_requests})
         })
         .then(() => res.sendStatus(200))
         .catch((err) => res.sendStatus(400));
@@ -1039,11 +1057,21 @@ router.delete('/annotation/:id', (req, res) => {
  * @param id: id of annotation
  */
 router.post('/seen/:id', (req, res) => {
-    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
+    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread',  include: [{
+        association: 'Location', include: [{
+            association: 'Source',  attributes: ['filepath'], include: [{
+                association: 'Class', attributes: ['id'],
+            }]
+        }]
+    }] }] }).then(annotation =>
         User.findByPk(req.user.id).then(user => {
             annotation.Thread.removeSeenUser(user).then(() => {
                 annotation.Thread.addSeenUser(user)
             })
+            const class_id = annotation.Thread.Location.Source.Class.id
+            const filepath = annotation.Thread.Location.Source.filepath
+            var io = socketapi.io
+            io.emit('read_thread', {filepath:filepath, class_id: class_id, user_id: req.user.id})
         }).then(() => res.sendStatus(200))
             .catch((err) => res.sendStatus(400))
     );
@@ -1076,8 +1104,24 @@ router.post('/star/:id', (req, res) => {
  * @param id: id of annotation
  */
 router.post('/replyRequest/:id', (req, res) => {
-    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
+    const add_request = req.body.replyRequest
+    
+
+    Annotation.findByPk(req.params.id,{include: [ {association: 'ReplyRequesters'}, { association: 'Author', attributes: ['id'] },{
+            association: 'Thread', include: [{
+                association: 'Location', include: [{
+                    association: 'Source',  attributes: ['filepath'], include: [{
+                        association: 'Class', attributes: ['id'],
+                    }]
+                }]
+            }]
+        }] }).then(annotation =>
+        
         User.findByPk(req.user.id).then(user => {
+            const class_id = annotation.Thread.Location.Source.Class.id
+            const filepath = annotation.Thread.Location.Source.filepath
+            const user_id = annotation.Author.id
+            const reply_requesters = annotation.ReplyRequesters
             if (req.body.replyRequest) { annotation.addReplyRequester(user); }
             else { annotation.removeReplyRequester(user); }
             annotation.Thread.removeSeenUser(user).then(() => {
@@ -1086,7 +1130,13 @@ router.post('/replyRequest/:id', (req, res) => {
             annotation.Thread.removeRepliedUser(user).then(() => {
                 annotation.Thread.addRepliedUser(user)
             })
-        }).then(() => res.sendStatus(200))
+            var io = socketapi.io
+            io.emit('reply_request', {filepath:filepath, class_id: class_id, user_id: user_id, add_request: add_request, reply_requesters: reply_requesters})
+        }).then(() => {
+            
+            res.sendStatus(200)
+        })
+            
             .catch((err) => res.sendStatus(400))
     );
 });
