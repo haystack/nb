@@ -62,8 +62,8 @@ import Follow from '../components/follow/Follow.vue';
             if (token) {
                 const decoded = VueJwtDecode.decode(token);
                 if (decoded.user.username && decoded.user.username !== '') {
-                    this.user = decoded.user
-                } 
+                    this.user = decoded.user                
+                }
             } else {
                 this.user = null
                 localStorage.removeItem("nb.user");
@@ -75,6 +75,7 @@ import Follow from '../components/follow/Follow.vue';
             this.user = null
             this.redirect('top-page')
         }
+
     }
   }
 </script>
