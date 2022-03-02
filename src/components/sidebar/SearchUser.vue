@@ -1,6 +1,6 @@
 <template>
   <div class="search-user">
-      <input class ="usernamesearch" type="text" placeholder="Follow more..">
+      <input class ="usernamesearch" type="text" placeholder="Enter name..">
       <button class="enteruser" v-on:click="follow()">Follow</button>
       <div class="error-msg">
         {{ error }}
@@ -19,6 +19,7 @@
       return {
         error: "",
         success: "",
+        students: [], 
       }
     },
     methods: {
