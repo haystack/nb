@@ -3,7 +3,7 @@
     <nav-bar :course="selectedCourse" :user="user"></nav-bar>
     <div class="app-body">
         <div class="sidebar">
-            <search-user> </search-user>
+            <search-user :me="user"> </search-user>
         </div>
         <div class="dashboard-wrapper">
             <follow></follow>
