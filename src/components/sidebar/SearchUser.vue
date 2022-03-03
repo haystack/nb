@@ -9,7 +9,7 @@
       </div>
         <div v-for="person in filtered" :key="person.first_name">
           <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 10px 30px 5px 5px;">
-            {{person.first_name}} {{person.last_name}}</h3>
+            {{person.first_name}} {{person.last_name}}
             <button class="enteruser" v-on:click="follow(person.username)">Follow</button>
           </div>
       </div>
@@ -36,7 +36,7 @@
           const token = localStorage.getItem("nb.user");
           const headers = { headers: { Authorization: 'Bearer ' + token }}
           axios.post(`/api/follow/user`, {username: username}, headers)
-          .then(res => {
+          .then(() => {
             this.success = "Success! You are following this user."
           })
           .catch(err => {
@@ -81,9 +81,7 @@
       await axios.get(`/api/classes/instructor`, headers)
         .then((res) => {
       classes = [...classes, ...res.data]
-      })
-      console.log(classes)
-    
+      })    
       for(let i =0; i < classes.length; i++){
         await axios.get(`/api/classes/usersList/${classes[i].id}`, headers)
         .then((res) => {
