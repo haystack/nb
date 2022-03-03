@@ -10,13 +10,13 @@ const spotlight = (sequelize, DataTypes) => {
             values: ['NONE', 'IN', 'ABOVE', 'BELLOW', 'LEFT', 'RIGHT', 'EM', 'MARGIN']
         }
     },
-    {
-        classMethods:{
-            associate: (models) => {
-                Spotlight.belongsTo(models.Annotation, {as: 'Annotation', foreignKey:{name: 'annotation_id'}, onDelete: 'CASCADE'});
+        {
+            classMethods: {
+                associate: (models) => {
+                    Spotlight.belongsTo(models.Annotation, { as: 'Annotation', foreignKey: { name: 'annotation_id' }, onDelete: 'CASCADE' });
+                }
             }
-        }
-    });
+        });
     return Spotlight;
 };
 
