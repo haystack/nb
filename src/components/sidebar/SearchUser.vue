@@ -87,8 +87,6 @@
       for(let i =0; i < classes.length; i++){
         await axios.get(`/api/classes/usersList/${classes[i].id}`, headers)
         .then((res) => {
-          console.log(res.data)
-            console.log(res.data)
           this.users = res.data.instructors.concat(res.data.students)
         })
       }
