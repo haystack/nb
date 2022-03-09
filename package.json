@@ -72,7 +72,7 @@
     "jest": "^24.7.0",
     "mysql2": "^2.2.5",
     "nodemailer": "^6.4.17",
-    "sequelize-cli": "^6.2.0",
+    "sequelize-cli": "^6.4.1",
     "supertest-session": "^4.0.0",
     "uuid": "^8.3.2",
     "vue-template-compiler": "^2.5.17"

@@ -179,6 +179,8 @@ module.exports = function (models) {
         annotation.starredByMe = head.Starrers
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.starCount = head.Starrers.length;
+        annotation.instructorVotes = head.Starrers
+          .filter((user) => instructors.has(user.id)).length;
         annotation.seenByMe = location.Thread.SeenUsers
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.bookmarked = head.Bookmarkers
