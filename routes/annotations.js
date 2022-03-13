@@ -488,7 +488,8 @@ router.get('/specific_thread', (req, res) => {
                             { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
                             { association: 'TaggedUsers', attributes: ['id'] },
                             { association: 'Tags', attributes: ['tag_type_id'] },
-                            { association: 'Bookmarkers', attributes: ['id'] }
+                            { association: 'Bookmarkers', attributes: ['id'] },
+                            { association: 'Media', attributes: ['filepath', 'type'] },
                         ]
                     },
                     {
@@ -500,7 +501,8 @@ router.get('/specific_thread', (req, res) => {
                             { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
                             { association: 'TaggedUsers', attributes: ['id'] },
                             { association: 'Tags', attributes: ['tag_type_id'] },
-                            { association: 'Bookmarkers', attributes: ['id'] }
+                            { association: 'Bookmarkers', attributes: ['id'] },
+                            { association: 'Media', attributes: ['filepath', 'type'] },
                         ]
                     },
                     { association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
