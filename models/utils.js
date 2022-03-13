@@ -210,6 +210,7 @@ module.exports = function (models) {
         annotation.people = head.TaggedUsers.map(userTag => userTag.id);
         annotation.visibility = head.visibility;
         annotation.anonymity = head.anonymity;
+        annotation.media = head.Media;
         annotation.replyRequestedByMe = head.ReplyRequesters
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.replyRequestCount = head.ReplyRequesters.length;
