@@ -210,7 +210,7 @@ router.get('/annotation', (req, res) => {
                     if (head.visibility === 'MYSELF' && head.Author.id !== req.user.id) {
                         return false;
                     }
-                    if (head.visibility === 'INSTRUCTORS' && !isUserInstructor) {
+                    if (head.visibility === 'INSTRUCTORS' && !isUserInstructor && head.Author.id !== req.user.id) {
                         return false;
                     } if (req.query.sectioned === 'true' && isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id)) {
                         return false;
