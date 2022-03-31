@@ -10,6 +10,18 @@ const { Op } = require("sequelize")
  * @name POST/api/log/nb
  */
 router.post('/nb', async (req, res) => {
+
+
+    // Hot fix to stop logging sync events
+    try {
+        const ignoreEvents = ["SYNC_RECEIVED_ANNOTATION", "SYNC_RECEIVED_REPLY", "SYNC_RECEIVED_CONNECTION"]
+        if (req.body.event && ignoreEvents.includes(req.body.event.toUpperCase())) {
+            return res.status(200).json({})
+        }
+    } catch (error) {
+
+    }
+
     const user = await User.findByPk(req.user.id)
     const source = await Source.findOne({ where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.body.class_id }] } })
 
@@ -33,7 +45,7 @@ router.post('/nb', async (req, res) => {
                 notification_trigger: req.body.notification_trigger,
                 page_position: req.body.page_position.toUpperCase(),
                 page_y_offset: parseInt(req.body.page_y_offset, 10),
-                page_height:  parseInt(req.body.page_height, 10),
+                page_height: parseInt(req.body.page_height, 10),
                 role: req.body.role,
                 applied_filter: req.body.applied_filter,
                 applied_sort: req.body.applied_sort,
