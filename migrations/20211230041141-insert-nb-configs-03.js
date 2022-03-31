@@ -19,11 +19,6 @@ module.exports = {
                 description: 'Enable/Disable logging for NB'
             },
             {
-                name: 'NB_LOG_SCROLL',
-                value: 'false',
-                description: 'Enable/Disable scroll logging'
-            },
-            {
                 name: 'CONFIG_NB_LOG_SCROLL',
                 value: '2000',
                 description: 'Configurations for scroll log timer (ms)'

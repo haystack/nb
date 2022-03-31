@@ -25,8 +25,8 @@
                             <table>
                                 <tr v-for="config in globalConfigs" v-bind:class="{ 'true': config.value === 'true' }">
                                     <td>{{config.name}}</td>
-                                    <td>{{config.value}}</td>
-                                    <td>{{config.description}}</td>
+                                    <td><div>{{config.value}}</div></td>
+                                    <td><div>{{config.description}}</div></td>
                                 </tr>
                             </table>
                         </fieldset>
@@ -351,7 +351,29 @@ code {
 }
 table {
     font-size: 12px;
+    width: 100%;
+    table-layout: fixed;
 }
+
+table tr td div {
+    overflow: auto;
+}
+
+table tr td div::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+ 
+table tr td div::-webkit-scrollbar-track {
+  box-shadow: inset 1px 0px 3px rgb(0 0 0 / 30%);
+  background: #5b2f85;
+}
+ 
+table tr td div::-webkit-scrollbar-thumb {
+  background-color: #260942;
+  outline: 1px solid #ffffff5c;
+}
+
 fieldset {
     margin-top: 25px;
     border-radius: 5px;
