@@ -106,7 +106,7 @@ JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
 
 8. If you are runing `npm v7` or above, run `sudo chown root .`. 
 
-9. To start NB, run the following command `sudo pm2 start npm --name "NB" --time -- start`.
+9. To start NB, run the following command `sudo pm2 start --node-args="--max-old-space-size=16384" npm --name "NB" --time -- start`.
 
 10. To make PM2 run automatically after reboot, run the following command `sudo pm2 startup` then run `sudo pm2 save`. 
 
