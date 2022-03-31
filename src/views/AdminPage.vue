@@ -48,7 +48,7 @@
                         </fieldset>
                         <fieldset>
                             <legend>Class configs</legend>
-                            <table>
+                            <table class="class-configs">
                                 <tr v-for="(value, name) in selectedCourseConfigs">
                                     <td>{{name}}</td>
                                     <td v-if="name.startsWith('CONFIG_')">
@@ -353,6 +353,10 @@ table {
     font-size: 12px;
     width: 100%;
     table-layout: fixed;
+}
+
+table.class-configs tr:nth-child(even) {
+    background-color: #f2f2f2;
 }
 
 table tr td div {
