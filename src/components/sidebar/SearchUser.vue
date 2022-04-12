@@ -100,7 +100,6 @@
           }
         })
       }
-    console.log(this.users)
     }
   }
 </script>
