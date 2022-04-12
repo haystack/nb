@@ -82,12 +82,25 @@
         .then((res) => {
       classes = [...classes, ...res.data]
       })    
+      let current_id = []
       for(let i =0; i < classes.length; i++){
         await axios.get(`/api/classes/usersList/${classes[i].id}`, headers)
         .then((res) => {
-          this.users = res.data.instructors.concat(res.data.students)
+          for(let u = 0; u < res.data.instructors.length; u++){
+            if(!current_id.includes(res.data.instructors[u].id)){
+              this.users.push(res.data.instructors[u])
+              current_id.push(res.data.instructors[u].id)
+            }
+          }
+          for(let u = 0; u < res.data.students.length; u++){
+            if(!current_id.includes(res.data.students[u].id)){
+              this.users.push(res.data.students[u])
+              current_id.push(res.data.students[u].id)
+            }
+          }
         })
       }
+    console.log(this.users)
     }
   }
 </script>
