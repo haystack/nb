@@ -45,7 +45,7 @@ const User = require('../models').User;
               res.status(200).json(data);
             })
           }).catch((err) => {
-            res.status(400).json({ msg: err.errors[0].message })
+            res.status(400).json({ msg: "You already follow this user." })
           })
         }
       });
