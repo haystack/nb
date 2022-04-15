@@ -1,77 +1,129 @@
-const io = require( "socket.io" )();
-const socketapi = {
-    io: io
-};
+const io = require("socket.io")()
+const crypto = require('crypto')
 
-let global_section_connections = {}
-let section_connections = {}
+const socketapi = { io: io }
+
 let dict = {}
+let socketUserMapping = {}
 
-// Add your socket.io logic here!
-io.on('connection', function( socket ) {
-    // socket.emit('id', socket.id) // send each client their socket id
-    
-    socket.on('joined', function(data) {
-        let username = data.username
-        let classId = data.classId
-        let sectionId = data.sectionId
-        if (sectionId && sectionId.length > 0) { // use the section_connections and sectionId
-            if (!(sectionId in section_connections)) {
-                section_connections[sectionId] = []
-            }
-            section_connections[sectionId].push(username)
-            io.emit('connections', {classId: classId, sectionId: sectionId, connections: section_connections[sectionId]})
-        } else if (classId && classId.length >0) { // use the global_section_connections and classId
-            if (!(classId in global_section_connections)) {
-                global_section_connections[classId] = []
-            }
-            global_section_connections[classId].push(username)
-            io.emit('connections', {classId: classId, sectionId: sectionId, connections: global_section_connections[classId]})
-        }
-    })
-    
-    socket.on('left', function(data) {
-        let username = data.username
-        let classId = data.classId
-        let sectionId = data.sectionId
-        if (sectionId && sectionId.length > 0) { // use the section_connections and sectionId
-            if (sectionId in section_connections) {
-                let idx = section_connections[sectionId].indexOf(username)
-                if (idx >= 0) {
-                    section_connections[sectionId].splice(idx, 1)
-                    io.emit('connections', {classId: classId, sectionId: sectionId, connections: section_connections[sectionId]})
-                }
-            }
-            
-        } else if (classId && classId.length > 0){ // use the global_section_connections and classId
-            if (classId in global_section_connections) {
-                let idx = global_section_connections[classId].indexOf(username)
-                if (idx >= 0) {
-                    global_section_connections[classId].splice(idx, 1)
-                    io.emit('connections', {classId: classId, sectionId: sectionId, connections: section_connections[classId]})
-                }
-            }
-        }
-    })
-    
-    socket.on('thread-typing', function(data) { 
-        if (data.threadId in dict) {
-            dict[data.threadId].add(data.username)
-        } else {
-            dict[data.threadId] = new Set([data.username])
-        }
-        io.emit('thread-typing', {usersTyping: [...dict[data.threadId]], threadId: data.threadId})
-    })
-    
-    socket.on('thread-stop-typing', function(data) { 
-        if (data.threadId in dict) {
-            dict[data.threadId].delete(data.username)
-            if (dict[data.threadId].size == 0) {
-                io.emit('thread-typing', {usersTyping: [...dict[data.threadId]], threadId: data.threadId})
-            }
-        }
-    })
-    
-});
+io.on('connection', function (socket) {
+    socket.on('joined', data => handleOnJoin(socket, data))
+    socket.on("disconnect", data => handleOnDisconnect(socket, data))
+    socket.on("left", data => handleOnLeft(socket, data))
+    socket.on('thread-typing', data => handleOnThreadTyping(socket, data))
+    socket.on('thread-stop-typing', data => handleOnThreadStopTyping(socket, data))
+})
 
-module.exports = socketapi;
+function handleOnJoin(socket, data) {
+    console.log("\n******** SOCKETIO JOINED *********")
+    console.log(data)
+
+    socketUserMapping[socket.id] = data
+
+    const urlHash = crypto.createHash('md5').update(data.sourceURL).digest('hex')
+    const globalRoomId = `${urlHash}:${data.classId}`
+    const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+
+    console.log(io.sockets.adapter.rooms.get(globalRoomId));
+    if (data.sectionId && data.sectionId.length > 0) {
+        const sectionRoomId = `${urlHash}:${data.classId}:${data.sectionId}`
+        socket.sectionRoomId = sectionRoomId
+        socket.join(sectionRoomId)
+        io.to(sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(globalRoomId)?.size || 0), users: fetchOnlineUsers([globalRoomId, sectionRoomId]) })
+    } else {
+        socket.join(globalRoomId)
+        classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(globalRoomId)?.size || 0), users: fetchOnlineUsers([globalRoomId, sectionRoomId]) }))
+    }
+
+    socket.globalRoomId = globalRoomId
+    const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(globalRoomId))
+    io.to(globalRoomId).emit('connections', { online: classAllRooms.reduce((acc, curr) => acc + (io.sockets.adapter.rooms.get(curr)?.size || 0), 0), users: fetchOnlineUsers(classAllRooms) })
+}
+
+function handleOnDisconnect(socket, data) {
+    console.log('disconnect')
+    delete socketUserMapping[socket.id]
+
+    if (socket.sectionRoomId) {
+        io.to(socket.sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(socket.sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(socket.globalRoomId)?.size || 0), users: fetchOnlineUsers([socket.globalRoomId, socket.sectionRoomId]) })
+    }
+
+    const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(socket.globalRoomId))
+    io.to(socket.globalRoomId).emit('connections', { online: classAllRooms.reduce((acc, curr) => acc + io.sockets.adapter.rooms.get(curr).size, 0), users: fetchOnlineUsers(classAllRooms) })
+}
+
+function handleOnLeft(socket, data) {
+    console.log('left')
+    console.log(data)
+    delete socketUserMapping[socket.id]
+    const urlHash = crypto.createHash('md5').update(data.sourceURL).digest('hex')
+    const globalRoomId = `${urlHash}:${data.classId}`
+    const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+
+    if (data.sectionId && data.sectionId.length > 0) {
+        const sectionRoomId = `${urlHash}:${data.classId}:${data.sectionId}`
+        socket.sectionRoomId = null
+        socket.leave(sectionRoomId)
+        io.to(sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(globalRoomId)?.size || 0), users: fetchOnlineUsers([globalRoomId, sectionRoomId]) })
+    } else {
+        socket.leave(globalRoomId)
+        classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(globalRoomId)?.size || 0), users: fetchOnlineUsers([globalRoomId, sectionRoomId]) }))
+    }
+
+    socket.globalRoomId = null
+    const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(globalRoomId))
+    io.to(globalRoomId).emit('connections', { online: classAllRooms.reduce((acc, curr) => acc + (io.sockets.adapter.rooms.get(curr)?.size || 0), 0), users: fetchOnlineUsers(classAllRooms) })
+}
+
+function handleOnThreadTyping(socket, data) {
+    if (data.threadId in dict) {
+        dict[data.threadId].add(data.username)
+    } else {
+        dict[data.threadId] = new Set([data.username])
+    }
+    io.emit('thread-typing', { usersTyping: [...dict[data.threadId]], threadId: data.threadId })
+}
+
+function handleOnThreadStopTyping(socket, data) {
+    if (data.threadId in dict) {
+        dict[data.threadId].delete(data.username)
+        if (dict[data.threadId].size == 0) {
+            io.emit('thread-typing', { usersTyping: [...dict[data.threadId]], threadId: data.threadId })
+        }
+    }
+}
+
+function fetchOnlineUsers(socketIds) {
+    let users = {}
+    users.students = []
+    users.instructors = []
+    users.ids = []
+
+    try {
+        socketIds.forEach(socketId => {
+            // TODO: check here
+            Array.from(io.sockets.adapter.rooms.get(socketId) || []).forEach(connection => {
+                if (!users.ids.includes(socketUserMapping[connection].id)) {
+                    users.ids.push(socketUserMapping[connection].id)
+                    // TODO: check why it crashed here
+                    try {
+                        if (socketUserMapping[connection].role.toLowerCase() === 'instructor') {
+                            users.instructors.push(socketUserMapping[connection])
+                        } else {
+                            users.students.push(socketUserMapping[connection])
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+            })
+        })
+    } catch (error) {
+        console.error(error);
+    }
+    
+
+    return users
+}
+
+module.exports = socketapi

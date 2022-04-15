@@ -4,15 +4,15 @@ module.exports = {
     up: async (queryInterface, Sequelize) => {
         queryInterface.bulkInsert('nb_configs', [
             {
-                name: 'SYNC_NOTIFICATION_AUDIO',
+                name: 'COMMENT_MEDIA_AUDIO_INSTRUCTOR',
                 value: 'false',
-                description: 'Enable/Disable Sync notificaiton audio'
+                description: 'Enable/Disable audio commenting for instructors'
             },
             {
-                name: 'SYNC_NOTIFICATION_POPUP',
+                name: 'COMMENT_MEDIA_AUDIO_STUDENT',
                 value: 'false',
-                description: 'Enable/Disable Sync notificaiton popup'
-            }
+                description: 'Enable/Disable audio commenting for students'
+            },
         ])
     },
 
