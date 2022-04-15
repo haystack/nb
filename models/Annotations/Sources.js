@@ -6,7 +6,7 @@ const source = (sequelize, DataTypes) => {
       primaryKey: true
     },
     filepath: {
-      type: DataTypes.STRING, //url if html
+      type: DataTypes.STRING,
       unique: 'sources_filepath_classid_key',
       allowNull: true
     },

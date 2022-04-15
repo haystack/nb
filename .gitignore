@@ -5,6 +5,8 @@ node_modules
 /public/js
 /public/style
 /public/uploads
+/public/media/*
+!/public/media/keeper
 /public/pdfs
 /uploads
 config.js

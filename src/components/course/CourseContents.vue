@@ -244,11 +244,6 @@
             // },
           },
           {
-            label: 'Comments', 
-            field: 'annotations', 
-            sortable: false
-          },
-          {
             label: 'Assignment Due',
             field: 'Source.Assignment.deadlineString',
             type: 'date',
@@ -291,6 +286,7 @@
         showDeleted: false,
         annotations: [],
         unreadThreads: [],
+        showDeleted: false
       }
     },
     computed:{
@@ -338,7 +334,7 @@
       showDeleted: function() {
         if(this.showDeleted) this.fileColumns[0].label = "Restore"
         else this.fileColumns[0].label = "Edit"
-      }, 
+      }
     },
     created: async function(){
       socket.on("reply_request", (data) => {
@@ -495,11 +491,6 @@
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
-
-              if (file.Source && file.Source.Class){
-                this.numberAnnotations(file.Source.filepath, file.Source.Class.id)
-              }
-              
             }
         
             this.contents = res.data
@@ -929,10 +920,4 @@
     background-color: #0069d9;
   }
   
-  .annotations {
-    color: black;
-    background-color:  #8c58af46;
-    border-radius: 5px; 
-    padding: 3px;
-  }
 </style>
