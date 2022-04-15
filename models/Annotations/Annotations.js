@@ -21,6 +21,10 @@ const annotation = (sequelize, DataTypes) => {
     anonymity: {
       type: DataTypes.ENUM,
       values: ['IDENTIFIED', 'ANONYMOUS']
+    },
+    endorsed:{
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     }
   },
     {
