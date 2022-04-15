@@ -380,7 +380,6 @@ router.get('/annotation', (req, res) => {
 
         })
     })
-    });
 });
 
 /**
