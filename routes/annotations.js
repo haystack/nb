@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models').User;
 const Class = require('../models').Class;
 const Annotation = require('../models').Annotation;
+const Followers = require('../models').Followers;
 const Thread = require('../models').Thread;
 const Source = require('../models').Source;
 const Location = require('../models').Location;
@@ -362,7 +363,7 @@ router.get('/annotation', (req, res) => {
 
             goodLocations.forEach((location) => {
                 // store all head annotaitons
-                headAnnotations.push(utils.createAnnotation(location, location.Thread.HeadAnnotation, instructors, req.user.id))
+                headAnnotations.push(utils.createAnnotation(location, location.Thread.HeadAnnotation, instructors, req.user.id, follows))
 
                 // store all associated annotations in {parent_id : annotation} annotations object
                 location.Thread.AllAnnotations.forEach((annotation) => {
@@ -370,7 +371,7 @@ router.get('/annotation', (req, res) => {
                         if (!(annotation.Parent.id in annotations)) {
                             annotations[annotation.Parent.id] = []
                         }
-                        annotations[annotation.Parent.id].push(utils.createAnnotation(location, annotation, instructors, req.user.id))
+                        annotations[annotation.Parent.id].push(utils.createAnnotation(location, annotation, instructors, req.user.id, follows))
                     }
                 })
             });
@@ -378,6 +379,7 @@ router.get('/annotation', (req, res) => {
             res.status(200).json({ 'headAnnotations': headAnnotations, 'annotationsData': annotations });
 
         })
+    })
     });
 });
 
@@ -601,6 +603,8 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
 */
 router.get('/specific_thread', (req, res) => {
     let classInstructors = new Set([])
+    Followers.findAll({ where: { user_id: req.user.id}}).then((follows) => {
+  
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.source_url }, { class_id: req.query.class_id }] },
         include: [{
@@ -649,14 +653,14 @@ router.get('/specific_thread', (req, res) => {
             })
                 .then(thread => {
                     let annotations = {}
-                    let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, req.user.id)
+                    let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, req.user.id, follows)
 
                     thread.AllAnnotations.forEach((annotation) => {
                         if (annotation.Parent) {
                             if (!(annotation.Parent.id in annotations)) {
                                 annotations[annotation.Parent.id] = []
                             }
-                            annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, req.user.id))
+                            annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, req.user.id, follows))
                         }
                     })
                     res.status(200).json({ 'headAnnotation': headAnnotation, 'annotationsData': annotations });
@@ -670,6 +674,11 @@ router.get('/specific_thread', (req, res) => {
             console.log(err)
             res.status(res.status(400).json({ msg: "Error fetching specific thread" }))
         })
+    })
+    .catch(function (err) {
+        console.log(err)
+        res.status(res.status(400).json({ msg: "Error fetching specific user" }))
+    })
 })
 
 

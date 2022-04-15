@@ -149,7 +149,7 @@ module.exports = function (models) {
           )
         );
     },
-    createAnnotation: function (location, head, instructors, sessionUserId) {
+    createAnnotation: function (location, head, instructors, sessionUserId, follows) {
       let annotation = {}
       let range = location.HtmlLocation;
 
@@ -181,6 +181,7 @@ module.exports = function (models) {
         annotation.instructorVotes = head.Starrers.filter((user) => instructors.has(user.id)).length;
         annotation.seenByMe = location.Thread.SeenUsers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.bookmarked = head.Bookmarkers.reduce((bool, user) => bool || user.id == sessionUserId, false);
+       annotation.followed = follows.reduce((bool, user) => bool || user.follower_id == head.Author.id, false);
       } catch (error) {
         console.error('\n\n\ncreateAnnotation Error')
         console.error(error)
@@ -190,7 +191,7 @@ module.exports = function (models) {
 
       return annotation
     },
-    createAnnotationFromThread: function (htmlLocation, head, seenUsers, instructors, sessionUserId) {
+    createAnnotationFromThread: function (htmlLocation, head, seenUsers, instructors, sessionUserId, follows) {
       let annotation = {}
       let range = htmlLocation;
 
@@ -223,6 +224,8 @@ module.exports = function (models) {
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.bookmarked = head.Bookmarkers
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
+        annotation.followed = follows 
+        .reduce((bool, user) => bool || user.follower_id == head.Author.id, false);
       } catch (error) {
         console.error('\n\n\ncreateAnnotationFromThread')
         console.error(error)

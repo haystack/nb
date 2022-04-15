@@ -59,6 +59,7 @@ if (!global.hasOwnProperty('db')) {
         CriteriaCount: sequelize.import('./Grading/CriteriaCounts'),
         Criteria: sequelize.import('./Grading/Criteria'),
         Assignment: sequelize.import('./Grading/Assignments'),
+        Followers: sequelize.import('./Followers')
         Consent: sequelize.import('./Consents'),
         NbLog: sequelize.import('./NbLog'),
         AnnotationMedia: sequelize.import('./Annotations/AnnotationMedia')

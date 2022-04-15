@@ -32,6 +32,22 @@ router.post('/getuser', (req, res) => {
 })
 
 /**
+ * Get user
+ * @name GET/api/users/getuser
+ */
+ router.get('/:id', (req, res) => {
+  User.findOne({ where: { id: req.params.id }})
+    .then(function (user) {
+      if (!user) {
+        res.status(200).json(null);
+        return null;
+      } else {
+        res.status(200).json(user);
+      }
+    });
+})
+
+/**
  * Get all users.
  * @name POST/api/users/all
  */
@@ -124,6 +140,7 @@ router.put('/editPersonal', passport.authenticate('jwt', { session: false }), (r
         last_name: req.body.last,
         email: req.body.email.toLowerCase(),
         username: req.body.username,
+        // profile_photo: req.body.profilephoto
       }).then((updatedUser) => {
         const token = jwt.sign({ user: updatedUser }, process.env.JWT_SECRET);
         res.status(200).json({ token });
