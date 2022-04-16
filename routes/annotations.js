@@ -206,7 +206,6 @@ router.get('/stats', (req, res) => {
             goodLocations.forEach((location) => {
 
                 location.Thread.AllAnnotations.forEach((annot) => {
-                    console.log(annot)
                     if (annot.Author.id === req.user.id ){
                         me += 1
                     }
@@ -249,6 +248,7 @@ router.get('/stats', (req, res) => {
 * }]
 */
 router.get('/annotation', (req, res) => {
+    Followers.findAll({ where: { user_id: req.user.id}}).then((follows) => {
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
         include: [{
@@ -380,6 +380,7 @@ router.get('/annotation', (req, res) => {
 
         })
     })
+})
 });
 
 /**
