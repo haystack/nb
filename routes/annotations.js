@@ -206,7 +206,6 @@ router.get('/stats', (req, res) => {
             goodLocations.forEach((location) => {
 
                 location.Thread.AllAnnotations.forEach((annot) => {
-                    console.log(annot)
                     if (annot.Author.id === req.user.id ){
                         me += 1
                     }
@@ -249,6 +248,7 @@ router.get('/stats', (req, res) => {
 * }]
 */
 router.get('/annotation', (req, res) => {
+    Followers.findAll({ where: { user_id: req.user.id}}).then((follows) => {
     Source.findOne({
         where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
         include: [{
@@ -302,7 +302,7 @@ router.get('/annotation', (req, res) => {
                         required: true,
                         include: [
                             {
-                                association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                                association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
                                 include: [
                                     { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
                                     { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
@@ -315,7 +315,7 @@ router.get('/annotation', (req, res) => {
                                 ]
                             },
                             {
-                                association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                                association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
                                 include: [
                                     { association: 'Parent', attributes: ['id'] },
                                     { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
@@ -380,6 +380,7 @@ router.get('/annotation', (req, res) => {
 
         })
     })
+})
 });
 
 /**
@@ -443,7 +444,7 @@ router.post('/annotation', async (req, res) => {
     const location = await Location.create({ source_id: source.id })
     await Promise.all([
         HtmlLocation.create({ start_node: range.start, end_node: range.end, start_offset: range.startOffset, end_offset: range.endOffset, location_id: location.id }),
-        Thread.create({ location_id: location.id, HeadAnnotation: { content: req.body.content, visibility: req.body.visibility, anonymity: req.body.anonymity, author_id: req.user.id } },
+        Thread.create({ location_id: location.id, HeadAnnotation: { content: req.body.content, visibility: req.body.visibility, anonymity: req.body.anonymity, endorsed: req.body.endorsed, author_id: req.user.id } },
             { include: [{ association: 'HeadAnnotation' }] })
             .then(thread => {
                 let annotation = thread.HeadAnnotation;
@@ -622,7 +623,7 @@ router.get('/specific_thread', (req, res) => {
                         association: 'Location', include: [{ association: 'HtmlLocation' }],
                     },
                     {
-                        association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                        association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
                         include: [
                             { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
                             { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
@@ -634,7 +635,7 @@ router.get('/specific_thread', (req, res) => {
                         ]
                     },
                     {
-                        association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                        association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
                         include: [
                             { association: 'Parent', attributes: ['id'] },
                             { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
@@ -719,7 +720,7 @@ router.get('/reply/:id', (req, res) => {
         .then(instructors => {
             Annotation.findAll({
                 where: { parent_id: req.params.id },
-                attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
                 include: [
                     { association: 'Thread', include: [{ association: 'SeenUsers' }] },
                     { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
@@ -756,6 +757,7 @@ router.get('/reply/:id', (req, res) => {
                             reply.hashtags = annotation.Tags.map(tag => tag.tag_type_id);
                             reply.people = annotation.TaggedUsers.map(userTag => userTag.id);
                             reply.visibility = annotation.visibility;
+                            reply.endorsed = annotation.endorsed;
                             reply.anonymity = annotation.anonymity;
                             reply.replyRequestedByMe = annotation.ReplyRequesters
                                 .reduce((bool, user) => bool || user.id == req.user.id, false);
@@ -798,6 +800,7 @@ router.post('/reply/:id', (req, res) => {
             anonymity: req.body.anonymity,
             thread_id: parent.Thread.id,
             author_id: req.user.id,
+            endorsed: req.body.endorsed,
             Tags: req.body.tags.map(tag_type => { return { tag_type_id: tag_type }; }),
         }, {
             include: [{ association: 'Tags' }]
@@ -891,7 +894,8 @@ router.put('/annotation/:id', (req, res) => {
             annotation.update({
                 content: req.body.content,
                 visibility: req.body.visibility,
-                anonymity: req.body.anonymity
+                anonymity: req.body.anonymity,
+                endorsed: req.body.endorsed
             })
                 .then(() => Tag.destroy({ where: { annotation_id: annotation.id } }))
                 .then(() => {

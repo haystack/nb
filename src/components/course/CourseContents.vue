@@ -244,6 +244,11 @@
             // },
           },
           {
+             label: 'Comments', 
+             field: 'annotations', 
+             sortable: false
+           },
+          {
             label: 'Assignment Due',
             field: 'Source.Assignment.deadlineString',
             type: 'date',
@@ -491,6 +496,9 @@
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
+               if (file.Source && file.Source.class_id){
+                 this.numberAnnotations(file.Source.filepath, file.Source.class_id)
+               }
             }
         
             this.contents = res.data
@@ -919,5 +927,11 @@
   .add-file button:enabled:hover {
     background-color: #0069d9;
   }
+  .annotations {
+     color: black;
+     background-color:  #8c58af46;
+     border-radius: 5px; 
+     padding: 3px;
+   }
   
 </style>
