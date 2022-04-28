@@ -36,7 +36,7 @@
           .then(res => {
             // this.following = res.data
             for (let u of res.data){
-              axios.get(`/api/users/${u.follower_id}`, headers)
+              axios.get(`/api/users/user/${u.follower_id}`, headers)
               .then(res2 => {
                 this.following.push(res2.data)
               })
