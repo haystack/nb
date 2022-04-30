@@ -65,7 +65,6 @@ const user = (sequelize, DataTypes) => {
                     User.belongsToMany(models.Thread, { as: 'RepliedThreads', through: 'user_replied' });
                     User.belongsToMany(models.Consent, { as: 'Consents', through: 'consentees', onDelete: 'CASCADE' });
                     User.belongsToMany(models.Consent, { as: 'Dissents', through: 'dissenters', onDelete: 'CASCADE' });
-                    User.belongsToMany(models.Followers, { as: 'Follower', foreignKey: { name: 'id', allowNull: false }, onDelete: 'CASCADE' });
                 }
             },
             hooks: {
