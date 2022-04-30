@@ -49,6 +49,10 @@ router.post('/nb', async (req, res) => {
                 role: req.body.role,
                 applied_filter: req.body.applied_filter,
                 applied_sort: req.body.applied_sort,
+                is_comment_endorsed: req.body.comment_endorsed,
+                is_comment_followed: req.body.comment_followed,
+                slider_value: req.body.slider_value
+
             },
         )
         res.status(200).json(nbLog)

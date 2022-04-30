@@ -204,7 +204,7 @@ router.get('/stats', (req, res) => {
                 }
             })
             goodLocations.forEach((location) => {
-
+                
                 location.Thread.AllAnnotations.forEach((annot) => {
                     if (annot.Author.id === req.user.id ){
                         me += 1
@@ -218,8 +218,8 @@ router.get('/stats', (req, res) => {
                 })
                 if (!(location.Thread.SeenUsers
                     .reduce((bool, user) => bool || user.id == req.user.id, false))){
-                    unread += 1
                     unread += location.Thread.AllAnnotations.length
+                    unread_thread.push(location.Thread)
                 }
                 thread += 1
 
