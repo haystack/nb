@@ -213,6 +213,7 @@ module.exports = function (models) {
         annotation.people = head.TaggedUsers.map(userTag => userTag.id);
         annotation.visibility = head.visibility;
         annotation.anonymity = head.anonymity;
+        annotation.endorsed = head.endorsed;
         annotation.media = head.Media;
         annotation.replyRequestedByMe = head.ReplyRequesters
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
@@ -220,6 +221,7 @@ module.exports = function (models) {
         annotation.starredByMe = head.Starrers
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.starCount = head.Starrers.length;
+        annotation.instructorVotes = head.Starrers.filter((user) => instructors.has(user.id)).length;
         annotation.seenByMe = seenUsers
           .reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.bookmarked = head.Bookmarkers
