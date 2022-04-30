@@ -61,7 +61,8 @@ if (!global.hasOwnProperty('db')) {
         Assignment: sequelize.import('./Grading/Assignments'),
         Consent: sequelize.import('./Consents'),
         NbLog: sequelize.import('./NbLog'),
-        AnnotationMedia: sequelize.import('./Annotations/AnnotationMedia')
+        AnnotationMedia: sequelize.import('./Annotations/AnnotationMedia'),
+        Followers: sequelize.import('./Followers'),
     }
 
     global.db = {
