@@ -11,6 +11,7 @@
         </font-awesome-icon>
         <div class="content">
           <div @click="redirect('profile-page')"> Your Profile </div>
+          <div @click="redirect('followers-page')"> Following </div>
           <div @click="logout"> Log out </div>
         </div>
       </div>

@@ -19,6 +19,10 @@
             <label for="new-user-email"> Email: </label>
             <input id="new-user-email" type="text" v-model="newUser.email">
         </div>
+        <div class="group">
+            <label for="new-user-profile-photo"> Profile photo: </label>
+            <input id="new-user-profile-photo" type="file" accept="image/png, image/jpeg">
+        </div>
         <button class="submit" id="personal" :disabled="!submitPersonalEnabled" @click="editPersonal">Save</button>
         <span class="profile-message"><br>{{personalMessage}}<br></span>
         <br>
@@ -108,6 +112,7 @@
                     first: "",
                     last: "",
                     email: "",
+                    profilephoto: "",
                     newpassword: "",
                     retypepassword: "",
                 },
@@ -159,6 +164,8 @@
         },
         methods: {
             editPersonal: function() {
+                console.log(document.getElementById("new-user-profile-photo").value)
+                // this.newUser.profilephoto = document.getElementById("new-user-profile-photo").value;
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 axios.put("api/users/editPersonal", this.newUser, headers)
