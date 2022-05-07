@@ -409,7 +409,7 @@
                     break
                   }
                 }
-                if(!seen && !data.parent){
+                if(!seen){
                   this.annotations[i]['unread'] -= 1
                 }
               }
