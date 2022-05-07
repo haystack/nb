@@ -184,7 +184,6 @@ router.get('/stats', (req, res) => {
             let replyRequests = 0
             let total = 0
             let thread = 0
-            let unread_thread = []
             // TODO: is this the correct way to filter replies?
             let goodLocations = locations.filter((location) => {
                 try {
@@ -219,12 +218,11 @@ router.get('/stats', (req, res) => {
                 if (!(location.Thread.SeenUsers
                     .reduce((bool, user) => bool || user.id == req.user.id, false))){
                     unread += location.Thread.AllAnnotations.length
-                    unread_thread.push(location.Thread)
                 }
                 thread += 1
 
             });
-            res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'thread': thread, 'total': total, 'unread_thread': unread_thread });
+            res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'thread': thread, 'total': total });
         })
     });
 });
@@ -793,7 +791,7 @@ router.get('/reply/:id', (req, res) => {
 */
 router.post('/reply/:id', (req, res) => {
     let username = ""
-    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }] }] }).then((parent) =>
+    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }, { association: 'SeenUsers' }] }] }).then((parent) =>
         Annotation.create({
             content: req.body.content,
             visibility: req.body.visibility,
@@ -979,7 +977,7 @@ router.post('/seen/:id', (req, res) => {
             const class_id = annotation.Thread.Location.Source.Class.id
             const filepath = annotation.Thread.Location.Source.filepath
             var io = socketapi.io
-            io.emit('read_thread', {filepath:filepath, class_id: class_id, user_id: req.user.id})
+            // io.emit('read_thread', {filepath:filepath, class_id: class_id, user_id: req.user.id})
             io.emit('read_thread', {filepath:filepath, class_id: class_id, user_id: req.user.id, thread_id: annotation.Thread.id})
         }).then(() => res.sendStatus(200))
             .catch((err) => res.sendStatus(400))
