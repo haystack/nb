@@ -290,7 +290,6 @@
         deleteText: "Delete",
         showDeleted: false,
         annotations: [],
-        unreadThreads: [],
         showDeleted: false
       }
     },
@@ -364,7 +363,6 @@
                 this.annotations[i]['me'] += 1
               } else {
                 this.annotations[i]['unread'] +=1
-                this.unreadThreads.push(data.parent)
               }
               if(data.reply_requests){
                 this.annotations[i]['replyRequests'] += 1
@@ -384,10 +382,8 @@
               if (this.user_id === data.user_id){
                 this.annotations[i]['me'] += 1
               } else {
-                if (!this.unreadThreads.includes(data.parent)){
                 this.annotations[i]['unread'] += 1
-                 this.unreadThreads.push(data.parent)
-              }
+            
               }
               if(data.reply_requests){
                 this.annotations[i]['replyRequests'] += 1
@@ -413,7 +409,7 @@
                     break
                   }
                 }
-                if(!seen && !data.parent){
+                if(!seen){
                   this.annotations[i]['unread'] -= 1
                 }
               }
@@ -431,16 +427,10 @@
       })
 
       socket.on("read_thread", (data) => {
-
         if (this.currentDir.class_id === data.class_id && this.user_id === data.user_id){
           for (let i = 0; i < this.annotations.length; i++) {
             if (this.annotations[i].filepath === data.filepath){
-              if (this.unreadThreads.includes(data.thread_id)){
-
                  this.annotations[i]['unread'] -= 1
-                 this.unreadThreads = this.unreadThreads.filter(id => id != data.thread_id)
-
-              }
               break
             }
         }
@@ -506,17 +496,12 @@
         
       },
       numberAnnotations: function(filepath, class_id){
-        this.unreadThreads = []
         const token = localStorage.getItem("nb.user");
         const config = {headers: { Authorization: 'Bearer ' + token }}
  
         axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
           .then((res) => {
-            res.data.filepath = filepath
-            for (let i = 0; i < res.data.unread_thread.length; i ++){
-              this.unreadThreads.push(res.data.unread_thread[i])
-            }
-            
+            res.data.filepath = filepath           
             this.annotations.push(res.data)
           })
       },
