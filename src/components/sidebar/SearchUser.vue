@@ -63,8 +63,13 @@
         } else {
           let searchLower = this.nameSearch.toLowerCase()
           return this.users.filter(u => {
+            if(u.first_name && u.last_name){
             return u.first_name.toLowerCase().includes(searchLower) ||
             u.last_name.toLowerCase().includes(searchLower)
+            } else {
+              return false
+            }
+
           })
         }
       }
