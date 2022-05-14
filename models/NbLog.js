@@ -7,7 +7,7 @@ const nbLog = (sequelize, DataTypes) => {
         },
         event: {
             type: DataTypes.ENUM,
-            values: ['CLICK', 'HOVER', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END', 'HIDE_HIGHLIGHT', 'SHOW_HIGHLIGHT', 'NOTIFICATION_ON', 'NOTIFICATION_OFF', 'NEW_ANNOTATION', 'SYNC_RECEIVED_ANNOTATION', 'SYNC_RECEIVED_REPLY', 'SYNC_RECEIVED_CONNECTION', 'SCROLL', 'FILTER', 'SORT']
+            values: ['CLICK', 'HOVER', 'STAR', 'REPLY_REQUEST', 'BOOKMARK', 'REPLY', 'SESSION_START', 'SESSION_END', 'HIDE_HIGHLIGHT', 'SHOW_HIGHLIGHT', 'NOTIFICATION_ON', 'NOTIFICATION_OFF', 'NEW_ANNOTATION', 'SYNC_RECEIVED_ANNOTATION', 'SYNC_RECEIVED_REPLY', 'SYNC_RECEIVED_CONNECTION', 'SCROLL', 'FILTER', 'SORT', 'SLIDER_CHANGE']
         },
         initiator: {
             type: DataTypes.ENUM,
@@ -77,6 +77,21 @@ const nbLog = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             unique: false,
             allowNull: true
+        }, 
+        is_comment_endorsed: {
+            type:  DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        is_comment_followed: {
+            type:  DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        slider_value: {
+            type:  DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0.
         }
     },
         {

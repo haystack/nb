@@ -15,6 +15,7 @@
           v-if="filePath.length"
           :userType="userType"
           :path="filePath"
+          :user_id="user.id"
           @switch-directory="switchDirectory">
       </course-contents>
     </div>
