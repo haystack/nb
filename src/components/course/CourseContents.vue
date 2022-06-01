@@ -90,13 +90,13 @@
               <span>&nbsp</span>
               <a :href="props.row.Source.filepath">{{props.row.filename}}</a>
             </span>
-            <!-- <span v-else-if="props.column.field === 'annotations'" style="display:flex; justify-content:space-around;">
+            <span v-else-if="props.column.field === 'annotations'" style="display:flex; justify-content:space-around;">
               <div class="annotations"> Mine:  {{getAnnotationStats('me', props.row.Source.filepath)}} </div>
               <div class="annotations"> Unread:  {{getAnnotationStats('unread', props.row.Source.filepath)}} </div>
               <div class="annotations"> Reply Requests:  {{getAnnotationStats('replyRequests', props.row.Source.filepath)}} </div>
               <div class="annotations"> Threads:  {{getAnnotationStats('thread', props.row.Source.filepath)}} </div>
               <div class="annotations"> Total:  {{getAnnotationStats('total', props.row.Source.filepath)}} </div>
-            </span> -->
+            </span>
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
                 {{ props.row.Source.Assignment ?
@@ -243,11 +243,11 @@
             //   enabled: true,
             // },
           },
-          // {
-          //    label: 'Comments', 
-          //    field: 'annotations', 
-          //    sortable: false
-          //  },
+          {
+             label: 'Comments', 
+             field: 'annotations', 
+             sortable: false
+           },
           {
             label: 'Assignment Due',
             field: 'Source.Assignment.deadlineString',
@@ -289,7 +289,7 @@
         },
         deleteText: "Delete",
         showDeleted: false,
-        // annotations: [],
+        annotations: [],
         showDeleted: false
       }
     },
@@ -486,36 +486,36 @@
               if (file.Source && file.Source.Assignment) {
                 file.Source.Assignment.deadlineString = moment(String(file.Source.Assignment.deadline)).format('MM/DD/YYYY HH:mm')
               }
-              //  if (file.Source && file.Source.class_id){
-              //    this.numberAnnotations(file.Source.filepath, file.Source.class_id)
-              //  }
+               if (file.Source && file.Source.class_id){
+                 this.numberAnnotations(file.Source.filepath, file.Source.class_id)
+               }
             }
         
             this.contents = res.data
           })
         
       },
-      // numberAnnotations: function(filepath, class_id){
-      //   const token = localStorage.getItem("nb.user");
-      //   const config = {headers: { Authorization: 'Bearer ' + token }}
+      numberAnnotations: function(filepath, class_id){
+        const token = localStorage.getItem("nb.user");
+        const config = {headers: { Authorization: 'Bearer ' + token }}
  
-      //   axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
-      //     .then((res) => {
-      //       res.data.filepath = filepath           
-      //       this.annotations.push(res.data)
-      //     })
-      // },
-      // getRequestReply: function(locations){
-      //   let numReqs = 0
-      //   for (let i = 0; i < locations.length; i++){
-      //     if(locations[i].Thread){
-      //       for(let j = 0; j < locations[i].Thread.AllAnnotations.length; j++){
-      //         numReqs += locations[i].Thread.AllAnnotations[j].ReplyRequesters.length
-      //       }
-      //     }
-      //   }
-      //   return numReqs
-      // },
+        axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
+          .then((res) => {
+            res.data.filepath = filepath           
+            this.annotations.push(res.data)
+          })
+      },
+      getRequestReply: function(locations){
+        let numReqs = 0
+        for (let i = 0; i < locations.length; i++){
+          if(locations[i].Thread){
+            for(let j = 0; j < locations[i].Thread.AllAnnotations.length; j++){
+              numReqs += locations[i].Thread.AllAnnotations[j].ReplyRequesters.length
+            }
+          }
+        }
+        return numReqs
+      },
       switchDirectory: function(directory) {
         this.showDeleted = false
         this.$emit('switch-directory', directory)
@@ -662,13 +662,13 @@
           })
         
       },
-      // getAnnotationStats(type, filepath){
-      //   let stat = this.annotations.filter(a => a.filepath === filepath)
-      //   if (stat.length > 0){
-      //     return stat[0][type]
-      //   } 
-      //   return 0
-      // }
+      getAnnotationStats(type, filepath){
+        let stat = this.annotations.filter(a => a.filepath === filepath)
+        if (stat.length > 0){
+          return stat[0][type]
+        } 
+        return 0
+      }
     },
     mounted: function() {
       this.loadFiles()
