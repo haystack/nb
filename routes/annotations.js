@@ -110,48 +110,10 @@ router.get('/allTagTypes', (req, res) => {
  * total: total number of annotations
  * }] 
  */
-router.get('/stats', (req, res) => {
+ router.get('/stats', (req, res) => {
     Source.findOne({
-        where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] },
-        include: [{
-            association: 'Class',
-            include: [
-                { association: 'Instructors', attributes: ['id'] },
-                {
-                    association: 'GlobalSection', include: [{
-                        association: 'MemberStudents', attributes: ['id']
-                    }]
-                },
-                {
-                    association: 'Sections', separate: true, include: [{ // with the hasMany Sections association, add a "separate: true" to make this join happen separately so that there are no duplicate joins
-                        association: 'MemberStudents', attributes: ['id']
-                    }]
-                }
-            ]
-        }]
+        where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] }
     }).then(source => {
-        let instructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
-        let globalSectionStudents = new Set(source.Class.GlobalSection.MemberStudents.map(user => user.id)) // convert to set so faster to check if a user is in this set
-        let isUserInstructor = instructors.has(req.user.id);
-        let isUserStudent = globalSectionStudents.has(req.user.id);
-        if (!isUserInstructor && !isUserStudent) {
-            res.status(200).json([]);
-            return;
-        }
-        let usersICanSee = new Set([]) // convert to set so faster to check if a user is in this set
-        let isSingleSectionClass = source.Class.Sections.length === 1
-        for (const section of source.Class.Sections) {
-            let memberIds = section.MemberStudents.map(user => user.id)
-            if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
-                usersICanSee = new Set(memberIds)
-                break;
-            } else {
-                if (memberIds.indexOf(req.user.id) >= 0 && !section.is_global) {
-                    usersICanSee = new Set(memberIds)
-                    break
-                }
-            }
-        }
         source.getLocations({
             include:
                 [
@@ -161,14 +123,14 @@ router.get('/stats', (req, res) => {
                         required: true,
                         include: [
                             {
-                                association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                                association: 'HeadAnnotation', attributes: ['id'],
                                 include: [
                                     { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
                                     { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
                                 ]
                             },
                             {
-                                association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at'],
+                                association: 'AllAnnotations', separate: true, attributes: ['id'],
                                 include: [
                                     { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
                                     { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
@@ -185,31 +147,11 @@ router.get('/stats', (req, res) => {
             let total = 0
             let thread = 0
             // TODO: is this the correct way to filter replies?
-            let goodLocations = locations.filter((location) => {
-                try {
-                    let comment = location.Thread.AllAnnotations;
-                    if (comment.visibility === 'MYSELF' && comment.Author.id !== req.user.id) {
-                        return false;
-                    }
-                    if (comment.visibility === 'INSTRUCTORS' && !isUserInstructor) {
-                        return false;
-                    } if (req.query.sectioned === 'true' && isUserStudent && comment.Author.id !== req.user.id && !usersICanSee.has(comment.Author.id) && !instructors.has(comment.Author.id)) {
-                        return false;
-                    }
-                    return true;
-                } catch(e) {
-                    console.log(e)
-                    return false;
-                }
-            })
-            goodLocations.forEach((location) => {
+            locations.forEach((location) => {
                 
                 location.Thread.AllAnnotations.forEach((annot) => {
                     if (annot.Author.id === req.user.id ){
                         me += 1
-                    }
-                    if(annot.ReplyRequesters.length > 0){
-                        replyRequests += 1
                     }
 
                     replyRequests += annot.ReplyRequesters.length
@@ -222,7 +164,7 @@ router.get('/stats', (req, res) => {
                 thread += 1
 
             });
-            res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'thread': thread, 'total': total});
+            res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'thread': thread, 'total': total });
         })
     });
 });
