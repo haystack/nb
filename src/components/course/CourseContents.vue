@@ -501,6 +501,7 @@
  
         axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
           .then((res) => {
+            console.log(res.data)
             res.data.filepath = filepath           
             this.annotations.push(res.data)
           })

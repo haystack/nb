@@ -10,6 +10,7 @@ const HtmlLocation = require('../models').HtmlLocation;
 const AnnotationMedia = require('../models').AnnotationMedia
 const Tag = require('../models').Tag;
 const router = express.Router();
+// const global = require('../models').global;
 const { Op } = require("sequelize");
 const utils = require('../models/utils')(require('../models'));
 let socketapi = require("../socketapi")
@@ -110,63 +111,149 @@ router.get('/allTagTypes', (req, res) => {
  * total: total number of annotations
  * }] 
  */
- router.get('/stats', (req, res) => {
-    Source.findOne({
-        where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] }
-    }).then(source => {
-        source.getLocations({
-            include:
-                [
-                    { association: 'HtmlLocation' },
-                    {
-                        association: 'Thread',
-                        required: true,
-                        include: [
-                            {
-                                association: 'HeadAnnotation', attributes: ['id'],
-                                include: [
-                                    { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                    { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                ]
-                            },
-                            {
-                                association: 'AllAnnotations', separate: true, attributes: ['id'],
-                                include: [
-                                    { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                    { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                ]
-                            },
-                            { association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                        ]
-                    }
-                ]
-        }).then(locations => {
-            let me = 0
-            let unread = 0
-            let replyRequests = 0
-            let total = 0
-            let thread = 0
-            // TODO: is this the correct way to filter replies?
-            locations.forEach((location) => {
+ router.get('/stats', async (req, res) => {
+
+    //total threads 
+//     select count(*)
+//     from threads
+//    inner join locations 
+//    on threads.location_id = locations.id
+//    inner join sources 
+//    on locations.source_id = sources.id 
+//    where sources.filepath =
+
+//total annotations 
+//select count(*)
+// from annotations 
+// inner join threads 
+// on annotations.thread_id = threads.id
+// inner join locations 
+// on threads.location_id = locations.id 
+// inner join sources 
+// on locations.source_id = sources.id
+// where sources.filepath =
+
+//mine
+//select count(*)
+// from annotations 
+// inner join threads 
+// on annotations.thread_id = threads.id
+// inner join locations 
+// on threads.location_id = locations.id 
+// inner join sources 
+// on locations.source_id = sources.id
+// where sources.filepath =''  and annotations.author_id=''
+
+//reply request 
+// select count(*) 
+// from reply_requests 
+// inner join annotations 
+// on reply_requests.annotation_id=annotations.id
+// inner join threads 
+// on annotations.thread_id = threads.id
+// inner join locations 
+// on threads.location_id = locations.id 
+// inner join sources 
+// on locations.source_id = sources.id
+// where sources.filepath = ;
+
+// with annot_count as (select threads.location_id as loc_id, threads.id, count(annotations.id) as countall from
+// annotations 
+// inner join threads on annotations.thread_id = threads.id inner join locations
+// on threads.location_id = locations.id
+// inner join sources
+// on locations.source_id = sources.id
+// where sources.filepath = 'https://127.0.0.1:8080/nb_viewer.html?id=361eb0c16052f0ebb273476cdcad795e' group by 1,2), 
+// user_count as (select annot_count.loc_id as loc_id,  user_seen.thread_id,annot_count.countall as countseen from 
+// user_seen
+// inner join annot_count
+// on annot_count.id=user_seen.thread_id
+// where user_seen.user_id = 'ec4ab520-c6fc-11ec-83ff-e3ea0e62b3d2'), total_count as (select sum(annot_count.countall) as sum_total from annot_count), 
+//  total_unseen_count as (select sum(user_count.countseen) as sum_unseen from user_count) select sum_total-sum_unseen from total_count cross join total_unseen_count;
+
+    
+    const thread = await global.db.sequelize.query('SELECT COUNT(*) from threads INNER JOIN locations ON threads.location_id = locations.id INNER JOIN sources ON locations.source_id = sources.id WHERE sources.filepath = :filepath AND sources.class_id = :class', 
+    {
+        replacements: {filepath: req.query.url, class: req.query.class}
+    })
+
+    const total = await global.db.sequelize.query('SELECT COUNT(*) FROM annotations INNER JOIN threads ON annotations.thread_id = threads.id INNER JOIN locations ON threads.location_id = locations.id INNER JOIN sources ON locations.source_id = sources.id WHERE sources.filepath = :filepath AND sources.class_id = :class', 
+    {
+        replacements: {filepath: req.query.url, class: req.query.class}
+    })
+
+    const me = await global.db.sequelize.query('SELECT COUNT(*) FROM annotations INNER JOIN threads ON annotations.thread_id = threads.id INNER JOIN locations ON threads.location_id = locations.id INNER JOIN sources ON locations.source_id = sources.id WHERE sources.filepath = :filepath AND sources.class_id = :class AND annotations.author_id = :author',
+    {
+        replacements: {filepath: req.query.url, class: req.query.class, author: req.user.id}
+    })
+
+    const unread = await global.db.sequelize.query('WITH annot_count AS (SELECT threads.location_id AS loc_id, threads.id, COUNT(annotations.id) AS countall FROM annotations INNER JOIN threads ON annotations.thread_id = threads.id INNER JOIN locations ON threads.location_id = locations.id INNER JOIN sources ON locations.source_id = sources.id WHERE sources.filepath = :filepath AND  sources.class_id = :class GROUP BY 1,2), user_count AS (SELECT annot_count.loc_id AS loc_id,  user_seen.thread_id, annot_count.countall AS countseen FROM user_seen INNER JOIN annot_count ON annot_count.id=user_seen.thread_id WHERE user_seen.user_id = :author), total_count AS (SELECT SUM(annot_count.countall) AS sum_total FROM annot_count), total_unseen_count AS (SELECT SUM(user_count.countseen) AS sum_unseen FROM user_count) SELECT sum_total-sum_unseen AS count FROM total_count CROSS JOIN total_unseen_count', 
+    {
+        replacements: {filepath: req.query.url, class: req.query.class, author: req.user.id}
+    })
+
+    const replyRequests = await global.db.sequelize.query('SELECT COUNT(*) FROM reply_requests INNER JOIN annotations ON reply_requests.annotation_id=annotations.id INNER JOIN threads ON annotations.thread_id = threads.id INNER JOIN locations ON threads.location_id = locations.id INNER JOIN sources ON locations.source_id = sources.id WHERE sources.filepath = :filepath AND sources.class_id = :class', 
+    {
+        replacements: {filepath: req.query.url, class: req.query.class}
+    })
+    res.status(200).json({ 'me': me[0][0]['count'], 'unread': unread[0][0]['count'], 'replyRequests': replyRequests[0][0]['count'], 'thread': thread[0][0]['count'], 'total': total[0][0]['count'] });
+
+    // Source.findOne({
+    //     where: { [Op.and]: [{ filepath: req.query.url }, { class_id: req.query.class }] }
+    // }).then(source => {
+    //     source.getLocations({
+    //         include:
+    //             [
+    //                 { association: 'HtmlLocation' },
+    //                 {
+    //                     association: 'Thread',
+    //                     required: true,
+    //                     include: [
+    //                         {
+    //                             association: 'HeadAnnotation', attributes: ['id'],
+    //                             include: [
+    //                                 { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
+    //                                 { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
+    //                             ]
+    //                         },
+    //                         {
+    //                             association: 'AllAnnotations', separate: true, attributes: ['id'],
+    //                             include: [
+    //                                 { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
+    //                                 { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
+    //                             ]
+    //                         },
+    //                         { association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+    //                     ]
+    //                 }
+    //             ]
+    //     }).then(locations => {
+    //         let me = 0
+    //         let unread = 0
+    //         let replyRequests = 0
+    //         let total = 0
+    //         let thread = 0
+    //         // TODO: is this the correct way to filter replies?
+    //         locations.forEach((location) => {
                 
-                location.Thread.AllAnnotations.forEach((annot) => {
-                    if (annot.Author.id === req.user.id ){
-                        me += 1
-                    }
+    //             location.Thread.AllAnnotations.forEach((annot) => {
+    //                 if (annot.Author.id === req.user.id ){
+    //                     me += 1
+    //                 }
 
-                    replyRequests += annot.ReplyRequesters.length
-                    total += 1
-                })
-                if (!(location.Thread.SeenUsers
-                    .reduce((bool, user) => bool || user.id == req.user.id, false))){
-                    unread += location.Thread.AllAnnotations.length
-                }
-                thread += 1
+    //                 replyRequests += annot.ReplyRequesters.length
+    //                 total += 1
+    //             })
+    //             if (!(location.Thread.SeenUsers
+    //                 .reduce((bool, user) => bool || user.id == req.user.id, false))){
+    //                 unread += location.Thread.AllAnnotations.length
+    //             }
+    //             thread += 1
 
-            });
-            res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'thread': thread, 'total': total });
-        })
-    });
+    //         });
+    //         res.status(200).json({ 'me': me, 'unread': unread, 'replyRequests': replyRequests, 'thread': thread, 'total': total });
+    //     })
+    // });
 });
 
 /**
