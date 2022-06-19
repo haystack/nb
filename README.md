@@ -24,20 +24,7 @@ var config = {
 module.exports = config;
 ```
 
-5. Add an `email-config.js` file in the base folder of the project (where config.js is) like below (you can use your gmail account or ask admin for test account):
-```
-const nodemailer = require("nodemailer");
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { 
-    user: 'EMAIL_ADDRESS',
-    pass: 'EMAIL_PASSWORD'
-  }
-});
-module.exports = transporter;
-```
-
-6. Create a .env file with the following content and place it in the base folder of the project (where config.js is).
+5. Create a .env file with the following content and place it in the base folder of the project (where config.js is).
 ```
 JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
 ```
@@ -50,12 +37,12 @@ JWT_SECRET=ENTER-SECRET-HERE-(RANDOM-STRING)
           killall Finder 
           ```
 
-7. Run NB in separate terminals
+6. Run NB in separate terminals
    - Run backend using command `npm run dev`
    - Run UI using command `npm run serve`
      - The UI has several errors listed in the command line when you run it, but it still works if you open up the server on your browser.
 
-8. Access UI on https://127.0.0.1:8080/ 
+7. Access UI on https://127.0.0.1:8080/ 
    - Note: Since we're using a self generated certificate for development, the browser will alert that you are running an insecure server. In Chrome type:  thisisunsafe. (note: there is no text box to type this in, you have to type it on yout keyboard to get through). You can also press the advanced button then press continue to site. 
 
 
