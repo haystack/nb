@@ -10,7 +10,6 @@ node_modules
 /public/pdfs
 /uploads
 config.js
-email-config.js
 config/config.json
 
 # local env files
