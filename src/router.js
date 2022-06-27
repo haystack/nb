@@ -17,9 +17,9 @@ export default new Router({
             component: () => import('./views/HomePage.vue'),
         },
         {
-            path: '/forgotpassword',
-            name: 'profile-page',
-            component: () => import('./views/ProfilePage.vue'),
+            path: '/reset',
+            name: 'reset-password-page',
+            component: () => import('./views/ResetPasswordPage.vue'),
             props: route => ({ reset_password_id: route.query.id })
 
         },

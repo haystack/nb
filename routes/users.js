@@ -78,7 +78,7 @@ router.post('/register', (req, res) => {
 
 router.post('/forgotpassword', (req, res) => {
   var reset_password_id = uuidv4();
-  var link = req.headers.origin + "/#/forgotpassword?id=" + reset_password_id;
+  var link = req.headers.origin + "/#/reset?id=" + reset_password_id;
 
   User.findOne({ where: { email: { [Op.iLike]: req.body.email } } }).then(function (user) {
     if (!user) {
@@ -87,6 +87,7 @@ router.post('/forgotpassword', (req, res) => {
       user.update({
         reset_password_id: reset_password_id
       })
+      console.log(`Reset passowrd for ${user.username} with link ${link}`);
       var mailOptions = {
         from: 'nb2.mailer@csail.mit.edu',
         to: req.body.email.toLowerCase(),
@@ -115,7 +116,7 @@ router.put('/editPersonal', passport.authenticate('jwt', { session: false }), (r
     res.status(200).json(null);
     return null;
   }
-  User.findByPk(req.user.id, { attributes: ['id', 'username', 'name'] }).then((user) => {
+  User.findByPk(req.user.id, { attributes: ['id', 'username', 'name'], include: [{ association: 'Consents' }, { association: 'Dissents' }] }).then((user) => {
     if (!user) {
       res.status(401).json({ msg: "Cannot find user " })
     } else {

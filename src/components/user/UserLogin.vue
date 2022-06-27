@@ -23,7 +23,7 @@
       <label for="login-email"> Email: </label>
       <input id="login-email" type="text" v-model="user.email">
     </div>
-    <button class="password-submit" :disabled="!forgotPasswordEnabled" @click="forgotPassword">Forgot Password</button>
+    <button class="submit" :disabled="!forgotPasswordEnabled" @click="forgotPassword">Forgot Password</button>
     <span class="forgot-password-message"><br>{{forgotPasswordMessage}}<br></span>
 
   </div>
@@ -140,36 +140,21 @@
     font-size: 14px;
   }
   button.submit {
-    width: 80px;
     align-self: flex-end;
-    padding: 6px 0;
+    padding: 10px 15px;
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #38155a;
+    background-color: #4a2270;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
   }
-  button.submit:disabled {
+button.submit:disabled {
     cursor: not-allowed;
     opacity: 0.5;
-  }
+}
   button.submit:enabled:hover {
-    background-color: #0069d9;
+    background-color: #38155a;
   }
-  button.password-submit {
-    width: 40%;
-    align-self: flex-end;
-    padding: 6px 0;
-    border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  button.password-submit:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
+
 </style>
