@@ -1,29 +1,13 @@
 <template>
     <div class="form">
-        <h1 class="title">User Profile & Settings</h1>
+        <h1 class="title">Rest Password</h1>
         <div class="profile-row">
-            <h2>Personal Details</h2>
-        <div class="group">
-            <label for="new-user-username"> Username: </label>
-            <input id="new-user-username" type="text" v-model="newUser.username" >
-        </div>
-        <div class="group">
-            <label for="new-user-first"> First name: </label>
-            <input id="new-user-first" type="text" v-model="newUser.first" >
-        </div>
-        <div class="group">
-            <label for="new-user-last"> Last name: </label>
-            <input id="new-user-last" type="text" v-model="newUser.last">
-        </div>
         <div class="group">
             <label for="new-user-email"> Email: </label>
-            <input id="new-user-email" type="text" v-model="newUser.email">
+            <input id="new-user-email" type="text" v-model="newUser.email" disabled>
         </div>
-        <button class="submit" id="personal" :disabled="!submitPersonalEnabled" @click="editPersonal">Update Personal Details</button>
-        <span class="profile-message"><br>{{personalMessage}}<br></span>
-        <br>
         <hr/>
-        <h2>Authentication</h2>
+        <br>
         <div class="group">
             <label for="new-user-newpassword"> New Password: </label>
             <input id="new-user-newpassword" type="password" v-model="newUser.newpassword">
@@ -32,12 +16,8 @@
             <label for="new-user-retypepassword"> Retype Password: </label>
             <input id="new-user-retypepassword" type="password" v-model="newUser.retypepassword">
         </div>
-         <button class="submit" id="auth" :disabled="!submitAuthEnabled" @click="editAuth">Update Authentication</button>
-        <span class="profile-message"><br>{{authMessage}}<br></span>
         <br>
-        <hr/>
-        <h2>Consents</h2>
-        <div class="nb-consent">
+        <div v-if="!hasNBIRB" class="nb-consent">
             <div class="nb-irb">
                 <p><strong>Letter of Information</strong></p>
                 <p><strong>Title of research study: </strong>Leveraging in-context online discussion of course materials to enhance engagement and learning</p>
@@ -72,7 +52,7 @@
             <input type="radio" id="nbIRBNo" value="false" v-model="nbIRB">
             <label for="nbIRBNo">No</label>
         </div>
-        <div v-if="needUCDIRB" class="ucdavis-consent">
+        <div v-if="needUCDIRB&&!hasUCDIRB" class="ucdavis-consent">
             <div class="ucdavis-irb">
                 <p dir="ltr" style="line-height:1.2;text-align: justify;margin-top:0pt;margin-bottom:0pt;"><span style="font-size: 12px;"><span style='font-family: "Times Roman"; color: rgb(50, 53, 57); background-color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline; white-space: pre-wrap;'>University of California at Davis Letter of Information</span></span></p>
                 <p dir="ltr" style="line-height:1.2;text-align: justify;margin-top:0pt;margin-bottom:0pt;"><span style="font-size: 12px;"><span style='font-family: "Times Roman"; color: rgb(50, 53, 57); background-color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline; white-space: pre-wrap;'>Title of research study:&nbsp;</span><span style='font-family: "Times New Roman"; color: rgb(50, 53, 57); background-color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline; white-space: pre-wrap;'>Leveraging in-context online discussion of course materials to enhance student engagement and learning</span></span></p>
@@ -126,19 +106,20 @@
             <input type="radio" id="ucdavisIRBNo" value="false" v-model="ucdavisIRB">
             <label for="ucdavisIRBNo">No</label>
         </div>
-        <button class="submit" id="auth" :disabled="!submitConsentsEnabled" @click="editConsents">Update Consents</button>
-        <span class="profile-message"><br>{{consentsMessage}}<br></span>
+        <button class="submit" id="auth" :disabled="!submitResetEnabled" @click="reset">Reset</button>
+        <span class="profile-message"><br>{{resetMessage}}<br></span>
         </div>
     </div>
 </template>
 
 <script>
     import axios from "axios"
-    import { eventBus } from "../../main"
     import VueJwtDecode from "vue-jwt-decode";
+    import { eventBus } from "../../main"
+
 
     export default {
-        name: "user-profile",
+        name: "reset-password",
         props: {
             user: Object,
         },
@@ -152,11 +133,12 @@
                     newpassword: "",
                     retypepassword: "",
                 },
-                personalMessage: "",
-                authMessage: "",
-                consentsMessage: "",
+                resetMessage: "",
                 ucdavisIRB: null,
                 nbIRB: null,
+                hasNBIRB: false,
+                hasUCDIRB: false,
+                isSubmitting: false,
             }
         },
         created: function() {
@@ -169,10 +151,13 @@
                         this.newUser.last = decoded.user.last_name
                         this.newUser.email = decoded.user.email
                 } 
+
                 decoded.user.Consents.forEach(consent => consent.name === 'NB' ? this.nbIRB = 'true' : null)
                 decoded.user.Dissents.forEach(consent => consent.name === 'NB' ? this.nbIRB = 'false' : null)
                 decoded.user.Consents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'true' : null)
                 decoded.user.Dissents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'false' : null)
+                this.hasNBIRB = this.nbIRB ? true : false
+                this.hasUCDIRB = this.ucdavisIRB ? true : false
             }
         },
         watch: { // need to watch because the parent component takes some time to get the user before propogating here
@@ -185,58 +170,30 @@
                 newVal.Dissents.forEach(consent => consent.name === 'NB' ? this.nbIRB = 'false' : null)
                 newVal.Consents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'true' : null)
                 newVal.Dissents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'false' : null)
-
+                this.hasNBIRB = this.nbIRB ? true : false
+                this.hasUCDIRB = this.ucdavisIRB ? true : false
             }
         },
         computed: {
             needUCDIRB: function() {
                     return this.newUser.email.includes('@ucdavis.edu')
             },
-            submitPersonalEnabled: function() {
-                return this.newUser.username.length > 0
-                && this.newUser.first.length > 0
-                && this.newUser.last.length > 0
-                && this.newUser.email.length > 0
-            },
-            submitAuthEnabled: function() {
+            submitResetEnabled: function() {
                 if (this.newUser.newpassword !== this.newUser.retypepassword) {
-                    this.setAuthMessage("Passwords must match", false);
+                    this.setResetMessage("Passwords must match", false);
                 } else {
-                    this.setAuthMessage("", false);
+                    this.setResetMessage("", false);
                 }
-                return this.newUser.newpassword.length > 0 && this.newUser.newpassword === this.newUser.retypepassword
-            },
-            submitConsentsEnabled: function() {
-                return this.nbIRB!== null && ((this.needUCDIRB && this.ucdavisIRB!== null) || (!this.needUCDIRB))
+                return this.newUser.newpassword.length > 0 && this.newUser.newpassword === this.newUser.retypepassword && !this.isSubmitting && this.nbIRB!== null && ((this.needUCDIRB && this.ucdavisIRB!== null) || (!this.needUCDIRB))
             },
         },
         methods: {
-            editPersonal: function() {
-                const token = localStorage.getItem("nb.user");
-                const headers = { headers: { Authorization: 'Bearer ' + token }}
-                axios.put("api/users/editPersonal", this.newUser, headers)
-                .then((res) => {
-                    localStorage.setItem("nb.user", res.data.token)
-                    this.setPersonalMessage("Success: Personal Details saved");
-                }).catch(() => {
-                    this.setPersonalMessage("Error: This username or email is already taken. Please try again.", false)
-                })
-            },
-            editAuth: async function() {
+            reset: async function() {
+                this.isSubmitting = true
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
                 try {
                     await axios.put("api/users/editAuth", this.newUser, headers)
-                    this.setAuthMessage("Success: New password saved", true)
-                } catch (err) {
-                    console.log(err)
-                    console.log("Error: An error was encountered whne trying to update you password. Please try again.")
-                }
-            },
-            editConsents: async function() {
-                const token = localStorage.getItem("nb.user");
-                const headers = { headers: { Authorization: 'Bearer ' + token }}
-                try {
                     const consentRes = await axios.post(`/api/consent`, {name: 'NB', consent: this.nbIRB}, headers)
                     const t1 = consentRes.data.token
                     localStorage.setItem("nb.user", t1);
@@ -247,10 +204,19 @@
                         const t2 = consentRes.data.token
                         localStorage.setItem("nb.user", t2);
                     }
-                    this.setConsentsMessage("Success: New consents saved", true)
+
+                    localStorage.removeItem("nb.user")
+                    localStorage.removeItem("nb.current.course")
+                    this.setResetMessage("Password reset successfully. You will automatically redirected to the login page in 5 seconds.", false)
+                    
+                    setTimeout(() => {
+                        eventBus.$emit('signout-success', true)
+                        this.$router.push({ name: 'top-page' })
+                    }, 5000);
                 } catch (err) {
                     console.log(err)
                     console.log("Error: An error was encountered whne trying to update you password. Please try again.")
+                    this.isSubmitting = false
                 }
             },
             resetForm: function() {
@@ -262,22 +228,10 @@
                     newassword: "",
                 }
             },
-            setPersonalMessage: function(msg, disappear=true, error=false) {
-                this.personalMessage = msg;
+            setResetMessage: function(msg, disappear=true) {
+                this.resetMessage = msg;
                 if (disappear) {
-                    setTimeout(() => this.personalMessage = "", 5000);
-                }
-            },
-            setAuthMessage: function(msg, disappear=true) {
-                this.authMessage = msg;
-                if (disappear) {
-                    setTimeout(() => this.authMessage = "", 5000);
-                }
-            },
-            setConsentsMessage: function(msg, disappear=true) {
-                this.consentsMessage = msg;
-                if (disappear) {
-                    setTimeout(() => this.consentsMessage = "", 5000);
+                    setTimeout(() => this.resetMessage = "", 5000);
                 }
             },
         },

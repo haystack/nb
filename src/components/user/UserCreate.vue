@@ -27,6 +27,42 @@
             <input id="new-user-password" type="password" v-model="newUser.password">
         </div>
 
+        <div class="nb-consent">
+            <div class="nb-irb">
+                <p><strong>Letter of Information</strong></p>
+                <p><strong>Title of research study: </strong>Leveraging in-context online discussion of course materials to enhance engagement and learning</p>
+                <p><strong>Investigator: </strong>David Karger (PI).</p>
+                <p>We invite you to take part in a research study, because you are using NB to annotate online material. The goal of this study is to examine whether or not the online reading materials using NB improves engagement and learning. Your feedback will be used to modify the experience on the tool to increase learner engagement and to provide valuable feedback to the instructors that can help them revise their course and content.</p>
+                <p><strong>Why is this research being done?</strong></p>
+                <p>Student learning outcomes are known to be associated with student engagement. In a small classroom, instructors can gauge student engagement from their classroom behavior and participation and use it to adapt instruction. However, in large classes, instructors find it difficult to determine how and if students are engaging in the class content. This is&nbsp; particularly true with online materials where it is challenging for instructors to observe the students' learning and to make assessments about how to intervene productively on the students&rsquo; behalf.</p>
+                <p>The general hypothesis of this research is that student annotation and discussion in the margins of online reading material can be used both to directly increase student engagement and to provide valuable feedback to the faculty that can help them revise their course and content to increase engagement. In particular, we will build upon Nota Bene (NB), a system that allows students to discuss online course content (PDFs, websites, YouTube videos) <em>in the margins </em>of those content sources, in order to:</p>
+                <ul>
+                <li>Gather information about student engagement by mining the discussion content in the margins;</li>
+                <li>Present to instructors information about student engagement that varies over different parts of the content;</li>
+                <li>Help instructors and students leverage information about student engagement in order to increase that engagement and inform class design, and</li>
+                <li>Validate experimentally that increasing student engagement will lead to better learning outcomes.</li>
+                <li>Scale up the social annotation experience to accommodate classes with a large number of students.&nbsp;</li>
+                </ul>
+                <p><strong><em>Participation in research is completely voluntary</em></strong>.</p>
+                <p>You are free to decline to take part in the project. You can decline to answer any questions and you can stop taking part in the project at any time. Whether or not you choose to participate, or answer any question, or stop participating in the project, there will be no penalty to you or loss of benefits to which you are otherwise entitled.</p>
+                <p><strong>Confidentiality</strong></p>
+                <p>In order to understand the impact of the different teaching practices, we are collecting information on how students are engaging with online materials, this includes clicks, replies and time spent on sessions. All data collected will be securely stored. Only researchers working with the study, all of whom are bound to maintain confidentiality, will view the data. This research is conducted under strict university and U.S. government regulations governing confidentiality procedures. Your identity will be kept strictly confidential throughout the study and in any oral or written results of the study. Your privacy will be protected to the maximum extent allowable by law; however, absolute confidentiality cannot be guaranteed, since research documents are not protected from subpoena.</p>
+                <p><strong>Questions</strong></p>
+                <p>Thank you for considering participating in this study. If you have any questions or concerns about this research, please feel free to contact Professor David Karger.</p>
+                <p>&nbsp;</p>
+                <p>David Karger<br>
+                MIT, CSAIL<br>
+                karger@mit.edu</p>
+            </div>
+            <label><span style="color: red;">*</span>Do you consent to participate in our research?</label>
+             <br>
+            <input type="radio" id="nbIRBYes" value="true" v-model="nbIRB">
+            <label for="nbIRBYes">Yes</label>
+            <br>
+            <input type="radio" id="nbIRBNo" value="false" v-model="nbIRB">
+            <label for="nbIRBNo">No</label>
+        </div>
+
         <div v-if="needUCDIRB" class="ucdavis-consent">
             <div class="ucdavis-irb">
                 <p dir="ltr" style="line-height:1.2;text-align: justify;margin-top:0pt;margin-bottom:0pt;"><span style="font-size: 12px;"><span style='font-family: "Times Roman"; color: rgb(50, 53, 57); background-color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline; white-space: pre-wrap;'>University of California at Davis Letter of Information</span></span></p>
@@ -104,6 +140,7 @@
                 },
                 registerMessage: "",
                 ucdavisIRB: null,
+                nbIRB: null,
             }
         },
         computed: {
@@ -113,6 +150,7 @@
                         && this.newUser.last.length > 0
                         && this.newUser.email.length > 0
                         && this.newUser.password.length > 0
+                        && this.nbIRB!== null
                         && ((this.needUCDIRB && this.ucdavisIRB!== null) || (!this.needUCDIRB))
             },
             needUCDIRB: function() {
@@ -126,11 +164,17 @@
                     const res = await axios.post("/api/users/login", this.newUser)
                     const token = res.data.token
                     localStorage.setItem("nb.user", token);
+
+                    const h1 = { headers: { Authorization: 'Bearer ' + token }}
+                    const consentRes = await axios.post(`/api/consent`, {name: 'NB', consent: this.nbIRB}, h1)
+                    const t1 = consentRes.data.token
+                    localStorage.setItem("nb.user", t1);
+
                     if (this.needUCDIRB) {
-                        const headers = { headers: { Authorization: 'Bearer ' + token }}
-                        const consentRes = await axios.post(`/api/consent`, {name: 'UCDAVIS', consent: this.ucdavisIRB}, headers)
-                        const t = consentRes.data.token
-                        localStorage.setItem("nb.user", t);
+                        const h2 = { headers: { Authorization: 'Bearer ' + t1 }}
+                        const consentRes = await axios.post(`/api/consent`, {name: 'UCDAVIS', consent: this.ucdavisIRB}, h2)
+                        const t2 = consentRes.data.token
+                        localStorage.setItem("nb.user", t2);
                     }
                     eventBus.$emit('signin-success')
                     this.resetForm()
@@ -194,23 +238,36 @@
     font-size: 16px;
     flex-grow: 1;
 }
-button.submit {
-    width: 80px;
+  button.submit {
     align-self: flex-end;
-    padding: 6px 0;
+    padding: 10px 15px;
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #38155a;
+    background-color: #4a2270;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
-}
+  }
 button.submit:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
-button.submit:enabled:hover {
-    background-color: #0069d9;
+  button.submit:enabled:hover {
+    background-color: #38155a;
+  }
+.nb-consent {
+    margin: 10px 0 20px 0;
+}
+.nb-irb {
+    border: 1px solid #4a2270;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    min-height: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 12px;
 }
 .ucdavis-consent {
     margin: 10px 0 20px 0;

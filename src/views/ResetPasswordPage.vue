@@ -1,27 +1,31 @@
 <template>
   <div class="app-wrapper">
-    <nav-bar :course="selectedCourse" :user="user"></nav-bar>
+    <nav-bar></nav-bar>
     <div class="app-body">
       <div class="dashboard-wrapper">
-        <user-profile
+        <reset-password
             :user="user"
         >
-        </user-profile>
+        </reset-password>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import axios from "axios"
   import NavBar from '../components/NavBar.vue'
-  import UserProfile from '../components/user/UserProfile.vue'
+  import ResetPassword from '../components/user/ResetPassword.vue'
   import VueJwtDecode from "vue-jwt-decode";
 
   export default {
-    name: 'profile-page',
+    name: 'reset-password-page',
     components: {
       NavBar,
-      UserProfile,
+      ResetPassword,
+    },
+    props: {
+      reset_password_id: String,
     },
     data() {
       return {
@@ -61,6 +65,12 @@
                 if (decoded.user.username && decoded.user.username !== '') {
                     this.user = decoded.user
                 } 
+            } else if (this.reset_password_id) {
+                const res = await axios.post("api/users/getuser", {id: this.reset_password_id}) // pass in id to get that user is none is currently logged in
+                const token = res.data.token
+                localStorage.setItem("nb.user", token);
+                const decoded = VueJwtDecode.decode(token);
+                this.user = decoded.user
             } else {
                 this.user = null
                 localStorage.removeItem("nb.user");
@@ -68,7 +78,7 @@
                 this.redirect('top-page')
             }
         } catch (error) {
-            console.error(error, 'error from decoding token')
+            console.log(error, 'error from decoding token')
             this.user = null
             this.redirect('top-page')
         }
