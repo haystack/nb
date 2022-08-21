@@ -21,7 +21,7 @@
             <div class="container h-100">
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <div class="col text ps-5">
-                        <h1 class="display-5"><em><strong><span class="underline highlight">Annotate</span></strong></em> online material <em><strong><span class="underline">discuss</span></strong></em> and <em><strong><span class="underline">socialize</span></strong></em> with other readers!</h1>
+                        <h1 class="display-5"><em><strong><span class="underline">Annotate</span></strong></em> online material <em><strong><span class="underline">discuss</span></strong></em> and <em><strong><span class="underline">socialize</span></strong></em> with other readers!</h1>
                     </div>
                     <div class="col-xl-6 col-lg-8">
                         <div class="ratio ratio-16x9">
@@ -33,7 +33,7 @@
         </div>
         <div class="features">
             <div class="container px-4 py-5 justify-content-center align-items-center h-100">
-                <div class="row my-5 g-4 py-5 row-cols-1 row-cols-lg-3">
+                <div class="row my-lg-5 g-4 py-lg-5 row-cols-1 row-cols-lg-3">
                     <div class="col my-3  d-flex align-items-start">
                         <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-input-cursor-text" viewBox="0 0 16 16">
