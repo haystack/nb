@@ -21,7 +21,7 @@
             <div class="container h-100">
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <div class="col text ps-5">
-                        <h1 class="display-5"><em><strong><span class="underline">Annotate</span></strong></em> course material online and <em><strong><span class="underline">discuss</span></strong></em> it with the class</h1>
+                        <h1 class="display-5"><em><strong><span class="underline highlight">Annotate</span></strong></em> online material <em><strong><span class="underline">discuss</span></strong></em> and <em><strong><span class="underline">socialize</span></strong></em> with other readers!</h1>
                     </div>
                     <div class="col-xl-6 col-lg-8">
                         <div class="ratio ratio-16x9">
@@ -33,8 +33,8 @@
         </div>
         <div class="features">
             <div class="container px-4 py-5 justify-content-center align-items-center h-100">
-                <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
-                    <div class="col d-flex align-items-start">
+                <div class="row my-5 g-4 py-5 row-cols-1 row-cols-lg-3">
+                    <div class="col my-3  d-flex align-items-start">
                         <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-input-cursor-text" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M5 2a.5.5 0 0 1 .5-.5c.862 0 1.573.287 2.06.566.174.099.321.198.44.286.119-.088.266-.187.44-.286A4.165 4.165 0 0 1 10.5 1.5a.5.5 0 0 1 0 1c-.638 0-1.177.213-1.564.434a3.49 3.49 0 0 0-.436.294V7.5H9a.5.5 0 0 1 0 1h-.5v4.272c.1.08.248.187.436.294.387.221.926.434 1.564.434a.5.5 0 0 1 0 1 4.165 4.165 0 0 1-2.06-.566A4.561 4.561 0 0 1 8 13.65a4.561 4.561 0 0 1-.44.285 4.165 4.165 0 0 1-2.06.566.5.5 0 0 1 0-1c.638 0 1.177-.213 1.564-.434.188-.107.335-.214.436-.294V8.5H7a.5.5 0 0 1 0-1h.5V3.228a3.49 3.49 0 0 0-.436-.294A3.166 3.166 0 0 0 5.5 2.5.5.5 0 0 1 5 2z"/>
@@ -42,11 +42,11 @@
                             </svg>
                         </div>
                         <div>
-                            <h2>Make a note</h2>
-                            <p>Draw others' attention to something interesting. Drag to hilight.</p>
+                            <h2>Annotate</h2>
+                            <p>Drag to highlight passages and attach your own notes in text or audio format.</p>
                         </div>
                     </div>
-                    <div class="col d-flex align-items-start">
+                    <div class="col my-3 d-flex align-items-start">
                         <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-question-square" viewBox="0 0 16 16">
                                 <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
@@ -55,18 +55,53 @@
                         </div>
                         <div>
                             <h2>Ask</h2>
-                            <p>Don't understanding something? Hilight the text and and ask your class about it.</p>
+                            <p>Don't understanding something? Highlight  the text and and ask your class about it.</p>
                         </div>
                     </div>
-                    <div class="col d-flex align-items-start">
+                    <div class="col my-3 d-flex align-items-start">
                         <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
-                                <path d="M5.921 11.9 1.353 8.62a.719.719 0 0 1 0-1.238L5.921 4.1A.716.716 0 0 1 7 4.719V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
+                                <path d="M6.598 5.013a.144.144 0 0 1 .202.134V6.3a.5.5 0 0 0 .5.5c.667 0 2.013.005 3.3.822.984.624 1.99 1.76 2.595 3.876-1.02-.983-2.185-1.516-3.205-1.799a8.74 8.74 0 0 0-1.921-.306 7.404 7.404 0 0 0-.798.008h-.013l-.005.001h-.001L7.3 9.9l-.05-.498a.5.5 0 0 0-.45.498v1.153c0 .108-.11.176-.202.134L2.614 8.254a.503.503 0 0 0-.042-.028.147.147 0 0 1 0-.252.499.499 0 0 0 .042-.028l3.984-2.933zM7.8 10.386c.068 0 .143.003.223.006.434.02 1.034.086 1.7.271 1.326.368 2.896 1.202 3.94 3.08a.5.5 0 0 0 .933-.305c-.464-3.71-1.886-5.662-3.46-6.66-1.245-.79-2.527-.942-3.336-.971v-.66a1.144 1.144 0 0 0-1.767-.96l-3.994 2.94a1.147 1.147 0 0 0 0 1.946l3.994 2.94a1.144 1.144 0 0 0 1.767-.96v-.667z"/>
                             </svg>
                         </div>
                         <div>
                             <h2>Answer</h2>
-                            <p> You see a question and you know the answer?, just click it to answer it.</p>
+                            <p>You see a question and you know the answer?, just click it to answer it.</p>
+                        </div>
+                    </div>
+                    <div class="col my-3 d-flex align-items-start">
+                        <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-chat-right-quote" viewBox="0 0 16 16">
+                                <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"/>
+                                <path d="M7.066 4.76A1.665 1.665 0 0 0 4 5.668a1.667 1.667 0 0 0 2.561 1.406c-.131.389-.375.804-.777 1.22a.417.417 0 1 0 .6.58c1.486-1.54 1.293-3.214.682-4.112zm4 0A1.665 1.665 0 0 0 8 5.668a1.667 1.667 0 0 0 2.561 1.406c-.131.389-.375.804-.777 1.22a.417.417 0 1 0 .6.58c1.486-1.54 1.293-3.214.682-4.112z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2>Socialize</h2>
+                            <p>Interact with other readers in real-time.</p>
+                        </div>
+                    </div>
+                    <div class="col my-3 d-flex align-items-start">
+                        <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-lamp" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M5.04.303A.5.5 0 0 1 5.5 0h5c.2 0 .38.12.46.303l3 7a.5.5 0 0 1-.363.687h-.002c-.15.03-.3.056-.45.081a32.731 32.731 0 0 1-4.645.425V13.5a.5.5 0 1 1-1 0V8.495a32.753 32.753 0 0 1-4.645-.425c-.15-.025-.3-.05-.45-.08h-.003a.5.5 0 0 1-.362-.688l3-7ZM3.21 7.116A31.27 31.27 0 0 0 8 7.5a31.27 31.27 0 0 0 4.791-.384L10.171 1H5.83L3.209 7.116Z"/>
+                                <path d="M6.493 12.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.052.075l-.001.004-.004.01V14l.002.008a.147.147 0 0 0 .016.033.62.62 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.62.62 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411Z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2>Spotlight</h2>
+                            <p>Draw others’ attention to some annotations by spotlighting them.</p>
+                        </div>
+                    </div>
+                    <div class="col my-3 d-flex align-items-start">
+                        <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
+                                <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2>Filter</h2>
+                            <p>View annotations by modifying the different filters based on your preference.</p>
                         </div>
                     </div>
                 </div>
@@ -77,16 +112,55 @@
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <h2 class="mb-5">Research Team</h2>
                     <div class="col">
-                        <img property="image" src="https://static1.squarespace.com/static/530a5d6be4b0a1097b351015/t/59da034b9f7456baacd575aa/1507459928907/IMG_1943.JPG?format=750w" alt="" mv-uploads="../images/people" aria-label="Image" class="">
+                        <img property="image" src="https://static1.squarespace.com/static/530a5d6be4b0a1097b351015/t/59da034b9f7456baacd575aa/1507459928907/IMG_1943.JPG?format=750w" aria-label="Image">
                         <h3>Jumana Almahmoud</h3>
-                        <span>PhD Candidate</span>
+                        <span>PhD Candidate @ MIT</span>
+                        <span>NB Maintainer</span>
                         <a href="mailto:jumanam@mit.edu" target="_blank">jumanam@mit.edu</a>
                     </div>
                     <div class="col">
-                        <img property="image" src="https://haystack.csail.mit.edu/images/people/david-karger.jpg" alt="" mv-uploads="../images/people" aria-label="Image">
+                        <img property="image" src="https://haystack.csail.mit.edu/images/people/david-karger.jpg" aria-label="Image">
                         <h3>David Karger</h3>
-                        <span>PI</span>
+                        <span>PI @ MIT</span>
                         <a href="mailto:karger@mit.edu" target="_blank">karger@mit.edu</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="team">
+            <div class="container h-100 text-center">
+                <div class="row justify-content-center align-items-center h-100 px-4 py-5">
+                    <h2 class="mb-5">Research Collaborators</h2>
+                    <div class="col">
+                        <img property="image" src=" https://bme.ucdavis.edu/sites/g/files/dgvnsk5766/files/styles/sf_profile/public/images/person/uc-davis-biomedical-engineering-assistant-professor-marc-facciotti.jpg?h=09f64210&itok=6h76tTfb" aria-label="Image">
+                        <h3>Marc T. Facciotti</h3>
+                        <span>Professor @ UCDavis</span>
+                        <span>Biomedical Engineering</span>
+                        <a href="mailto:mtfacciotti@ucdavis.edu" target="_blank">mtfacciotti@ucdavis.edu</a>
+                    </div>
+                    <div class="col">
+                        <img property="image" src="https://biology.ucdavis.edu/sites/g/files/dgvnsk12066/files/styles/sf_profile/public/media/images/Michele-Igo-College-of-Biological-Sciences-UC-Davis-1-2_PROFILE.jpg?h=10236ef4&itok=fvBzkO6r" aria-label="Image">
+                        <h3>Michele M. Igo</h3>
+                        <span>Professor @ UCDavis</span>
+                        <span>Microbiology and Molecular Genetics</span>
+                        <a href="mailto:mmigo@ucdavis.edu" target="_blank">mmigo@ucdavis.edu</a>
+                    </div>
+                    <div class="col">
+                        <img property="image" src="https://media-exp1.licdn.com/dms/image/C5103AQHuVyGeXRa9zw/profile-displayphoto-shrink_800_800/0/1516832347931?e=2147483647&v=beta&t=GQZLzlbkr1cYdFPVDnTajWGBoDXEX6frz95hHVoeCXY" aria-label="Image">
+                        <h3>Kamali Sripathi</h3>
+                        <span>Assistant Project Scientist @ UCDavis</span>
+                        <a href="mailto:ksripathi@ucdavis.edu" target="_blank">ksripathi@ucdavis.edu</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="funding">
+            <div class="container h-100 text-center">
+                <div class="row justify-content-center align-items-center h-100 px-4 py-5">
+                    <h2 class="mb-5">Funding</h2>
+                    <div class="col">
+                        <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1915724" target="_blank"><img property="image" src="https://www.nsf.gov/images/logos/NSF_4-Color_bitmap_Logo.png" aria-label="Image"></a>
                     </div>
                 </div>
             </div>
@@ -169,6 +243,9 @@ export default {
     height: 80px;
 }
 
+.header .btn:hover {
+    color: #4a2270;
+}
 
 .hero {
     background: #60348a;
@@ -178,6 +255,11 @@ export default {
 
 .hero .underline {
     box-shadow: inset 0px -15px 0px 0px #4a2270e0;
+}
+
+.hero .underline.highlight {
+    box-shadow: inset 0px -49px 0px 0px #ffcc01b0;
+    color: #000000;
 }
 
 .hero .text h1 {
@@ -210,7 +292,7 @@ export default {
 
 .team span {
     display: block;
-    font-weight: 100;
+    font-weight: 400;
     font-size: 0.9rem;
     margin-top: -5px;
 }
@@ -221,6 +303,15 @@ export default {
     display: block;
     margin-top: -5px;
     margin-bottom: 20px;
+}
+
+.funding {
+    background: #c2cbd5;
+}
+
+.funding img {
+    width: 10rem;
+    height: 10rem;
 }
 
 .footer {

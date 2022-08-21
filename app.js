@@ -50,7 +50,7 @@ app.use(cors({
 
 app.use('/', (req, res, next) => {
     if (req.url === '/embed_NB.js') {
-        return res.redirect(301, 'https://nb.mit.edu/embed_NB.js')
+        return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
     }
 
     next()
