@@ -112,7 +112,7 @@
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <h2 class="mb-5">Research Team</h2>
                     <div class="col">
-                        <a href="http://www.jumana.info/" target="_blank">
+                        <a href="https://www.jumana.info/" target="_blank">
                             <img property="image" src="https://static1.squarespace.com/static/530a5d6be4b0a1097b351015/t/59da034b9f7456baacd575aa/1507459928907/IMG_1943.JPG?format=750w" aria-label="Image">
                         </a>    
                         <h3>Jumana Almahmoud</h3>
