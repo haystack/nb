@@ -112,16 +112,20 @@
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <h2 class="mb-5">Research Team</h2>
                     <div class="col">
-                        <img property="image" src="https://static1.squarespace.com/static/530a5d6be4b0a1097b351015/t/59da034b9f7456baacd575aa/1507459928907/IMG_1943.JPG?format=750w" aria-label="Image">
+                        <a href="http://www.jumana.info/" target="_blank">
+                            <img property="image" src="https://static1.squarespace.com/static/530a5d6be4b0a1097b351015/t/59da034b9f7456baacd575aa/1507459928907/IMG_1943.JPG?format=750w" aria-label="Image">
+                        </a>    
                         <h3>Jumana Almahmoud</h3>
-                        <span>PhD Candidate @ MIT</span>
+                        <span>PhD Candidate <strong>@</strong> MIT</span>
                         <span>NB Maintainer</span>
                         <a href="mailto:jumanam@mit.edu" target="_blank">jumanam@mit.edu</a>
                     </div>
                     <div class="col">
-                        <img property="image" src="https://haystack.csail.mit.edu/images/people/david-karger.jpg" aria-label="Image">
+                        <a href="https://people.csail.mit.edu/karger/" target="_blank">
+                            <img property="image" src="https://haystack.csail.mit.edu/images/people/david-karger.jpg" aria-label="Image">
+                        </a>
                         <h3>David Karger</h3>
-                        <span>PI @ MIT</span>
+                        <span>PI <strong>@</strong> MIT</span>
                         <a href="mailto:karger@mit.edu" target="_blank">karger@mit.edu</a>
                     </div>
                 </div>
@@ -132,26 +136,37 @@
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <h2 class="mb-5">Research Collaborators</h2>
                     <div class="col">
-                        <img property="image" src=" https://bme.ucdavis.edu/sites/g/files/dgvnsk5766/files/styles/sf_profile/public/images/person/uc-davis-biomedical-engineering-assistant-professor-marc-facciotti.jpg?h=09f64210&itok=6h76tTfb" aria-label="Image">
+                        <a href="https://bme.ucdavis.edu/people/marc-facciotti" target="_blank">
+                            <img property="image" src=" https://bme.ucdavis.edu/sites/g/files/dgvnsk5766/files/styles/sf_profile/public/images/person/uc-davis-biomedical-engineering-assistant-professor-marc-facciotti.jpg?h=09f64210&itok=6h76tTfb" aria-label="Image">
+                        </a>
                         <h3>Marc T. Facciotti</h3>
-                        <span>Professor @ UCDavis</span>
+                        <span>Professor <strong>@</strong> UCDavis</span>
                         <span>Biomedical Engineering</span>
                         <a href="mailto:mtfacciotti@ucdavis.edu" target="_blank">mtfacciotti@ucdavis.edu</a>
                     </div>
                     <div class="col">
-                        <img property="image" src="https://biology.ucdavis.edu/sites/g/files/dgvnsk12066/files/styles/sf_profile/public/media/images/Michele-Igo-College-of-Biological-Sciences-UC-Davis-1-2_PROFILE.jpg?h=10236ef4&itok=fvBzkO6r" aria-label="Image">
+                        <a href="https://biology.ucdavis.edu/people/michele-igo" target="_blank">
+                            <img property="image" src="https://biology.ucdavis.edu/sites/g/files/dgvnsk12066/files/styles/sf_profile/public/media/images/Michele-Igo-College-of-Biological-Sciences-UC-Davis-1-2_PROFILE.jpg?h=10236ef4&itok=fvBzkO6r" aria-label="Image">
+                        </a>
                         <h3>Michele M. Igo</h3>
-                        <span>Professor @ UCDavis</span>
+                        <span>Professor <strong>@</strong> UCDavis</span>
                         <span>Microbiology and Molecular Genetics</span>
                         <a href="mailto:mmigo@ucdavis.edu" target="_blank">mmigo@ucdavis.edu</a>
                     </div>
                     <div class="col">
                         <img property="image" src="https://media-exp1.licdn.com/dms/image/C5103AQHuVyGeXRa9zw/profile-displayphoto-shrink_800_800/0/1516832347931?e=2147483647&v=beta&t=GQZLzlbkr1cYdFPVDnTajWGBoDXEX6frz95hHVoeCXY" aria-label="Image">
                         <h3>Kamali Sripathi</h3>
-                        <span>Assistant Project Scientist @ UCDavis</span>
+                        <span>Assistant Project Scientist <strong>@</strong> UCDavis</span>
                         <a href="mailto:ksripathi@ucdavis.edu" target="_blank">ksripathi@ucdavis.edu</a>
                     </div>
-
+                    <div class="col">
+                        <a href="https://homepages.inf.ed.ac.uk/kgal/index.html" target="_blank">
+                            <img property="image" src="https://scholar.googleusercontent.com/citations?view_op=medium_photo&user=lNHuLiQAAAAJ&citpid=1" aria-label="Image">
+                        </a>
+                        <h3>Kobi Gal</h3>
+                        <span>AI Researcher <strong>@</strong> Ben-Gurion University and University of Edinburgh</span>
+                        <a href="mailto:kgal@inf.ed.ac.uk" target="_blank">kgal@inf.ed.ac.uk</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -159,7 +174,7 @@
             <div class="container h-100 text-center">
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <h2 class="mb-5">Funding</h2>
-                    <div class="col">
+                    <div class="col my-5">
                         <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1915724" target="_blank"><img property="image" src="https://www.nsf.gov/images/logos/NSF_4-Color_bitmap_Logo.png" aria-label="Image"></a>
                     </div>
                 </div>
@@ -172,7 +187,7 @@
                         <a href="/" class="mb-3 me-2 mb-md-0 text-decoration-none lh-1">
                             <img src="/res/nb-logo.png" height="50">
                         </a>
-                        <span class="mb-3 mb-md-0 ">A project of the <a href="https://haystack.csail.mit.edu/" target="_blank">Haystack</a> Group at <a href="https://web.mit.edu/" target="_blank">MIT</a> </span>
+                        <span class="mb-3 mb-md-0 ">by <a href="https://haystack.csail.mit.edu/" target="_blank">Haystack</a> @ <a href="https://web.mit.edu/" target="_blank">MIT</a> </span>
                     </div>
                     <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
                         <li class="ms-3">
@@ -297,10 +312,13 @@ export default {
     margin-top: -5px;
 }
 
+.team strong {
+    color: #4a2270;
+}
+
 .team a {
     color: #60348a;
     font-size: 0.8rem;
-    display: block;
     margin-top: -5px;
     margin-bottom: 20px;
 }
@@ -315,6 +333,7 @@ export default {
 }
 
 .footer {
+    font-weight: 100;
     background: #60348a;
     border-bottom: 10px solid #4a2270;
     color: white;
@@ -322,7 +341,6 @@ export default {
 }
 
 .footer a {
-    font-weight: bold;
     color: white;
 }
 </style>
