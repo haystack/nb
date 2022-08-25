@@ -15,11 +15,9 @@ const adminRouter = require('./routes/admin')
 const logRouter = require('./routes/log')
 const consentRouter = require('./routes/consents')
 const auth = require('./auth/auth')
-const socketapi = require("./socketapi")
-const history = require('connect-history-api-fallback');
+const socketapi = require("./socketapi") // used for socket.io
 
 const app = express()
-app.use(history())
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -47,14 +45,6 @@ app.use(cors({
     },
     credentials: true
 }))
-
-app.use('/', (req, res, next) => {
-    if (req.url === '/embed_NB.js') {
-        return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
-    }
-
-    next()
-})
 
 app.use('/', express.static('public'))
 app.use('/', indexRouter)
