@@ -4,17 +4,23 @@ import Router from 'vue-router';
 Vue.use(Router);
 
 export default new Router({
+    mode: 'history',
     routes: [
         {
             path: '/',
-            name: 'top-page',
-            component: () => import('./views/TopPage.vue')
+            name: 'welcome-page',
+            component: () => import('./views/WelcomePage.vue')
         },
         {
-            path: '/home',
-            name: 'home-page',
+            path: '/login',
+            name: 'login-page',
+            component: () => import('./views/LoginPage.vue')
+        },
+        {
+            path: '/dashboard',
+            name: 'dashboard-page',
             props: { default: true },
-            component: () => import('./views/HomePage.vue'),
+            component: () => import('./views/DashboardPage.vue'),
         },
         {
             path: '/reset',
