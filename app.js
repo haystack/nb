@@ -19,6 +19,10 @@ const socketapi = require("./socketapi")
 const history = require('connect-history-api-fallback');
 
 const app = express()
+
+app.use('/uploads', express.static('public/uploads'))
+app.use('/media', express.static('public/media'))
+
 app.use(history())
 app.use(logger('dev'))
 app.use(express.json())
