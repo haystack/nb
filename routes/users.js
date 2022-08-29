@@ -78,7 +78,7 @@ router.post('/register', (req, res) => {
 
 router.post('/forgotpassword', (req, res) => {
   var reset_password_id = uuidv4();
-  var link = req.headers.origin + "/#/reset?id=" + reset_password_id;
+  var link = req.headers.origin + "/reset?id=" + reset_password_id;
 
   User.findOne({ where: { email: { [Op.iLike]: req.body.email } } }).then(function (user) {
     if (!user) {
