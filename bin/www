@@ -13,6 +13,11 @@ const tls = require("tls");
 
 donenv.config();
 
+const devCtx = {
+  key: fs.readFileSync('./dev_ssl_cert/key.pem'),
+  cert:fs.readFileSync('./dev_ssl_cert/cert.pem'),
+}
+
 const nb2Ctx = tls.createSecureContext({
   key: fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_KEY || './privkey.pem' : './dev_ssl_cert/key.pem'),
   cert:fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_CERT || './cert.pem' : './dev_ssl_cert/cert.pem'),
@@ -53,7 +58,7 @@ app.set('port', port);
 /**
  * Create HTTPs server.
  */
-const server = https.createServer({SNICallback: (servername, cb) => {
+const server = https.createServer({ ...devCtx, SNICallback: (servername, cb) => {
   let ctx = nb2Ctx
 
   if (servername === 'nb.mit.edu') {
@@ -65,7 +70,7 @@ const server = https.createServer({SNICallback: (servername, cb) => {
   } else {
     return ctx;
   }
-  
+
 } }, app);
 
 /**
@@ -113,8 +118,6 @@ function onListening() {
  * Listen on provided port, on all network interfaces.
  */
 server.listen(port);
-socketapi.io.attach(server, options = {
-  cors: true,
-}); // used for socket.io
+socketapi.io.attach(server, options = { cors: true });
 server.on('error', onError);
 server.on('listening', onListening);

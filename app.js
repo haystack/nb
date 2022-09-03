@@ -20,12 +20,15 @@ const history = require('connect-history-api-fallback');
 
 const app = express()
 
+app.get('/api/check', async (_, res) => {
+    res.status(200).json({status: 'OK'})
+})
+
 app.use('/uploads', express.static('public/uploads'))
 app.use('/media', express.static('public/media'))
 
 // NB1 redirects
 app.use('/', (req, res, next) => {
-    console.log(req.url);
     if (req.url === '/embed_NB.js') {
         return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
     }
