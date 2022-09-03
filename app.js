@@ -20,8 +20,25 @@ const history = require('connect-history-api-fallback');
 
 const app = express()
 
+app.get('/api/check', async (_, res) => {
+    res.status(200).json({status: 'OK'})
+})
+
 app.use('/uploads', express.static('public/uploads'))
 app.use('/media', express.static('public/media'))
+
+// NB1 redirects
+app.use('/', (req, res, next) => {
+    if (req.url === '/embed_NB.js') {
+        return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
+    }
+
+    if (req.url.startsWith('/c/') || req.url.startsWith('/f/')) {
+        return res.redirect(301, `https://nb1.mit.edu${req.url}`)
+    }
+
+    next()
+})
 
 app.use(history())
 app.use(logger('dev'))
@@ -52,13 +69,7 @@ app.use(cors({
     credentials: true
 }))
 
-app.use('/', (req, res, next) => {
-    if (req.url === '/embed_NB.js') {
-        return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
-    }
 
-    next()
-})
 
 app.use('/', express.static('public'))
 app.use('/', indexRouter)
