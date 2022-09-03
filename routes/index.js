@@ -32,4 +32,8 @@ router.get('/api/nb/config', async (req, res) => {
     res.status(200).json(configs)
 });
 
+router.get('/api/check', async (_, res) => {
+    res.status(200).json({status: 'OK'})
+})
+
 module.exports = router;

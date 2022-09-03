@@ -8,13 +8,22 @@ const app = require('../app');
 const debug = require('debug')('fritter-starter:server');
 const https = require('https');
 const fs = require('fs');
-let socketapi = require("../socketapi"); // used for socket.io
+let socketapi = require("../socketapi");
+const tls = require("tls");
 
 donenv.config();
 
-const key = fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_KEY || './privkey.pem' : './dev_ssl_cert/key.pem');
-const cert = fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_CERT || './cert.pem' : './dev_ssl_cert/cert.pem');
-const ca = fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_CA || './chain.pem' : './dev_ssl_cert/cert.pem'); // Since we don't have CA for dev, we are reading the cert as pleaeholder.
+const nb2Ctx = tls.createSecureContext({
+  key: fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_KEY || './privkey.pem' : './dev_ssl_cert/key.pem'),
+  cert:fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_CERT || './cert.pem' : './dev_ssl_cert/cert.pem'),
+  ca:  fs.readFileSync(process.env.NODE_ENV === 'production' ? process.env.SSL_CA || './chain.pem' : './dev_ssl_cert/cert.pem'),
+})
+
+const nbCtx = tls.createSecureContext({
+  key: fs.readFileSync(process.env.NB_SSL_KEY || './dev_ssl_cert/key.pem'),
+  cert:fs.readFileSync(process.env.NB_SSL_CERT || './dev_ssl_cert/cert.pem'),
+  ca:  fs.readFileSync(process.env.NB_SSL_CA || './dev_ssl_cert/cert.pem'),
+})
 
 /**
  * Normalize a port into a number, string, or false.
@@ -44,7 +53,20 @@ app.set('port', port);
 /**
  * Create HTTPs server.
  */
-const server = https.createServer({ key: key, cert: cert, ca: ca }, app);
+const server = https.createServer({SNICallback: (servername, cb) => {
+  let ctx = nb2Ctx
+
+  if (servername === 'nb.mit.edu') {
+    ctx = nbCtx
+  }
+
+  if (cb) {
+    cb(null, ctx);
+  } else {
+    return ctx;
+  }
+  
+} }, app);
 
 /**
  * Event listener for HTTP server "error" event.

@@ -23,6 +23,20 @@ const app = express()
 app.use('/uploads', express.static('public/uploads'))
 app.use('/media', express.static('public/media'))
 
+// NB1 redirects
+app.use('/', (req, res, next) => {
+    console.log(req.url);
+    if (req.url === '/embed_NB.js') {
+        return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
+    }
+
+    if (req.url.startsWith('/c/') || req.url.startsWith('/f/')) {
+        return res.redirect(301, `https://nb1.mit.edu${req.url}`)
+    }
+
+    next()
+})
+
 app.use(history())
 app.use(logger('dev'))
 app.use(express.json())
@@ -52,13 +66,7 @@ app.use(cors({
     credentials: true
 }))
 
-app.use('/', (req, res, next) => {
-    if (req.url === '/embed_NB.js') {
-        return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
-    }
 
-    next()
-})
 
 app.use('/', express.static('public'))
 app.use('/', indexRouter)
