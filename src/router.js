@@ -44,6 +44,11 @@ export default new Router({
             path: '/admin',
             name: 'admin-page',
             component: () => import('./views/AdminPage.vue'),
+        },
+        {
+            path: '*',
+            name: 'not-found-page',
+            component: () => import('./views/NotFoundPage.vue'),
         }
     ]
 })
