@@ -33,7 +33,10 @@ app.use('/', (req, res, next) => {
         return res.redirect(301, 'https://nb1.mit.edu/embed_NB.js')
     }
 
-    if (req.url.startsWith('/c/') || req.url.startsWith('/f/')) {
+    if (req.url.startsWith('/c/') 
+    || req.url.startsWith('/f/')
+    || req.url.startsWith('/pdf4/rpc')
+    || req.url.startsWith('/content/')) {
         return res.redirect(301, `https://nb1.mit.edu${req.url}`)
     }
 
