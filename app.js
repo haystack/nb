@@ -36,7 +36,8 @@ app.use('/', (req, res, next) => {
     if (req.url.startsWith('/c/') 
     || req.url.startsWith('/f/')
     || req.url.startsWith('/pdf4/rpc')
-    || req.url.startsWith('/content/')) {
+    || req.url.startsWith('/content/')
+    || req.url.startsWith('/settings')) {
         return res.redirect(301, `https://nb1.mit.edu${req.url}`)
     }
 
