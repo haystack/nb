@@ -2,7 +2,9 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.addColumn('file_system_objects', 'deleted', { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false })
+        try {
+            await queryInterface.addColumn('file_system_objects', 'deleted', { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false })
+        } catch(err) {}
     },
 
     down: async (queryInterface, Sequelize) => {

@@ -1,23 +1,13 @@
 'use strict';
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    return Promise.all([
-      queryInterface.addColumn(
-        'users',
-        'reset_password_id',
-        {
-          type: Sequelize.UUID,
-          unique: true,
-          allowNull: true,
-        }
-      )
-    ]);
+    up: async (queryInterface, Sequelize) => {
+        try {
+            await queryInterface.addColumn('users', 'reset_password_id', { type: Sequelize.UUID, unique: true, allowNull: true })
+        } catch(err) {}
+    },
 
-  },
-  down: async (queryInterface, Sequelize) => {
-    return Promise.all([
-      queryInterface.removeColumn('users', 'reset_password_id')
-    ])
-  }
+    down: async (queryInterface, Sequelize) => {
+        await queryInterface.removeColumn('users', 'reset_password_id')
+    }
 };
