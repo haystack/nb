@@ -2,10 +2,12 @@
 
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.addColumn('annotations', 'endorsed', {
-            type: Sequelize.BOOLEAN,
-            defaultValue: false,
-        });
+        try {
+            await queryInterface.addColumn('annotations', 'endorsed', {
+                type: Sequelize.BOOLEAN,
+                defaultValue: false,
+            });
+        } catch(err) {}
     },
 
     async down(queryInterface, Sequelize) {
