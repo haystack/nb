@@ -20,29 +20,35 @@
         <div v-if="!hasNBIRB" class="nb-consent">
             <div class="nb-irb">
                 <p><strong>Letter of Information</strong></p>
-                <p><strong>Title of research study: </strong>Leveraging in-context online discussion of course materials to enhance engagement and learning</p>
-                <p><strong>Investigator: </strong>David Karger (PI).</p>
+                <p><strong>Title of research study:&nbsp;</strong>Leveraging in-context online discussion of course materials to enhance engagement and learning</p>
+                <p><strong>Investigator:&nbsp;</strong>David Karger (PI).</p>
                 <p>We invite you to take part in a research study, because you are using NB to annotate online material. The goal of this study is to examine whether or not the online reading materials using NB improves engagement and learning. Your feedback will be used to modify the experience on the tool to increase learner engagement and to provide valuable feedback to the instructors that can help them revise their course and content.</p>
                 <p><strong>Why is this research being done?</strong></p>
-                <p>Student learning outcomes are known to be associated with student engagement. In a small classroom, instructors can gauge student engagement from their classroom behavior and participation and use it to adapt instruction. However, in large classes, instructors find it difficult to determine how and if students are engaging in the class content. This is&nbsp; particularly true with online materials where it is challenging for instructors to observe the students' learning and to make assessments about how to intervene productively on the students&rsquo; behalf.</p>
-                <p>The general hypothesis of this research is that student annotation and discussion in the margins of online reading material can be used both to directly increase student engagement and to provide valuable feedback to the faculty that can help them revise their course and content to increase engagement. In particular, we will build upon Nota Bene (NB), a system that allows students to discuss online course content (PDFs, websites, YouTube videos) <em>in the margins </em>of those content sources, in order to:</p>
-                <ul>
-                <li>Gather information about student engagement by mining the discussion content in the margins;</li>
-                <li>Present to instructors information about student engagement that varies over different parts of the content;</li>
-                <li>Help instructors and students leverage information about student engagement in order to increase that engagement and inform class design, and</li>
-                <li>Validate experimentally that increasing student engagement will lead to better learning outcomes.</li>
-                <li>Scale up the social annotation experience to accommodate classes with a large number of students.&nbsp;</li>
-                </ul>
+                <p>Student learning outcomes are known to be associated with student engagement. In a small classroom, instructors can gauge student engagement from their classroom behavior and participation and use it to adapt instruction. However, in large classes, instructors find it difficult to determine how and if students are engaging in the class content. This is &nbsp;particularly true with online materials where it is challenging for instructors to observe the students&apos; learning and to make assessments about how to intervene productively on the students&rsquo; behalf.</p>
+                <p>The general hypothesis of this research is that student annotation and discussion in the margins of online reading material can be used both to directly increase student engagement and to provide valuable feedback to the faculty that can help them revise their course and content to increase engagement. In particular, we will build upon Nota Bene (NB), a system that allows students to discuss online course content (PDFs, websites, YouTube videos) <em>in the margins&nbsp;</em>of those content sources, in order to:</p>
+                <ol start="1" type="1">
+                    <li>Gather information about student engagement by mining the discussion content in the margins;</li>
+                    <li>Present to instructors information about student engagement that varies over different parts of the content;</li>
+                    <li>Help instructors and students leverage information about student engagement in order to increase that engagement and inform class design, and</li>
+                    <li>Validate experimentally that increasing student engagement will lead to better learning outcomes.</li>
+                    <li>Scale up the social annotation experience to accommodate classes with a large number of students.&nbsp;</li>
+                </ol>
                 <p><strong><em>Participation in research is completely voluntary</em></strong>.</p>
                 <p>You are free to decline to take part in the project. You can decline to answer any questions and you can stop taking part in the project at any time. Whether or not you choose to participate, or answer any question, or stop participating in the project, there will be no penalty to you or loss of benefits to which you are otherwise entitled.</p>
                 <p><strong>Confidentiality</strong></p>
                 <p>In order to understand the impact of the different teaching practices, we are collecting information on how students are engaging with online materials, this includes clicks, replies and time spent on sessions. All data collected will be securely stored. Only researchers working with the study, all of whom are bound to maintain confidentiality, will view the data. This research is conducted under strict university and U.S. government regulations governing confidentiality procedures. Your identity will be kept strictly confidential throughout the study and in any oral or written results of the study. Your privacy will be protected to the maximum extent allowable by law; however, absolute confidentiality cannot be guaranteed, since research documents are not protected from subpoena.</p>
                 <p><strong>Questions</strong></p>
                 <p>Thank you for considering participating in this study. If you have any questions or concerns about this research, please feel free to contact Professor David Karger.</p>
+                <p>David Karger<br>MIT, CSAIL<br><a href="mailto:karger@mit.edu">karger@mit.edu</a></p>
                 <p>&nbsp;</p>
-                <p>David Karger<br>
-                MIT, CSAIL<br>
-                karger@mit.edu</p>
+                <details>
+                    <summary><strong><u>For users from countries under GDPR (Click here to expand)</u></strong></summary>
+                     <p>As part of your participation, we will collect certain personal information about you, including: name and email address. In addition we will be collecting user click data on different features of the tool. The clicks are anonymized. The purpose of the data collection is to examine whether or not the online reading materials using NB improves engagement and learning. Your data will be used to modify the experience on the tool to increase learner engagement and to provide valuable feedback to the instructors that can help them revise their course and content. The information you provide will only be available to MIT and their collaborators. Your data will be secured in our database which is maintained by one of our researchers in the team at MIT.</p>
+                    <p>&nbsp;</p>
+                    <p>This information will be retained for indefinite time . You have the right to withdraw your data from the study at any time. To do so, contact karger@mit.edu. If you withdraw from the study, no new information will be collected about you or from you by the study team.</p>
+                    <p>&nbsp;</p>
+                    <p>Your personal information will be transferred to the United States. You understand that the data protection and privacy laws of the United States may not offer you the same level of protection as those in the countries of data&rsquo;s origin/EEA/UK.&nbsp;</p>
+                </details>               
             </div>
             <label><span style="color: red;">*</span>Do you consent to participate in our research?</label>
              <br>

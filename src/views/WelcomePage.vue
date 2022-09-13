@@ -8,7 +8,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-megaphone-fill" viewBox="0 0 16 16">
                                 <path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0v-11zm-1 .724c-2.067.95-4.539 1.481-7 1.656v6.237a25.222 25.222 0 0 1 1.088.085c2.053.204 4.038.668 5.912 1.56V3.224zm-8 7.841V4.934c-.68.027-1.399.043-2.008.053A2.02 2.02 0 0 0 0 7v2c0 1.106.896 1.996 1.994 2.009a68.14 68.14 0 0 1 .496.008 64 64 0 0 1 1.51.048zm1.39 1.081c.285.021.569.047.85.078l.253 1.69a1 1 0 0 1-.983 1.187h-.548a1 1 0 0 1-.916-.599l-1.314-2.48a65.81 65.81 0 0 1 1.692.064c.327.017.65.037.966.06z"/>
                             </svg>                        
-                            <span class=""> Looking for old NB? you can access it <a href="https://nb1.mit.edu/welcome" target="_blank">here</a></span>
+                            <span class=""> Looking for the old NB? you can access it <a href="https://nb1.mit.edu/welcome" target="_blank">here</a></span>
                         </p>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
             <div class="container h-100 text-center">
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <h2 class="mb-5">Research Team</h2>
-                    <div class="col">
+                    <div class="col mb-4">
                         <a href="https://www.jumana.info/" target="_blank">
                             <img property="image" src="https://static1.squarespace.com/static/530a5d6be4b0a1097b351015/t/59da034b9f7456baacd575aa/1507459928907/IMG_1943.JPG?format=750w" aria-label="Image">
                         </a>    
@@ -134,7 +134,7 @@
                         <span>NB Maintainer</span>
                         <a href="mailto:jumanam@mit.edu" target="_blank">jumanam@mit.edu</a>
                     </div>
-                    <div class="col">
+                    <div class="col mb-4">
                         <a href="https://people.csail.mit.edu/karger/" target="_blank">
                             <img property="image" src="https://haystack.csail.mit.edu/images/people/david-karger.jpg" aria-label="Image">
                         </a>
@@ -149,7 +149,7 @@
             <div class="container h-100 text-center">
                 <div class="row justify-content-center align-items-center h-100 px-4 py-5">
                     <h2 class="mb-5">Research Collaborators</h2>
-                    <div class="col">
+                    <div class="col mb-4">
                         <a href="https://bme.ucdavis.edu/people/marc-facciotti" target="_blank">
                             <img property="image" src=" https://bme.ucdavis.edu/sites/g/files/dgvnsk5766/files/styles/sf_profile/public/images/person/uc-davis-biomedical-engineering-assistant-professor-marc-facciotti.jpg?h=09f64210&itok=6h76tTfb" aria-label="Image">
                         </a>
@@ -158,7 +158,7 @@
                         <span>Biomedical Engineering</span>
                         <a href="mailto:mtfacciotti@ucdavis.edu" target="_blank">mtfacciotti@ucdavis.edu</a>
                     </div>
-                    <div class="col">
+                    <div class="col mb-4">
                         <a href="https://biology.ucdavis.edu/people/michele-igo" target="_blank">
                             <img property="image" src="https://biology.ucdavis.edu/sites/g/files/dgvnsk12066/files/styles/sf_profile/public/media/images/Michele-Igo-College-of-Biological-Sciences-UC-Davis-1-2_PROFILE.jpg?h=10236ef4&itok=fvBzkO6r" aria-label="Image">
                         </a>
@@ -167,13 +167,13 @@
                         <span>Microbiology and Molecular Genetics</span>
                         <a href="mailto:mmigo@ucdavis.edu" target="_blank">mmigo@ucdavis.edu</a>
                     </div>
-                    <div class="col">
+                    <div class="col mb-4">
                         <img property="image" src="https://media-exp1.licdn.com/dms/image/C5103AQHuVyGeXRa9zw/profile-displayphoto-shrink_800_800/0/1516832347931?e=2147483647&v=beta&t=GQZLzlbkr1cYdFPVDnTajWGBoDXEX6frz95hHVoeCXY" aria-label="Image">
                         <h3>Kamali Sripathi</h3>
                         <span>Assistant Project Scientist <strong>@</strong> UCDavis</span>
                         <a href="mailto:ksripathi@ucdavis.edu" target="_blank">ksripathi@ucdavis.edu</a>
                     </div>
-                    <div class="col">
+                    <div class="col mb-4">
                         <a href="https://homepages.inf.ed.ac.uk/kgal/index.html" target="_blank">
                             <img property="image" src="https://scholar.googleusercontent.com/citations?view_op=medium_photo&user=lNHuLiQAAAAJ&citpid=1" aria-label="Image">
                         </a>
