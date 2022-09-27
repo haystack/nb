@@ -138,6 +138,7 @@ router.get('/allTagTypes', (req, res) => {
         replacements: {filepath: req.query.url, class: req.query.class}
     })
     res.status(200).json({ 'me': me[0][0]['count'], 'unread': unread[0][0]['count'], 'replyRequests': replyRequests[0][0]['count'], 'thread': thread[0][0]['count'], 'total': total[0][0]['count'] });
+
 });
 
 /**
