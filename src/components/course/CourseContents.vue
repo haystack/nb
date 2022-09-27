@@ -341,104 +341,101 @@
       }
     },
     created: async function(){
-      socket.on("reply_request", (data) => {
-        if (this.currentDir.class_id === data.class_id){
-          for (let i = 0; i < this.annotations.length; i++) {
-            if (this.annotations[i].filepath === data.filepath){
-              if (data.add_request && data.reply_requesters.length == 0){
-                this.annotations[i]['replyRequests'] += 1
-              } else if (!data.add_request && data.reply_requesters.length == 1) {
-                this.annotations[i]['replyRequests'] -=1
-              }
-              break
-            }
-        }
-        }
-      })
-      socket.on("create_new_thread", (data) => {
-        if (this.currentDir.class_id === data.class_id){
-          for (let i = 0; i < this.annotations.length; i++) {
-            if (this.annotations[i].filepath === data.filepath){
-              if (this.user_id === data.user_id){
-                this.annotations[i]['me'] += 1
-              } else {
-                this.annotations[i]['unread'] +=1
-              }
-              if(data.reply_requests){
-                this.annotations[i]['replyRequests'] += 1
-              }
-               this.annotations[i]['thread'] +=1
-               this.annotations[i]['total'] +=1
-               break
-            }
-        }
-        }
-      })
+      // socket.on("reply_request", (data) => {
+      //   if (this.currentDir.class_id === data.class_id){
+      //     for (let i = 0; i < this.annotations.length; i++) {
+      //       if (this.annotations[i].filepath === data.filepath){
+      //         if (data.add_request && data.reply_requesters.length == 0){
+      //           this.annotations[i]['replyRequests'] += 1
+      //         } else if (!data.add_request && data.reply_requesters.length == 1) {
+      //           this.annotations[i]['replyRequests'] -=1
+      //         }
+      //         break
+      //       }
+      //   }
+      //   }
+      // })
+      // socket.on("create_new_thread", (data) => {
+      //   if (this.currentDir.class_id === data.class_id){
+      //     for (let i = 0; i < this.annotations.length; i++) {
+      //       if (this.annotations[i].filepath === data.filepath){
+      //         if (this.user_id === data.user_id){
+      //           this.annotations[i]['me'] += 1
+      //         } else {
+      //           this.annotations[i]['unread'] +=1
+      //         }
+      //         if(data.reply_requests){
+      //           this.annotations[i]['replyRequests'] += 1
+      //         }
+      //          this.annotations[i]['thread'] +=1
+      //          this.annotations[i]['total'] +=1
+      //          break
+      //       }
+      //   }
+      //   }
+      // })
 
-      socket.on("new_reply", (data) => {
-        if (this.currentDir.class_id === data.class_id){
-          for (let i = 0; i < this.annotations.length; i++) {
-            if (this.annotations[i].filepath === data.filepath){
-              if (this.user_id === data.user_id){
-                this.annotations[i]['me'] += 1
-              } else {
-                this.annotations[i]['unread'] += 1
-              }
-              if(data.reply_requests){
-                this.annotations[i]['replyRequests'] += 1
-              }
-               this.annotations[i]['total'] +=1
-               break
-            }
-        }
-        }
-      })
+      // socket.on("new_reply", (data) => {
+      //   if (this.currentDir.class_id === data.class_id){
+      //     for (let i = 0; i < this.annotations.length; i++) {
+      //       if (this.annotations[i].filepath === data.filepath){
+      //         if (this.user_id === data.user_id){
+      //           this.annotations[i]['me'] += 1
+      //         } else {
+      //           this.annotations[i]['unread'] += 1
+            
+      //         }
+      //         if(data.reply_requests){
+      //           this.annotations[i]['replyRequests'] += 1
+      //         }
+      //          this.annotations[i]['total'] +=1
+      //          break
+      //       }
+      //   }
+      //   }
+      // })
 
-      socket.on("delete_comment", (data) => {
-        if (this.currentDir.class_id === data.class_id){
-          for (let i = 0; i < this.annotations.length; i++) {
-            if (this.annotations[i].filepath === data.filepath){
-              if (this.user_id === data.user_id){
-                this.annotations[i]['me'] -= 1
-              } else {
-                let seen = false
-                for(let j = 0; j < data.seen_user; j++){
-                  if(data.seen_user[j].id === this.user_id){
-                    seen = true
-                    break
-                  }
-                }
-                if(!seen){
-                  this.annotations[i]['unread'] -= 1
-                }
-              }
-              if (data.reply_requests.length > 0 ){
-                this.annotations[i]['replyRequests'] -= 1
-              }
-              if (!data.parent){
-                this.annotations[i]['thread'] -= 1
-              }
-              this.annotations[i]['total'] -=1
-              break
-            }
-        }
-        }
-      })
+      // socket.on("delete_comment", (data) => {
+      //   if (this.currentDir.class_id === data.class_id){
+      //     for (let i = 0; i < this.annotations.length; i++) {
+      //       if (this.annotations[i].filepath === data.filepath){
+      //         if (this.user_id === data.user_id){
+      //           this.annotations[i]['me'] -= 1
+      //         } else {
+      //           let seen = false
+      //           for(let j = 0; j < data.seen_user; j++){
+      //             if(data.seen_user[j].id === this.user_id){
+      //               seen = true
+      //               break
+      //             }
+      //           }
+      //           if(!seen){
+      //             this.annotations[i]['unread'] -= 1
+      //           }
+      //         }
+      //         if (data.reply_requests.length > 0 ){
+      //           this.annotations[i]['replyRequests'] -= 1
+      //         }
+      //         if (!data.parent){
+      //           this.annotations[i]['thread'] -= 1
+      //         }
+      //         this.annotations[i]['total'] -=1
+      //         break
+      //       }
+      //   }
+      //   }
+      // })
 
-      socket.on("read_thread", (data) => {
-
-        if (this.currentDir.class_id === data.class_id && this.user_id === data.user_id){
-          for (let i = 0; i < this.annotations.length; i++) {
-            if (this.annotations[i].filepath === data.filepath){
-
-                 this.annotations[i]['unread'] -= 1
-
-              break
-            }
-        }
-        }
-      })
-
+      // socket.on("read_thread", (data) => {
+      //   if (this.currentDir.class_id === data.class_id && this.user_id === data.user_id){
+      //     for (let i = 0; i < this.annotations.length; i++) {
+      //       if (this.annotations[i].filepath === data.filepath){
+      //            this.annotations[i]['unread'] -= 1
+      //         break
+      //       }
+      //   }
+      //   }
+      // })
       
     },
     methods:{
@@ -503,8 +500,7 @@
  
         axios.get(`/api/annotations/stats?url=${escape(filepath)}&class=${class_id}`, config)
           .then((res) => {
-            res.data.filepath = filepath
-            
+            res.data.filepath = filepath           
             this.annotations.push(res.data)
           })
       },
