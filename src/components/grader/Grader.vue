@@ -32,8 +32,8 @@
         <span class="label"> Deadline: </span>
         <datepicker v-model="date" :bootstrap-styling="true"></datepicker>
       </div>
-      <button :disabled="!submitEnabled" @click="createGrades">
-        Generate Grades
+      <button :disabled="!submitEnabled || isGeneratingGrades" @click="createGrades">
+        {{isGeneratingGrades ? 'Generating...' : 'Generate Grades'}}
       </button>
     </div>
   </div>
@@ -60,6 +60,7 @@
         sources: [],
         selectedGrading: null,
         selectedSource: null,
+        isGeneratingGrades: false,
         date: new Date() // TODO: default to the assignment due date instead
       }
     },
@@ -106,6 +107,7 @@
     },
     methods: {
       createGrades: function() {
+        this.isGeneratingGrades = true
         const url = this.sources[this.selectedSource].id === 'OVERALL' ? '/api/grades/all' : '/api/grades/grades' 
         const token = localStorage.getItem("nb.user");
         const course = JSON.parse(localStorage.getItem('nb.current.course'))
@@ -136,6 +138,7 @@
           hiddenElement.target = '_blank';
           hiddenElement.download = 'grades.csv';
           hiddenElement.click();
+          this.isGeneratingGrades = false
         })
       }
     },
