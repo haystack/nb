@@ -26,7 +26,7 @@ app.get('/api/check', async (_, res) => {
 
 app.use('/uploads', express.static('public/uploads'))
 app.use('/media', express.static('public/media'))
-app.use('/.well-known', express.static('public/.well-known'))
+app.use('/.well-known/acme-challenge', express.static('public/.well-known/acme-challenge'))
 
 // NB1 redirects
 app.use('/', (req, res, next) => {
