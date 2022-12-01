@@ -98,12 +98,15 @@
       axios.get('/api/classes/sourceList', config).then(res => {
         this.sources = res.data
         if (this.sources.length > 0) {
+          const source = { filename: 'All', id: 'OVERALL'}
+          this.sources.unshift(source)
           this.selectedSource = 0 // defaults to the first one
         }
       })
     },
     methods: {
       createGrades: function() {
+        const url = this.sources[this.selectedSource].id === 'OVERALL' ? '/api/grades/all' : '/api/grades/grades' 
         const token = localStorage.getItem("nb.user");
         const course = JSON.parse(localStorage.getItem('nb.current.course'))
         const config = { 
@@ -115,7 +118,7 @@
                 classId: course.id
             }
         }
-        axios.get("/api/grades/grades", config)
+        axios.get(url, config)
         .then(res => {
           var csv = 'Name,Email,Username,Total Comments,Total Words,Total Characters,Total Tags,Grade\n';
           res.data.forEach(function(row) {
