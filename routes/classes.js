@@ -156,6 +156,19 @@ router.get('/studentList/:id', (req, res) => {
     });
 });
 
+router.get('/usersList/:id', (req, res) => {
+  Class.findByPk(req.params.id,
+    { include: [{ association: 'Instructors', attributes: ['id', 'username', 'first_name', 'last_name', 'email']}, {association: 'GlobalSection',
+    include: [{
+      association: 'MemberStudents',
+      attributes: ['id', 'username', 'first_name', 'last_name', 'email']
+    }]}]})
+    .then((nb_class) => {
+        res.status(200).json({instructors: nb_class.Instructors, students: nb_class.GlobalSection.MemberStudents});
+
+    });
+});
+
 /**
  * Add an instructor to a given class
  * @name POST/api/classes/instructor/:id

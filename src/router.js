@@ -35,6 +35,11 @@ export default new Router({
             component: () => import('./views/ProfilePage.vue'),
         },
         {
+            path: '/following',
+            name: 'followers-page',
+            component: () => import('./views/FollowersPage.vue'),
+        },
+        {
             path: '/bookmarklet',
             name: 'bookmarklet',
             props: { default: true },

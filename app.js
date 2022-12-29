@@ -14,6 +14,7 @@ const gradesRouter = require('./routes/grades')
 const adminRouter = require('./routes/admin')
 const logRouter = require('./routes/log')
 const consentRouter = require('./routes/consents')
+const followRouter = require('./routes/follow')
 const auth = require('./auth/auth')
 const socketapi = require("./socketapi")
 const history = require('connect-history-api-fallback');
@@ -86,6 +87,7 @@ app.use('/api/spotlights', passport.authenticate('jwt', { session: false }), spo
 app.use('/api/grades', passport.authenticate('jwt', { session: false }), gradesRouter)
 app.use('/api/log', passport.authenticate('jwt', { session: false }), logRouter)
 app.use('/api/consent', passport.authenticate('jwt', { session: false }), consentRouter)
+app.use('/api/follow', passport.authenticate('jwt', { session: false }), followRouter)
 app.use('/api/admin', passport.authenticate('jwt', { session: false }), auth.isAdmin(), adminRouter)
 
 // Handle errors.
