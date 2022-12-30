@@ -171,12 +171,14 @@ module.exports = function (models) {
         annotation.people = head.TaggedUsers.map(userTag => userTag.id);
         annotation.visibility = head.visibility;
         annotation.anonymity = head.anonymity;
+        annotation.endorsed = head.endorsed;
         annotation.spotlight = head.Spotlight
         annotation.media = head.Media
         annotation.replyRequestedByMe = head.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.replyRequestCount = head.ReplyRequesters.length;
         annotation.starredByMe = head.Starrers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.starCount = head.Starrers.length;
+        annotation.instructorVotes = head.Starrers.filter((user) => instructors.has(user.id)).length;
         annotation.seenByMe = location.Thread.SeenUsers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.bookmarked = head.Bookmarkers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.followed = follows.reduce((bool, user) => bool || user.follower_id == head.Author.id, false);
@@ -211,11 +213,13 @@ module.exports = function (models) {
         annotation.people = head.TaggedUsers.map(userTag => userTag.id);
         annotation.visibility = head.visibility;
         annotation.anonymity = head.anonymity;
+        annotation.endorsed = head.endorsed;
         annotation.media = head.Media;
         annotation.replyRequestedByMe = head.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.replyRequestCount = head.ReplyRequesters.length;
         annotation.starredByMe = head.Starrers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.starCount = head.Starrers.length;
+        annotation.instructorVotes = head.Starrers.filter((user) => instructors.has(user.id)).length;
         annotation.seenByMe = seenUsers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.bookmarked = head.Bookmarkers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.followed = follows.reduce((bool, user) => bool || user.follower_id == head.Author.id, false);
