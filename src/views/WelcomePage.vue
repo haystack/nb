@@ -247,13 +247,16 @@ export default {
   },
   mounted: function () {
     try {
-      const token = localStorage.getItem("nb.user");
-      if (token) {
-        const decoded = VueJwtDecode.decode(token);
-        if (decoded.user.username && decoded.user.username !== "") {
-          this.isLoggedIn = true
+        const token = localStorage.getItem("nb.user");
+        if (token) {
+            const decoded = VueJwtDecode.decode(token);
+            if (decoded.user.username && decoded.user.username !== "") {
+                this.isLoggedIn = true
+                if (!this.$route.path.includes('/about')) {
+                    return this.$router.push({ name: 'dashboard-page' })
+                }
+            }
         }
-      }
     } catch (error) {
       console.error(error, "error from decoding token");
     }

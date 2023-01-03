@@ -26,9 +26,8 @@ const nbLog = (sequelize, DataTypes) => {
             defaultValue: 0.
         },
         count_annotation_replies: {
-            allowNull: false,
+            allowNull: true,
             type: DataTypes.INTEGER,
-            defaultValue: 0.
         },
         count_online_students: {
             allowNull: false,
@@ -42,13 +41,11 @@ const nbLog = (sequelize, DataTypes) => {
         },
         is_sync_annotation: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
+            allowNull: true,
         },
         has_sync_annotation: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
+            allowNull: true,
         },
         notification_trigger: {
             type: DataTypes.ENUM,
@@ -77,12 +74,21 @@ const nbLog = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             unique: false,
             allowNull: true
-        }
+        },
+        is_comment_endorsed: {
+            type:  DataTypes.BOOLEAN,
+            allowNull: true,
+        },
+        is_comment_followed: {
+            type:  DataTypes.BOOLEAN,
+            allowNull: true,
+        },
     },
         {
             classMethods: {
                 associate: (models) => {
                     NbLog.belongsTo(models.Annotation, { as: 'Annotation', foreignKey: { name: 'annotation_id' }, onDelete: 'CASCADE' });
+                    NbLog.belongsTo(models.Annotation, { as: 'HeadAnnotation', foreignKey: { name: 'head_annotation_id' }, onDelete: 'CASCADE' });
                     NbLog.belongsTo(models.User, { as: 'User', foreignKey: { name: 'user_id' }, onDelete: 'CASCADE' });
                     NbLog.belongsTo(models.Class, { as: 'Class', foreignKey: { name: 'class_id' }, onDelete: 'CASCADE' });
                     NbLog.belongsTo(models.Source, { as: 'Source', foreignKey: { name: 'source_id' }, onDelete: 'CASCADE' });

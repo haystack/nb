@@ -1,6 +1,6 @@
 <template>
   <div class="create-course">
-    <h3> Create a New Class </h3>
+    <h6> Create a New Class </h6>
     <div class="group">
       <label for='new-course-name'>Name:</label>
       <input id='new-course-name' v-model='newCourse.name' type='text'>

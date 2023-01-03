@@ -31,6 +31,7 @@ router.post('/nb', async (req, res) => {
                 class_id: req.body.class_id,
                 source_id: source.id,
                 annotation_id: req.body.annotation_id,
+                head_annotation_id: req.body.head_annotation_id,
                 user_id: user.id,
                 spotlight_type: req.body.spotlight_type.toUpperCase(),
                 event: req.body.event.toUpperCase(),
@@ -49,6 +50,8 @@ router.post('/nb', async (req, res) => {
                 role: req.body.role,
                 applied_filter: req.body.applied_filter,
                 applied_sort: req.body.applied_sort,
+                is_comment_endorsed: req.body.comment_endorsed,
+                is_comment_followed: req.body.comment_followed,
             },
         )
         res.status(200).json(nbLog)

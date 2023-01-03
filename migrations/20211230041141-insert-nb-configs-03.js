@@ -11,7 +11,7 @@ module.exports = {
             {
                 name: 'CONFIG_SYNC_SPOTLIGHT_NEW_THREAD',
                 value: '{"type":"RIGHT","color":"#334455"}',
-                description: 'Configurations for new thread (sync) spotlight [type("TYPE"), color("#FFFFFF"), background("#000000"), showTime(true/false)]'
+                description: 'Configurations for new thread (sync) spotlight {type: "TYPE", color: "#FFFFFF", background: "#000000", showTime: true/false}'
             },
             {
                 name: 'NB_LOG',

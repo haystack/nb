@@ -1,6 +1,9 @@
 <template>
   <nav>
-    <div class="home" @click="redirect('welcome-page')">nb</div>
+    <div class="menu">
+      <div class="home" @click="redirect('welcome-page')">nb</div>
+      <div class="about" @click="redirect('about-page')">about</div>
+    </div>
     <div v-if="course" class="title">
       {{ course.class_name }}
     </div>
@@ -117,5 +120,17 @@ nav {
 }
 .user .dropdown:hover .content {
   display: block;
+}
+.menu {
+  display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
+.about {
+  margin-left: 30px;
+  cursor: pointer;
+  font-size: 14px;
 }
 </style>
