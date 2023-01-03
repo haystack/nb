@@ -61,9 +61,9 @@ app.set('port', port);
 const server = https.createServer({ ...devCtx, SNICallback: (servername, cb) => {
   let ctx = nb2Ctx
 
-  if (servername === 'nb.mit.edu') {
-    ctx = nbCtx
-  }
+  // if (servername === 'nb.mit.edu') {
+  //   ctx = nbCtx
+  // }
 
   if (cb) {
     cb(null, ctx);
