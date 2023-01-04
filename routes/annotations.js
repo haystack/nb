@@ -495,6 +495,7 @@ router.get('/specific_thread', async (req, res) => {
                         { association: 'TaggedUsers', attributes: ['id'] },
                         { association: 'Tags', attributes: ['tag_type_id'] },
                         { association: 'Bookmarkers', attributes: ['id'] },
+                        { association: 'Spotlight', attributes: ['id', 'type'] },
                         { association: 'Media', attributes: ['filepath', 'type'] },
                     ]
                 },
@@ -800,15 +801,19 @@ router.delete('/annotation/:id', (req, res) => {
 * @name POST/api/annotations/star/:id
 * @param id: id of annotation
 */
-router.post('/seen/:id', (req, res) => {
-    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
-        User.findByPk(req.user.id).then(user => {
-            annotation.Thread.removeSeenUser(user).then(() => {
-                annotation.Thread.addSeenUser(user)
-            })
-        }).then(() => res.sendStatus(200))
-            .catch((err) => res.sendStatus(400))
-    );
+router.post('/seen/:id', async (req, res) => {
+    try {
+        const [annotation, user] = await Promise.all([
+            Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }),
+            User.findByPk(req.user.id)
+        ])
+
+        await annotation.Thread.removeSeenUser(user)
+        await annotation.Thread.addSeenUser(user)
+        res.sendStatus(200)
+    } catch (error) {
+        res.sendStatus(400)
+    }
 });
 
 /**
