@@ -464,10 +464,11 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
 * @param class_id: source class id
 * @param id: id of thread
 */
-router.get('/specific_thread', (req, res) => {
+router.get('/specific_thread', async (req, res) => {
     let classInstructors = new Set([])
-    Followers.findAll({ where: { user_id: req.user.id}}).then((follows) => {
-        Source.findOne({
+    try {
+        const follows = await Followers.findAll({ where: { user_id: req.user.id}})
+        const source = await Source.findOne({
             where: { [Op.and]: [{ filepath: req.query.source_url }, { class_id: req.query.class_id }] },
             include: [{
                 association: 'Class',
@@ -475,67 +476,64 @@ router.get('/specific_thread', (req, res) => {
                     { association: 'Instructors', attributes: ['id'] },
                 ]
             }]
-        }).then(source => {
-                classInstructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
-                Thread.findOne({
-                    where: { id: req.query.thread_id },
-                    include: [
-                        {
-                            association: 'Location', include: [{ association: 'HtmlLocation' }],
-                        },
-                        {
-                            association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
-                            include: [
-                                { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                { association: 'TaggedUsers', attributes: ['id'] },
-                                { association: 'Tags', attributes: ['tag_type_id'] },
-                                { association: 'Bookmarkers', attributes: ['id'] },
-                                { association: 'Media', attributes: ['filepath', 'type'] },
-                            ]
-                        },
-                        {
-                            association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
-                            include: [
-                                { association: 'Parent', attributes: ['id'] },
-                                { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                                { association: 'TaggedUsers', attributes: ['id'] },
-                                { association: 'Tags', attributes: ['tag_type_id'] },
-                                { association: 'Bookmarkers', attributes: ['id'] },
-                                { association: 'Media', attributes: ['filepath', 'type'] },
-                            ]
-                        },
-                        { association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                        { association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
-                    ]
-                })
-                    .then(thread => {
-                        let annotations = {}
-                        let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, req.user.id, follows)
-
-                        thread.AllAnnotations.forEach((annotation) => {
-                            if (annotation.Parent) {
-                                if (!(annotation.Parent.id in annotations)) {
-                                    annotations[annotation.Parent.id] = []
-                                }
-                                annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, req.user.id, follows))
-                            }
-                        })
-                        res.status(200).json({ 'headAnnotation': headAnnotation, 'annotationsData': annotations });
-                    })
-                    .catch(function (err) {
-                        console.log(err)
-                        res.status(res.status(400).json({ msg: "Error fetching specific thread" }))
-                    })
         })
-    })
-    .catch(function (err) {
-        console.log(err)
-        res.status(res.status(400).json({ msg: "Error fetching specific thread" }))
-    })
+
+        classInstructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+        
+        const thread = await Thread.findOne({
+            where: { id: req.query.thread_id },
+            include: [
+                {
+                    association: 'Location', include: [{ association: 'HtmlLocation' }],
+                },
+                {
+                    association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
+                    include: [
+                        { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'TaggedUsers', attributes: ['id'] },
+                        { association: 'Tags', attributes: ['tag_type_id'] },
+                        { association: 'Bookmarkers', attributes: ['id'] },
+                        { association: 'Spotlight', attributes: ['id', 'type'] },
+                        { association: 'Media', attributes: ['filepath', 'type'] },
+                    ]
+                },
+                {
+                    association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
+                    include: [
+                        { association: 'Parent', attributes: ['id'] },
+                        { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'TaggedUsers', attributes: ['id'] },
+                        { association: 'Tags', attributes: ['tag_type_id'] },
+                        { association: 'Bookmarkers', attributes: ['id'] },
+                        { association: 'Media', attributes: ['filepath', 'type'] },
+                    ]
+                },
+                { association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                { association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+            ]
+        })
+
+        let annotations = {}
+        let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, req.user.id, follows)
+
+        thread.AllAnnotations.forEach((annotation) => {
+            if (annotation.Parent) {
+                if (!(annotation.Parent.id in annotations)) {
+                    annotations[annotation.Parent.id] = []
+                }
+                annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, req.user.id, follows))
+            }
+        })
+                            
+        res.status(200).json({ 'headAnnotation': headAnnotation, 'annotationsData': annotations });
+    } catch(err) {
+            console.log(err)
+            res.status(res.status(400).json({ msg: "Error fetching specific thread" }))
+        }
 })
 
 
@@ -741,32 +739,37 @@ router.post('/media/reply/:id', upload.single("file"), async (req, res) => {
 * @param anonymity: string enum
 * @param replyRequest: boolean
 */
-router.put('/annotation/:id', (req, res) => {
-    Annotation.findByPk(req.params.id)
-        .then(annotation =>
-            annotation.update({
-                content: req.body.content,
-                visibility: req.body.visibility,
-                anonymity: req.body.anonymity,
-                endorsed: req.body.endorsed
-            })
-                .then(() => Tag.destroy({ where: { annotation_id: annotation.id } }))
-                .then(() => {
-                    if (req.body.userTags && req.body.userTags.length) {
-                        Promise.all(req.body.userTags.map(user_id => User.findByPk(user_id)))
-                            .then(users => annotation.setTaggedUsers(users));
-                    }
-                    if (req.body.tags && req.body.tags.length) {
-                        Promise.all(req.body.tags.map(tag => Tag.create({ annotation_id: annotation.id, tag_type_id: tag })))
-                            .then(tags => annotation.setTags(tags));
-                    }
-                    return User.findByPk(req.user.id).then(user => {
-                        if (req.body.replyRequest) annotation.addReplyRequester(user);
-                        else annotation.removeReplyRequester(user);
-                    });
-                })
-                .then(() => res.sendStatus(200))
-        );
+router.put('/annotation/:id', async (req, res) => {
+    const annotation = await Annotation.findByPk(req.params.id)
+    const parent = await Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }] }] })
+    await annotation.update({ content: req.body.content, visibility: req.body.visibility, anonymity: req.body.anonymity, endorsed: req.body.endorsed})
+    await Tag.destroy({ where: { annotation_id: annotation.id } })
+          
+    if (req.body.userTags && req.body.userTags.length) {
+        const users = await Promise.all(req.body.userTags.map(user_id => User.findByPk(user_id)))
+        annotation.setTaggedUsers(users)
+    }
+          
+    if (req.body.tags && req.body.tags.length) {
+        const tags = await Promise.all(req.body.tags.map(tag => Tag.create({ annotation_id: annotation.id, tag_type_id: tag })))
+        annotation.setTags(tags)
+    }
+
+    const user = await User.findByPk(req.user.id)
+
+    if (req.body.replyRequest) {
+        await annotation.addReplyRequester(user);
+    } else {
+        await annotation.removeReplyRequester(user);
+    }
+
+    const io = socketapi.io
+    const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
+    const globalRoomId = `${urlHash}:${req.body.class}`
+    const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+    io.to(globalRoomId).emit('update_thread', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id})
+    classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('update_thread', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id}))
+res.sendStatus(200)
 });
 
 /**
@@ -798,15 +801,19 @@ router.delete('/annotation/:id', (req, res) => {
 * @name POST/api/annotations/star/:id
 * @param id: id of annotation
 */
-router.post('/seen/:id', (req, res) => {
-    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
-        User.findByPk(req.user.id).then(user => {
-            annotation.Thread.removeSeenUser(user).then(() => {
-                annotation.Thread.addSeenUser(user)
-            })
-        }).then(() => res.sendStatus(200))
-            .catch((err) => res.sendStatus(400))
-    );
+router.post('/seen/:id', async (req, res) => {
+    try {
+        const [annotation, user] = await Promise.all([
+            Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }),
+            User.findByPk(req.user.id)
+        ])
+
+        await annotation.Thread.removeSeenUser(user)
+        await annotation.Thread.addSeenUser(user)
+        res.sendStatus(200)
+    } catch (error) {
+        res.sendStatus(400)
+    }
 });
 
 /**

@@ -1,73 +1,72 @@
 <template>
-  <div class="app-wrapper">
-    <nav-bar :course="selectedCourse" :user="user"></nav-bar>
-    <div class="app-body">
-      <div class="sidebar">
-        <h2 class="title">My Classes</h2>
-        <h3 class="subtitle">Enrolled as Student</h3>
-        <course-list
-          :courses="courses.student"
-          :selectedCourse="selectedCourse"
-          @select-course="onSelectCourse"
-        >
-        </course-list>
-        <h3 class="subtitle">Enrolled as Instructor</h3>
-        <course-list
-          :courses="courses.instructor"
-          :selectedCourse="selectedCourse"
-          @select-course="onSelectCourse"
-        >
-        </course-list>
-        <course-create @create-course="onCreateCourse"></course-create>
-        <button class="bookmarklet-button" @click="openBookmarkletModal">
-          NB Bookmarklet Instructions
-        </button>
+    <div class="app-wrapper">
+        <nav-bar :course="selectedCourse" :user="user"></nav-bar>
+        <div class="app-body">
+        <div class="sidebar">
+            <button class="bookmarklet-button mt-3" @click="openBookmarkletModal">NB Bookmarklet Instructions</button>
+            <hr/>
+            <h3 class="title">My Classes</h3>
+            <br/>
+            <h5 class="subtitle">Enrolled as Student</h5>
+            <course-list
+                :courses="courses.student"
+                :selectedCourse="selectedCourse"
+                @select-course="onSelectCourse"
+            >
+            </course-list>
+            <br/><br/>
+            <h5 class="subtitle">Enrolled as Instructor</h5>
+            <course-list
+                :courses="courses.instructor"
+                :selectedCourse="selectedCourse"
+                @select-course="onSelectCourse"
+            >
+            </course-list>
+            <br/>
+            <hr/>
+            <course-create @create-course="onCreateCourse"></course-create>
+            <a href="https://forms.gle/6YERC3jSu1W1zUzS8" class="nb-bug-link" target="_blank" >Report Bug</a>
+        </div>
+        <div class="dashboard-wrapper">
+            <course-dashboard
+            v-if="selectedCourse"
+            :course="selectedCourse"
+            :userType="userType"
+            :user="user"
+            >
+            </course-dashboard>
+        </div>
+        </div>
         <modal name="bookmarklet-modal" height="auto" width="70%">
-          <div class="bookmarklet-modal">
-            <p>
-              To enable the NB sidebar for a class reading, either drag (don't
-              click) this <a :href="bookmarklet">NB Bookmarklet</a> link to your
-              bookmarks bar, or make a new bookmark with the code below as the
-              URL.
-            </p>
-            <p>
-              When on the class reading page, just click on the bookmark and the
-              sidebar should appear.
-            </p>
-            <pre>
-      <code>
-        javascript:(function(){
-          let s = document.createElement('script');
-          s.src= '{{pathname}}/client/js/bundle.js';
-          document.body.append(s);
-        })()
-      </code>
-    </pre>
-          </div>
+            <div class="bookmarklet-modal">
+                <p>
+                To enable the NB sidebar for a class reading, either drag (don't
+                click) this <a :href="bookmarklet">NB Bookmarklet</a> link to your
+                bookmarks bar, or make a new bookmark with the code below as the
+                URL.
+                </p>
+                <p>
+                When on the class reading page, just click on the bookmark and the
+                sidebar should appear.
+                </p>
+                <pre>
+                    <code>
+                        javascript:(function(){
+                        let s = document.createElement('script');
+                        s.src= '{{pathname}}/client/js/bundle.js';
+                        document.body.append(s);
+                        })()
+                    </code>
+                </pre>
+            </div>
         </modal>
-        <a
-          href="https://forms.gle/6YERC3jSu1W1zUzS8"
-          class="nb-bug-link"
-          target="_blank"
-          >Report Bug</a
-        >
-      </div>
-      <div class="dashboard-wrapper">
-        <course-dashboard
-          v-if="selectedCourse"
-          :course="selectedCourse"
-          :userType="userType"
-          :user="user"
-        >
-        </course-dashboard>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
 import Vue from "vue";
 import VModal from "vue-js-modal";
+import "bootstrap/dist/css/bootstrap.css";
 Vue.use(VModal);
 import axios from "axios";
 import NavBar from "../components/NavBar.vue";
@@ -194,23 +193,18 @@ export default {
   min-width: 300px;
   width: 300px;
   padding: 0 0 0 20px;
-  /* height: 100%; */
-  height: calc(100% - 6px);
   overflow-y: auto;
   background-color: #eee;
   text-align: left;
   border: solid 3px #875f9a;
-  border-bottom-left-radius: 11px;
 }
 .dashboard-wrapper {
   padding: 20px;
-  height: calc(100% - 46px);
   overflow-y: auto;
   flex-wrap: wrap;
   align-items: flex-start;
   border: solid 3px #875f9a;
   flex-grow: 1;
-  border-bottom-right-radius: 11px;
 }
 
 .sidebar button {
@@ -257,4 +251,5 @@ pre code {
 .bookmarklet-modal {
   padding: 20px;
 }
+
 </style>

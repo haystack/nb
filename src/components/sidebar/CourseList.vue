@@ -43,6 +43,8 @@
   }
   p.empty {
     padding: 10px;
-    color: #444;
+    color: #888;
+    font-family: monospace;
+    font-style: italic;
   }
 </style>
