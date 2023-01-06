@@ -3,7 +3,7 @@
 ## Local Dev
 
 1. Install node.js and PostgreSQL
-   - [Node install](https://nodejs.org/en/download/)
+   - [Node install](https://nodejs.org/en/download/) `v16 or newer`
    - [PostgreSQL install macOS](https://www.codementor.io/@engineerapart/getting-started-with-postgresql-on-mac-osx-are8jcopb)
    - [PostgreSQL install windows](https://www.postgresqltutorial.com/install-postgresql/)
 
