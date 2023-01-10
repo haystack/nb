@@ -83,6 +83,15 @@ const nbLog = (sequelize, DataTypes) => {
             type:  DataTypes.BOOLEAN,
             allowNull: true,
         },
+        count_spotlights: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        spotlight_header_type: {
+            type: DataTypes.ENUM,
+            values: ['FOLLOW', 'QUESTION', 'ENDORSED', 'GENERAL'],
+            allowNull: true,
+        }
     },
         {
             classMethods: {

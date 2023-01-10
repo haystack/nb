@@ -23,7 +23,12 @@ const upload = multer({ dest: 'public/media/' });
 * @name GET/api/annotations/myClasses
 */
 router.get('/myClasses', async (req, res) => {
-    const allSourcesByFilepath = await Source.findAll({ where: { filepath: req.query.url } })
+    let allSourcesByFilepath = await Source.findAll({ where: { filepath: req.query.url }, include: [{association: 'Files'}] })
+
+    try {
+        allSourcesByFilepath = allSourcesByFilepath.filter(s => !s.Files[0].dataValues.deleted)
+    } catch (error) {}
+
     const user = await User.findByPk(req.user.id)
     const sections = await user.getMemberSections({ raw: true })
     const myClassesAsStudent = await Promise.all(sections.map((section) => Class.findByPk(section.class_id)))
