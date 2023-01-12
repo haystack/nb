@@ -5,6 +5,11 @@
     <div v-else>
       <div class="nb-admin-tabs">
         <span
+          @click="selectTab('online')"
+          v-bind:class="{ active: currentTab === 'online' }"
+          >Online</span
+        >
+        <span
           @click="selectTab('classes')"
           v-bind:class="{ active: currentTab === 'classes' }"
           >Classes</span
@@ -14,6 +19,10 @@
           v-bind:class="{ active: currentTab === 'consents' }"
           >Consents</span
         >
+      </div>
+      <div v-if="currentTab === 'online'" class="tab online">
+        <h1>Instructors: {{ this.onlineUsers.instructors.length }}</h1>
+        <h1>Students: {{ this.onlineUsers.students.length }}</h1>
       </div>
       <div v-if="currentTab === 'classes'" class="tab">
         <div class="nb-side">
@@ -171,6 +180,9 @@
 import axios from "axios";
 import VueJwtDecode from "vue-jwt-decode";
 import NavBar from "../components/NavBar.vue";
+import io from "socket.io-client";
+
+const socket = io('https://127.0.0.1:3000', { reconnect: true })
 
 export default {
   name: "admin-page",
@@ -190,8 +202,9 @@ export default {
       controlStudents: [],
       treatmentStudents: [],
       assignedSources: [],
-      currentTab: "classes",
+      currentTab: "online",
       newConsentName: null,
+      onlineUsers: { ids: [], instructors: [], students: [] },
     };
   },
   created: async function () {
@@ -219,6 +232,13 @@ export default {
       this.user = null;
       this.redirect("login-page");
     }
+
+    socket.emit('joinadmin', { })
+
+    socket.on('connections', (data) => {
+        console.log(`NB: Socket.IO connections`)
+        this.onlineUsers = data.users
+    })
   },
   watch: {
     selectedCourse: async function (newCourse, oldCourse) {
