@@ -20,25 +20,22 @@ io.on('connection', function (socket) {
 })
 
 async function handleOnJoinAdmin(socket, data) {
+    console.log(`\n********* IO -> JOINED ADMIN\n*********`)
     socket.join(NB_ADMIN)
 }
 
-// async function fetchOnlineUsersFromSocket(socketId) {
-//     console.log('fetchOnlineUsers');
-//     const r =  io.sockets.adapter.rooms.get(socketId)
-//     console.log(r);
-//     for (const s of r) {
-//         console.log(s.adapter?.nbuser);
-//     }
-//     const users = [...new Set(r.map(u => u?.nbuser?.id))]
-//     return users?.length || 0
-// }
+async function fetchOnlineUsersFromSocket(socketId) {
+    console.log('fetchOnlineUsers');
+    const r =  io.sockets.adapter.rooms.get(socketId)
+    return r?.size || 0
+}
 
 async function broadcastNbOnlineUsers() {
-    // console.log('broadcastNbOnlineUsers');
-    // const users = await fetchOnlineUsers([NB_ONLINE_INSTRUCTORS, NB_ONLINE_STUDENTS])
-    // console.log(`instructors: ${users.instructors.length} \t students:${users.students.length}`);
-    // io.to(NB_ADMIN).emit('connections', { users })
+    console.log('broadcastNbOnlineUsers');
+    const instructors = await fetchOnlineUsersFromSocket(NB_ONLINE_INSTRUCTORS)
+    const students = await fetchOnlineUsersFromSocket(NB_ONLINE_STUDENTS)
+    console.log(`instructors: ${instructors} \t students:${students}`);
+    io.to(NB_ADMIN).emit('connections', { instructors, students })
 }
 
 function handleOnJoin(socket, data) {

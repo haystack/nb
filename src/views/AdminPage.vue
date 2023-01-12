@@ -21,8 +21,8 @@
         >
       </div>
       <div v-if="currentTab === 'online'" class="tab online">
-        <h1>Instructors: {{ this.onlineUsers.instructors.length }}</h1>
-        <h1>Students: {{ this.onlineUsers.students.length }}</h1>
+        <h1>Instructors: {{ this.onlineUsers.instructors }}</h1>
+        <h1>Students: {{ this.onlineUsers.students }}</h1>
       </div>
       <div v-if="currentTab === 'classes'" class="tab">
         <div class="nb-side">
@@ -204,7 +204,7 @@ export default {
       assignedSources: [],
       currentTab: "online",
       newConsentName: null,
-      onlineUsers: { ids: [], instructors: [], students: [] },
+      onlineUsers: { instructors: 0, students: 0 },
     };
   },
   created: async function () {
@@ -237,7 +237,7 @@ export default {
 
     socket.on('connections', (data) => {
         console.log(`NB: Socket.IO connections`)
-        this.onlineUsers = data.users
+        this.onlineUsers = data
     })
 
     socket.on('disconnect', async (reason) => {
