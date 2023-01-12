@@ -21,8 +21,8 @@
         >
       </div>
       <div v-if="currentTab === 'online'" class="tab online">
-        <h1>Instructors: {{ this.onlineUsers.instructors }}</h1>
-        <h1>Students: {{ this.onlineUsers.students }}</h1>
+        <div><span> {{ this.onlineUsers.instructors }}</span>Instructors sessions</div>
+        <div><span> {{ this.onlineUsers.students }}</span>Students sessions</div>
       </div>
       <div v-if="currentTab === 'classes'" class="tab">
         <div class="nb-side">
@@ -180,9 +180,6 @@
 import axios from "axios";
 import VueJwtDecode from "vue-jwt-decode";
 import NavBar from "../components/NavBar.vue";
-import io from "socket.io-client";
-
-const socket = io({ reconnect: true })
 
 export default {
   name: "admin-page",
@@ -205,6 +202,7 @@ export default {
       currentTab: "online",
       newConsentName: null,
       onlineUsers: { instructors: 0, students: 0 },
+      intervalonlineUsers: null,
     };
   },
   created: async function () {
@@ -233,23 +231,12 @@ export default {
       this.redirect("login-page");
     }
 
-    socket.emit('joinadmin', { })
-
-    socket.on('connections', (data) => {
-        console.log(`NB: Socket.IO connections`)
-        this.onlineUsers = data
-    })
-
-    socket.on('disconnect', async (reason) => {
-        console.log(`NB: Socket.IO disconnect:  ${reason}`)
-        if (reason === "io server disconnect") {
-            await socket.connect();
-        }
-        setTimeout(() => {
-            socket.emit('joinadmin', {})
-        }, 1000);
-    })
-
+    this.fetchOnline()
+    this.intervalonlineUsers = setInterval(() => this.fetchOnline(), 10000);
+    
+  },
+  beforeDestory: function() {
+    clearInterval(this.intervalonlineUsers)
   },
   watch: {
     selectedCourse: async function (newCourse, oldCourse) {
@@ -290,6 +277,12 @@ export default {
     },
   },
   methods: {
+    fetchOnline: async function () {
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: "Bearer " + token } };
+      const res = await axios.get(`/api/admin/online`, headers);
+      this.onlineUsers = res.data
+    },
     selectTab: function (tab) {
       this.currentTab = tab;
     },
@@ -534,5 +527,30 @@ kbd {
 
 .tab.consents {
   flex-direction: column;
+}
+
+.online {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.online div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: monospace;
+    color: #4a2270;
+    padding: 40px;
+
+}
+
+.online div span {
+  font-size: 100px;
+    color: #000;
 }
 </style>

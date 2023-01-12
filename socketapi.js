@@ -5,38 +5,17 @@ const socketapi = { io: io }
 
 const NB_ONLINE_INSTRUCTORS = 'NB_ONLINE_INSTRUCTORS'
 const NB_ONLINE_STUDENTS = 'NB_ONLINE_STUDENTS'
-const NB_ADMIN = 'NB_ADMIN'
 
 let dict = {}
 let socketUserMapping = {}
 
 io.on('connection', function (socket) {
-    socket.on('joinadmin', data => handleOnJoinAdmin(socket, data))
     socket.on('joined', data => handleOnJoin(socket, data))
     socket.on("disconnect", data => handleOnDisconnect(socket, data))
     socket.on("left", data => handleOnLeft(socket, data))
     // socket.on('thread-typing', data => handleOnThreadTyping(socket, data))
     // socket.on('thread-stop-typing', data => handleOnThreadStopTyping(socket, data))
 })
-
-async function handleOnJoinAdmin(socket, data) {
-    console.log(`\n********* IO -> JOINED ADMIN\n*********`)
-    socket.join(NB_ADMIN)
-}
-
-async function fetchOnlineUsersFromSocket(socketId) {
-    console.log('fetchOnlineUsers');
-    const r =  io.sockets.adapter.rooms.get(socketId)
-    return r?.size || 0
-}
-
-async function broadcastNbOnlineUsers() {
-    console.log('broadcastNbOnlineUsers');
-    const instructors = await fetchOnlineUsersFromSocket(NB_ONLINE_INSTRUCTORS)
-    const students = await fetchOnlineUsersFromSocket(NB_ONLINE_STUDENTS)
-    console.log(`instructors: ${instructors} \t students:${students}`);
-    io.to(NB_ADMIN).emit('connections', { instructors, students })
-}
 
 function handleOnJoin(socket, data) {
     console.log(`\n********* IO -> JOINED:\n${data?.username} (${data?.role})\nsource: ${data?.sourceURL}\nclass: ${data?.classId}\n*********`)
@@ -67,7 +46,6 @@ function handleOnJoin(socket, data) {
     socket.globalRoomId = globalRoomId
     const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(globalRoomId))
     io.to(globalRoomId).emit('connections', { online: classAllRooms.reduce((acc, curr) => acc + (io.sockets.adapter.rooms.get(curr)?.size || 0), 0), users: fetchOnlineUsers(classAllRooms) })
-    broadcastNbOnlineUsers()
 }
 
 function handleOnDisconnect(socket, data) {
@@ -80,7 +58,6 @@ function handleOnDisconnect(socket, data) {
 
     const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(socket.globalRoomId))
     io.to(socket.globalRoomId).emit('connections', { online: classAllRooms.reduce((acc, curr) => acc + io.sockets.adapter.rooms.get(curr).size, 0), users: fetchOnlineUsers(classAllRooms) })
-    broadcastNbOnlineUsers()
 }
 
 function handleOnLeft(socket, data) {
@@ -103,7 +80,6 @@ function handleOnLeft(socket, data) {
     socket.globalRoomId = null
     const classAllRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(globalRoomId))
     io.to(globalRoomId).emit('connections', { online: classAllRooms.reduce((acc, curr) => acc + (io.sockets.adapter.rooms.get(curr)?.size || 0), 0), users: fetchOnlineUsers(classAllRooms) })
-    broadcastNbOnlineUsers()
 }
 
 // function handleOnThreadTyping(socket, data) {

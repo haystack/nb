@@ -5,6 +5,7 @@ const Class = require('../models').Class
 const ExpSpotlighAssignment = require('../models').ExpSpotlighAssignment
 const NbConfig = require('../models').NbConfig;
 const Consent = require('../models').Consent
+const socketapi = require("../socketapi")
 
 /**
  * Check if logged in user is an admin
@@ -101,5 +102,31 @@ router.post('/consent', async (req, res) => {
     const consent = await Consent.create({ name: req.body.name })
     res.status(200).json(consent)
 })
+
+/**
+ * Get online users count
+ * @name GET/api/admin/online
+ */
+router.get('/online', async (req, res) => {
+    const users = await broadcastNbOnlineUsers()
+    res.status(200).json(users)
+})
+
+async function fetchOnlineUsersFromSocket(socketId) {
+    console.log('fetchOnlineUsers');
+    const r =  socketapi.io.sockets.adapter.rooms.get(socketId)
+    return r?.size || 0
+}
+
+const NB_ONLINE_INSTRUCTORS = 'NB_ONLINE_INSTRUCTORS'
+const NB_ONLINE_STUDENTS = 'NB_ONLINE_STUDENTS'
+
+async function broadcastNbOnlineUsers() {
+    console.log('broadcastNbOnlineUsers');
+    const instructors = await fetchOnlineUsersFromSocket(NB_ONLINE_INSTRUCTORS)
+    const students = await fetchOnlineUsersFromSocket(NB_ONLINE_STUDENTS)
+    console.log(`instructors: ${instructors} \t students:${students}`);
+    return  { instructors, students }
+}
 
 module.exports = router
