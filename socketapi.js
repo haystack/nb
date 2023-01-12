@@ -35,10 +35,10 @@ async function handleOnJoinAdmin(socket, data) {
 // }
 
 async function broadcastNbOnlineUsers() {
-    console.log('broadcastNbOnlineUsers');
-    const users = await fetchOnlineUsers([NB_ONLINE_INSTRUCTORS, NB_ONLINE_STUDENTS])
-    console.log(`instructors: ${users.instructors.length} \t students:${users.students.length}`);
-    io.to(NB_ADMIN).emit('connections', { users })
+    // console.log('broadcastNbOnlineUsers');
+    // const users = await fetchOnlineUsers([NB_ONLINE_INSTRUCTORS, NB_ONLINE_STUDENTS])
+    // console.log(`instructors: ${users.instructors.length} \t students:${users.students.length}`);
+    // io.to(NB_ADMIN).emit('connections', { users })
 }
 
 function handleOnJoin(socket, data) {
