@@ -1,20 +1,10 @@
+const io = require("socket.io")()
 const crypto = require('crypto')
-const Server = require("socket.io")
-const redisAdapter = require('@socket.io/redis-adapter')
-const redis = require('redis')
 
-const io = Server()
-const pubClient = redis.createClient({ url: "redis://localhost:6379" });
-const subClient = pubClient.duplicate();
+const socketapi = { io: io }
 
-// io.adapter(redisAdapter.createAdapter(pubClient, subClient));
-
-Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
-    io.adapter(redisAdapter.createAdapter(pubClient, subClient));
-})
-  
-
-// let dict = {}
+let dict = {}
+let socketUserMapping = {}
 
 io.on('connection', function (socket) {
     socket.on('joined', data => handleOnJoin(socket, data))
@@ -25,17 +15,16 @@ io.on('connection', function (socket) {
 })
 
 function handleOnJoin(socket, data) {
-    console.log(`\n********* IO -> JOINED:\n${data?.username} (${data?.role})\nsource: ${data?.sourceURL}\nclass: ${data?.classId}\n*********`)
+    console.log("\n******** SOCKETIO JOINED *********")
+    console.log(data)
 
-    socket.nbuser = data
+    socketUserMapping[socket.id] = data
+
     const urlHash = crypto.createHash('md5').update(data.sourceURL).digest('hex')
     const globalRoomId = `${urlHash}:${data.classId}`
     const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
 
-    console.log(`********* IO -> ROOMS:`);
     console.log(io.sockets.adapter.rooms.get(globalRoomId));
-    console.log(`*********`);
-
     if (data.sectionId && data.sectionId.length > 0) {
         const sectionRoomId = `${urlHash}:${data.classId}:${data.sectionId}`
         socket.sectionRoomId = sectionRoomId
@@ -52,7 +41,8 @@ function handleOnJoin(socket, data) {
 }
 
 function handleOnDisconnect(socket, data) {
-    console.log(`\n********* IO -> DISCONNECT:\n${data?.username} (${data?.role})\nsource: ${data?.sourceURL}\nclass: ${data?.classId}\n*********`)
+    console.log('disconnect')
+    delete socketUserMapping[socket.id]
 
     if (socket.sectionRoomId) {
         io.to(socket.sectionRoomId).emit('connections', { online: (io.sockets.adapter.rooms.get(socket.sectionRoomId)?.size || 0) + (io.sockets.adapter.rooms.get(socket.globalRoomId)?.size || 0), users: fetchOnlineUsers([socket.globalRoomId, socket.sectionRoomId]) })
@@ -63,8 +53,9 @@ function handleOnDisconnect(socket, data) {
 }
 
 function handleOnLeft(socket, data) {
-    console.log(`\n********* IO -> LEFT:\n${data?.username} (${data?.role})\nsource: ${data?.sourceURL}\nclass: ${data?.classId}\n*********\n`)
-
+    console.log('left')
+    console.log(data)
+    delete socketUserMapping[socket.id]
     const urlHash = crypto.createHash('md5').update(data.sourceURL).digest('hex')
     const globalRoomId = `${urlHash}:${data.classId}`
     const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
@@ -110,16 +101,16 @@ function fetchOnlineUsers(socketIds) {
 
     try {
         socketIds.forEach(socketId => {
+            // TODO: check here
             Array.from(io.sockets.adapter.rooms.get(socketId) || []).forEach(connection => {
-                const s = io.sockets.sockets.get(connection)
-
-                if (!users.ids.includes(s?.nbuser?.id)) {
-                    users.ids.push(s?.nbuser?.id)
+                if (!users.ids.includes(socketUserMapping[connection].id)) {
+                    users.ids.push(socketUserMapping[connection].id)
+                    // TODO: check why it crashed here
                     try {
-                        if (s?.nbuser?.role.toLowerCase() === 'instructor') {
-                            users.instructors.push(s?.nbuser)
+                        if (socketUserMapping[connection].role.toLowerCase() === 'instructor') {
+                            users.instructors.push(socketUserMapping[connection])
                         } else {
-                            users.students.push(s?.nbuser)
+                            users.students.push(socketUserMapping[connection])
                         }
                     } catch (error) {
                         console.log(error);
@@ -135,12 +126,4 @@ function fetchOnlineUsers(socketIds) {
     return users
 }
 
-pubClient.on("error", (err) => {
-    console.log(err.message);
-})
-  
-subClient.on("error", (err) => {
-    console.log(err.message);
-})
-
-module.exports = { io: io }
+module.exports = socketapi
