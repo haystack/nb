@@ -182,7 +182,7 @@ import VueJwtDecode from "vue-jwt-decode";
 import NavBar from "../components/NavBar.vue";
 import io from "socket.io-client";
 
-const socket = io('https://127.0.0.1:3000', { reconnect: true })
+const socket = io({ reconnect: true })
 
 export default {
   name: "admin-page",
@@ -239,6 +239,17 @@ export default {
         console.log(`NB: Socket.IO connections`)
         this.onlineUsers = data.users
     })
+
+    socket.on('disconnect', async (reason) => {
+        console.log(`NB: Socket.IO disconnect:  ${reason}`)
+        if (reason === "io server disconnect") {
+            await socket.connect();
+        }
+        setTimeout(() => {
+            socket.emit('joinadmin', {})
+        }, 1000);
+    })
+
   },
   watch: {
     selectedCourse: async function (newCourse, oldCourse) {
