@@ -52,7 +52,8 @@ export default {
             const res = await axios.get('/api/nb/config')
             const configs = res.data
             const msg = configs['CONFIG_NB_DASHBOARD_TOP_MSG'] ? JSON.parse(configs['CONFIG_NB_DASHBOARD_TOP_MSG']) : {}
-            const hasMsg = configs['NB_DASHBOARD_TOP_MSG'] 
+            const hasMsg = configs['NB_DASHBOARD_TOP_MSG'] === 'true' ? true : false
+            
             if (msg && msg.html && hasMsg) {
                 this.msg = msg
                 this.hasMsg = hasMsg
