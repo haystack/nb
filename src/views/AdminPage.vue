@@ -364,7 +364,7 @@ export default {
 .nb-admin-tabs {
   display: flex;
   height: 40px;
-  background: #60348a;
+  background: #814eb1;
   margin: 0;
   color: white;
   align-content: center;
@@ -383,7 +383,7 @@ export default {
   padding: 0 10px;
 }
 .nb-admin-tabs span.active {
-  background: #4a2270;
+  background: #60348a;
   cursor: not-allowed;
 }
 .tab {

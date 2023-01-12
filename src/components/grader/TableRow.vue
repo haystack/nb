@@ -144,8 +144,8 @@
     width: 50px;
     font-size: 14px;
     color: #fff;
-    background: #007bff;
-    border: solid 2px #007bff;
+    background: #38155a;
+    border: solid 2px #38155a;
     border-radius: 3px;
     cursor: pointer;
   }

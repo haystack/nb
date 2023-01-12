@@ -593,19 +593,19 @@
     cursor: pointer;
   }
   .directories .listing .item .editdir .clickable:hover {
-    color: #007bff;
+    color: #38155a;
   }
   .directories .listing .item .jj {
     cursor: pointer;
   }
   .directories .listing .item .jj:hover {
-    color: #007bff;
+    color: #38155a;
   }
   .directories .listing .item .trash_item {
     cursor: pointer;
   }
   .directories .listing .item .trash_item:hover {
-    color: #007bff;
+    color: #38155a;
   }
   .add-folder {
     display: flex;
@@ -629,8 +629,8 @@
   .add-folder button {
     padding: 6px 8px;
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #38155a;
+    background-color: #38155a;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
@@ -655,7 +655,7 @@
     cursor: pointer;
   }
   .files .listing .clickable:hover {
-    color: #007bff;
+    color: #38155a;
   }
   .files .listing .filename span {
     margin-left: 5px;
@@ -704,8 +704,8 @@
     background-color: #5a6268;
   }
   .edit-file-form .form-buttons button.save {
-    background-color: #007bff;
-    border: solid 1px #007bff;
+    background-color: #38155a;
+    border: solid 1px #38155a;
   }
   .edit-file-form .form-buttons button.save:hover {
     background-color: #0069d9;
@@ -749,8 +749,8 @@
   .add-file button {
     padding: 6px 8px;
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #38155a;
+    background-color: #38155a;
     color: #fff;
     font-size: 16px;
     cursor: pointer;

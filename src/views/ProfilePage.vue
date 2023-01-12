@@ -78,7 +78,7 @@ export default {
 .app-body {
   display: flex;
   width: 100%;
-  height: calc(100vh - var(--navbar-height));
+  height: calc(100vh - (2 * var(--navbar-height)));
 }
 .sidebar {
   min-width: 300px;
@@ -95,7 +95,7 @@ export default {
   overflow-y: scroll;
   flex-wrap: wrap;
   align-items: flex-start;
-  border: solid 3px #875f9a;
+  border: solid 3px #60348a;
   flex-grow: 1;
 }
 </style>
