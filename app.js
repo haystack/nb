@@ -7,6 +7,7 @@ const Source = require('./models').Source
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const classesRouter = require('./routes/classes')
+const emailRouter = require('./routes/emails')
 const filesRouter = require('./routes/files')
 const annotationsRouter = require('./routes/annotations')
 const spotlightsRouter = require('./routes/spotlights')
@@ -89,6 +90,7 @@ app.use('/api/log', passport.authenticate('jwt', { session: false }), logRouter)
 app.use('/api/consent', passport.authenticate('jwt', { session: false }), consentRouter)
 app.use('/api/follow', passport.authenticate('jwt', { session: false }), followRouter)
 app.use('/api/admin', passport.authenticate('jwt', { session: false }), auth.isAdmin(), adminRouter)
+app.use('/api/email', passport.authenticate('jwt', { session: false }), emailRouter)
 
 // Handle errors.
 app.use(function (err, req, res, next) {

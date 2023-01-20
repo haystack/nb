@@ -64,6 +64,8 @@ if (!global.hasOwnProperty('db')) {
         NbLog: sequelize.import('./NbLog'),
         AnnotationMedia: sequelize.import('./Annotations/AnnotationMedia'),
         Followers: sequelize.import('./Followers'),
+        EmailType: sequelize.import('./Emails/EmailTypes'),
+        UserEmailPreference: sequelize.import('./Emails/UserEmailPreferences') 
     }
 
     global.db = {

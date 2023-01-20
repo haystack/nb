@@ -36,6 +36,19 @@
         <span class="profile-message"><br>{{authMessage}}<br></span>
         <br>
         <hr/>
+        <h2>Email Preferences</h2>
+        <ul class="pref-emails">
+            <li v-for="p in Object.values(updatedEmailPreferences)" v-bind:key="p.id">
+                <span class="pref-name">{{p.name}}</span>
+                <span class="pref-button" @click="()=> toggleEmailPreference(p)">
+                    <font-awesome-icon v-if="p.status === 'ENABLE'" icon="toggle-on" class="icon toggle-on"></font-awesome-icon>
+                    <font-awesome-icon v-else icon="toggle-off" class="icon"></font-awesome-icon>
+                </span>
+                <span class="pref-desc">{{p.description}}</span>
+            </li>
+        </ul>
+        <button class="submit" id="auth" :disabled="!submitEmailPreferencesEnabled" @click="editEmailPreferences">Update Email Preferences</button>
+        <hr/>
         <h2>Consents</h2>
         <div class="nb-consent">
             <div class="nb-irb">
@@ -135,13 +148,17 @@
         <button class="submit" id="auth" :disabled="!submitConsentsEnabled" @click="editConsents">Update Consents</button>
         <span class="profile-message"><br>{{consentsMessage}}<br></span>
         </div>
+        <notifications group="profile" position="bottom right"/>
     </div>
 </template>
 
 <script>
+    import Vue from 'vue'
     import axios from "axios"
     import { eventBus } from "../../main"
     import VueJwtDecode from "vue-jwt-decode";
+
+
 
     export default {
         name: "user-profile",
@@ -163,9 +180,11 @@
                 consentsMessage: "",
                 ucdavisIRB: null,
                 nbIRB: null,
+                emailPreferences: {},
+                updatedEmailPreferences: {},
             }
         },
-        created: function() {
+        created: async function() {
             const token = localStorage.getItem("nb.user");
             if (token) {
                 const decoded = VueJwtDecode.decode(token);
@@ -179,6 +198,11 @@
                 decoded.user.Dissents.forEach(consent => consent.name === 'NB' ? this.nbIRB = 'false' : null)
                 decoded.user.Consents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'true' : null)
                 decoded.user.Dissents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'false' : null)
+
+                const headers = { headers: { Authorization: 'Bearer ' + token }}
+                const res = await axios.get("api/email/preference", headers)
+                this.emailPreferences = res.data
+                this.updatedEmailPreferences = JSON.parse(JSON.stringify(this.emailPreferences))
             }
         },
         watch: { // need to watch because the parent component takes some time to get the user before propogating here
@@ -191,7 +215,6 @@
                 newVal.Dissents.forEach(consent => consent.name === 'NB' ? this.nbIRB = 'false' : null)
                 newVal.Consents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'true' : null)
                 newVal.Dissents.forEach(consent => consent.name === 'UCDAVIS' ? this.ucdavisIRB = 'false' : null)
-
             }
         },
         computed: {
@@ -211,6 +234,13 @@
                     this.setAuthMessage("", false);
                 }
                 return this.newUser.newpassword.length > 0 && this.newUser.newpassword === this.newUser.retypepassword
+            },
+            submitEmailPreferencesEnabled: function() {
+                try {
+                    return Object.values(this.updatedEmailPreferences).reduce((acc, p) => acc || p.status !== this.emailPreferences[p.id].status, false )
+                } catch (error) {
+                    return false
+                }
             },
             submitConsentsEnabled: function() {
                 return this.nbIRB!== null && ((this.needUCDIRB && this.ucdavisIRB!== null) || (!this.needUCDIRB))
@@ -239,6 +269,20 @@
                     console.log("Error: An error was encountered whne trying to update you password. Please try again.")
                 }
             },
+            toggleEmailPreference: function(p) {
+                p.status = p.status === 'ENABLE' ? 'DISABLE' : 'ENABLE'
+            },
+            editEmailPreferences: async function() {
+                try {
+                    const token = localStorage.getItem("nb.user");
+                    const headers = { headers: { Authorization: 'Bearer ' + token }}
+                    await axios.post("api/email/preference", this.updatedEmailPreferences, headers)
+                    this.showSuccess()
+                } catch (error) {
+                    console.error(error);
+                    this.showError()
+                }
+            },
             editConsents: async function() {
                 const token = localStorage.getItem("nb.user");
                 const headers = { headers: { Authorization: 'Bearer ' + token }}
@@ -258,6 +302,24 @@
                     console.log(err)
                     console.log("Error: An error was encountered whne trying to update you password. Please try again.")
                 }
+            },
+            showSuccess: function(msg) {
+                Vue.notify({
+                    group: 'profile',
+                    title: 'Success',
+                    text: msg,
+                    type: 'success',
+                })
+
+            },
+            showError: function(msg) {
+                Vue.notify({
+                    group: 'profile',
+                    title: 'Error',
+                    text: msg,
+                    type: 'error'
+                })
+
             },
             resetForm: function() {
                 this.newUser = {
@@ -394,5 +456,37 @@
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.pref-emails {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px 0;
+    user-select: none;
+}
+
+.pref-emails li {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
+    position: relative;
+}
+
+.pref-emails .pref-name {
+    font-weight: bold;
+}
+
+.pref-emails .pref-desc {
+    font-size: 12px;
+    font-weight: lighter;
+    color: #999;
+}
+
+.pref-emails .pref-button {
+    position: absolute;
+    right: 0;
+    font-size: 30px;
+    cursor: pointer;
+    color: #4a2270;
 }
 </style>

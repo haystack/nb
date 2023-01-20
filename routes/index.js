@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const NbConfig = require('../models').NbConfig;
+const UserEmailPreference = require('../models').UserEmailPreference
+
 
 /**
 * Serves homepage.
@@ -31,5 +33,29 @@ router.get('/api/nb/config', async (req, res) => {
 
     res.status(200).json(configs)
 });
+
+/**
+* Set my email preferences
+* @name POST /api/email/preference
+*/
+router.post('/api/unsubscribe', async (req, res) => {
+    const token = Buffer.from(req.body.token, 'base64').toString('ascii')?.split(':')
+    console.log(token);
+    if (token.length === 2) {
+        try {
+            const item = await UserEmailPreference.findOne({where: {user_id: token[0], email_type_id: token[1]}})
+                
+            if (item) {
+                await UserEmailPreference.update({status: 'DISABLE'}, {where: {user_id: token[0], email_type_id: token[1]}})
+            } else {
+                await UserEmailPreference.create({user_id: token[0], email_type_id: token[1], status: 'DISABLE'})
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+                
+    res.status(200).send()
+})
 
 module.exports = router;

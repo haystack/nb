@@ -4,6 +4,7 @@
   </div>
 </template>
 
+
 <style>
   :root {
     --navbar-height: 40px;
