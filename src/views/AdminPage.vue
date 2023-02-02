@@ -220,9 +220,9 @@ export default {
         this.globalConfigs = configsRes.data.sort((a, b) =>
           a.name > b.name ? 1 : b.name > a.name ? -1 : 0
         );
-        const consentsRes = await axios.get(`/api/admin/consent`, headers);
-        this.consents = consentsRes.data;
-        console.log(this.consents);
+        // const consentsRes = await axios.get(`/api/admin/consent`, headers);
+        // this.consents = consentsRes.data;
+        // console.log(this.consents);
       }
     } else {
       localStorage.removeItem("nb.user");

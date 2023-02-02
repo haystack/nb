@@ -2,7 +2,7 @@ const EmailUtil = require('../utils/emailUtil')
 const Class = require('../models').Class;
 
 
-const CLASS_ID = 'c37e8720-1d28-11ed-9237-cbb617b14a2f'
+const CLASS_ID = '91416f40-8bcb-11ed-9f95-a74688ce4250'
 const EMAIL_TYPE = 'TIPSANDTRICKS'
 
 function buildEmail(userId, emailType) {
@@ -107,8 +107,14 @@ async function run() {
     let counter = 0
 
     for (const u of users) {
-        await sleep(1000)
-        console.log(`SENDING ${++counter} / ${users.length}:  ${u.id} ${u.email}`);
+        ++counter
+
+        if (counter < 253) {
+            continue
+        }
+
+        await sleep(20000)
+        console.log(`SENDING ${counter} / ${users.length}:  ${u.id} ${u.email}`);
 
         const email = new EmailUtil().to(u.email).subject('Welcom to NB!').userId(u.id).emailType(EMAIL_TYPE).html(buildEmail(u.id, EMAIL_TYPE))
 
@@ -116,6 +122,7 @@ async function run() {
             await email.send()
         } catch (error) {
             console.error(error.message);
+            break
         }
     }
 
