@@ -314,13 +314,16 @@ router.post('/annotation', async (req, res) => {
         }
     }
 
+    let annotation
+    let threadId
     const location = await Location.create({ source_id: source.id })
     await Promise.all([
         HtmlLocation.create({ start_node: range.start, end_node: range.end, start_offset: range.startOffset, end_offset: range.endOffset, location_id: location.id }),
         Thread.create({ location_id: location.id, HeadAnnotation: { content: req.body.content, visibility: req.body.visibility, anonymity: req.body.anonymity, endorsed: req.body.endorsed, author_id: req.user.id } },
             { include: [{ association: 'HeadAnnotation' }] })
             .then(thread => {
-                let annotation = thread.HeadAnnotation;
+                threadId = thread.id
+                annotation = thread.HeadAnnotation;
                 req.body.tags.forEach((tag) => Tag.create({ annotation_id: annotation.id, tag_type_id: tag }));
                 req.body.userTags.forEach((user_id) => User.findByPk(user_id).then(user => annotation.addTaggedUser(user)));
 
@@ -334,24 +337,26 @@ router.post('/annotation', async (req, res) => {
 
                 annotation.setThread(thread).then(() => {
                     res.status(200).json(annotation)
-                    const io = socketapi.io
-
-                    const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex');
-                    const globalRoomId = `${urlHash}:${req.body.class}`
-                    const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
-
-                    // TODO: check the sync here
-                    if (annotation.visibility === 'INSTRUCTORS') {
-                        // Since instructors are only part of the global section, only emit to the global room
-                        io.to(globalRoomId).emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
-                    } else if (annotation.visibility === 'EVERYONE') {
-                        io.to(globalRoomId).emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] })
-                        classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { sourceUrl: req.body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: req.body.class, taggedUsers: [...req.body.userTags] }))
-                    }
-
                 });
             })
     ])
+
+    if (threadId) {
+        const io = socketapi.io
+        const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex');
+        const globalRoomId = `${urlHash}:${req.body.class}`
+        const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+        const t = await fetchSpecificThread(req.body.class, req.body.url, threadId)
+    
+        if (annotation.visibility === 'INSTRUCTORS') {
+            // Since instructors are only part of the global section, only emit to the global room
+            io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors], taggedUsers: [...req.body.userTags] })
+        } else if (annotation.visibility === 'EVERYONE') {
+            io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] })
+            classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] }))
+        }
+    }
+
 });
 
 /**
@@ -440,18 +445,22 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
         const annotationWithMedia = await Annotation.findByPk(annotation.id, { include: [{ association: 'Thread' }, { association: 'Media' }] })
         res.status(200).json(annotationWithMedia)
 
-        const io = socketapi.io
-        const urlHash = crypto.createHash('md5').update(body.url).digest('hex');
-        const globalRoomId = `${urlHash}:${body.class}`
-        const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
-
-        // TODO: check the sync here
-        if (annotation.visibility === 'INSTRUCTORS') {
-            // Since instructors are only part of the global section, only emit to the global room
-            io.to(globalRoomId).emit('new_thread', { sourceUrl: body.url, authorId: req.user.id, userIds: [...instructors], threadId: thread.id, classId: body.class, taggedUsers: [...body.userTags] })
-        } else if (annotation.visibility === 'EVERYONE') {
-            io.to(globalRoomId).emit('new_thread', { sourceUrl: body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: body.class, taggedUsers: [...body.userTags] })
-            classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { sourceUrl: body.url, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], threadId: thread.id, classId: body.class, taggedUsers: [...body.userTags] }))
+        const threadId = thread?.id
+    
+        if (threadId) {
+            const io = socketapi.io
+            const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex');
+            const globalRoomId = `${urlHash}:${req.body.class}`
+            const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+            const t = await fetchSpecificThread(req.body.class, req.body.url, threadId)
+        
+            if (annotation.visibility === 'INSTRUCTORS') {
+                // Since instructors are only part of the global section, only emit to the global room
+                io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors], taggedUsers: [...req.body.userTags] })
+            } else if (annotation.visibility === 'EVERYONE') {
+                io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] })
+                classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] }))
+            }
         }
     } catch (error) {
         console.error('\n\nannotations/media/annotation');
@@ -460,6 +469,76 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
     }
 
 });
+
+async function fetchSpecificThread(classId, sourceUrl, threadId) {
+    let classInstructors = new Set([])
+    try {
+        const source = await Source.findOne({
+            where: { [Op.and]: [{ filepath: sourceUrl }, { class_id: classId }] },
+            include: [{
+                association: 'Class',
+                include: [
+                    { association: 'Instructors', attributes: ['id'] },
+                ]
+            }]
+        })
+
+        classInstructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+        
+        const thread = await Thread.findOne({
+            where: { id: threadId },
+            include: [
+                {
+                    association: 'Location', include: [{ association: 'HtmlLocation' }],
+                },
+                {
+                    association: 'HeadAnnotation', attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
+                    include: [
+                        { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'TaggedUsers', attributes: ['id'] },
+                        { association: 'Tags', attributes: ['tag_type_id'] },
+                        { association: 'Bookmarkers', attributes: ['id'] },
+                        { association: 'Spotlight', attributes: ['id', 'type'] },
+                        { association: 'Media', attributes: ['filepath', 'type'] },
+                    ]
+                },
+                {
+                    association: 'AllAnnotations', separate: true, attributes: ['id', 'content', 'visibility', 'anonymity', 'created_at', 'endorsed'],
+                    include: [
+                        { association: 'Parent', attributes: ['id'] },
+                        { association: 'Author', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'ReplyRequesters', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'Starrers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                        { association: 'TaggedUsers', attributes: ['id'] },
+                        { association: 'Tags', attributes: ['tag_type_id'] },
+                        { association: 'Bookmarkers', attributes: ['id'] },
+                        { association: 'Media', attributes: ['filepath', 'type'] },
+                    ]
+                },
+                { association: 'SeenUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+                { association: 'RepliedUsers', attributes: ['id', 'first_name', 'last_name', 'username'] },
+            ]
+        })
+
+        let annotations = {}
+        let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors)
+
+        thread.AllAnnotations.forEach((annotation) => {
+            if (annotation.Parent) {
+                if (!(annotation.Parent.id in annotations)) {
+                    annotations[annotation.Parent.id] = []
+                }
+                annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors))
+            }
+        })
+                            
+        return { headAnnotation: headAnnotation, annotationsData: annotations }
+    } catch(err) {
+        console.log(err)
+    }
+}
 
 /**
 * Get a specific thread (+ respective reply annotations) for a given source
@@ -536,9 +615,9 @@ router.get('/specific_thread', async (req, res) => {
                             
         res.status(200).json({ 'headAnnotation': headAnnotation, 'annotationsData': annotations });
     } catch(err) {
-            console.log(err)
-            res.status(res.status(400).json({ msg: "Error fetching specific thread" }))
-        }
+        console.log(err)
+        res.status(res.status(400).json({ msg: "Error fetching specific thread" }))
+    }
 })
 
 
@@ -650,7 +729,7 @@ router.get('/reply/:id', (req, res) => {
 * @param replyRequest: boolean
 * @param star: boolean
 */
-router.post('/reply/:id', (req, res) => {
+router.post('/reply/:id', async (req, res) => {
     let username = ""
     Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }] }] }).then((parent) =>
         Annotation.create({
@@ -664,19 +743,21 @@ router.post('/reply/:id', (req, res) => {
             include: [{ association: 'Tags' }]
         }).then((child) => {
             req.body.userTags.forEach(user_id => User.findByPk(user_id).then(user => child.addTaggedUser(user)));
-            User.findByPk(req.user.id).then(user => {
+            User.findByPk(req.user.id).then(async user => {
                 if (req.body.replyRequest) child.addReplyRequester(user);
                 if (req.body.star) child.addStarrer(user);
                 if (req.body.bookmark) child.addBookmarker(user);
                 parent.Thread.setSeenUsers([user]);
                 parent.Thread.setRepliedUsers([user]);
                 username = user.username;
+                const t = await fetchSpecificThread(req.body.class, req.body.url, parent.Thread.id)
                 const io = socketapi.io
                 const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
                 const globalRoomId = `${urlHash}:${req.body.class}`
                 const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
-                io.to(globalRoomId).emit('new_reply', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id })
-                classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id }))
+
+                io.to(globalRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id })
+                classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id }))
             });
             parent.addChild(child);
             res.status(200).json(child);
@@ -716,12 +797,14 @@ router.post('/media/reply/:id', upload.single("file"), async (req, res) => {
 
         const childWithMedia = await Annotation.findByPk(child.id, { include: [{ association: 'Thread' }, { association: 'Media' }] })
 
+        const t = await fetchSpecificThread(req.body.class, req.body.url, parent.Thread.id)
         const io = socketapi.io
         const urlHash = crypto.createHash('md5').update(body.url).digest('hex')
         const globalRoomId = `${urlHash}:${body.class}`
         const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
-        io.to(globalRoomId).emit('new_reply', { sourceUrl: body.url, classId: body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...body.userTags], newAnnotationId: child.id })
-        classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { sourceUrl: body.url, classId: body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...body.userTags], newAnnotationId: child.id }))
+        
+        io.to(globalRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id })
+        classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id }))
 
         parent.addChild(child);
         res.status(200).json(childWithMedia);
@@ -768,12 +851,14 @@ router.put('/annotation/:id', async (req, res) => {
         await annotation.removeReplyRequester(user);
     }
 
+    const t = await fetchSpecificThread(req.body.class, req.body.url, parent.Thread.id)
     const io = socketapi.io
     const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
     const globalRoomId = `${urlHash}:${req.body.class}`
     const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
-    io.to(globalRoomId).emit('update_thread', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id})
-    classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('update_thread', { sourceUrl: req.body.url, classId: req.body.class, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id}))
+
+    io.to(globalRoomId).emit('update_thread', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id})
+    classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('update_thread', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id}))
 res.sendStatus(200)
 });
 
