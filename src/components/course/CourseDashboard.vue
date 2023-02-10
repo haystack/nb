@@ -21,6 +21,7 @@
     <div v-if="showUsersTab" class="users-tab">
       <course-users
           :instructors="instructors"
+          :tas="tas"
           :students="students"
           :suggestions="allUsers"
           :user="user"
@@ -69,6 +70,7 @@ export default {
     return {
       filePath: [],
       instructors: [],
+      tas: [],
       students: [],
       allUsers:[],
       currentTab: 'contents'
@@ -108,16 +110,19 @@ export default {
       this.loadFiles()
       this.loadStudents()
       this.loadInstructors()
+      this.loadTAs()
     },
     userType: function(){
       this.loadStudents()
       this.loadInstructors()
+      this.loadTAs()
     },
   },
   mounted: function(){
     this.loadFiles()
     this.loadStudents()
     this.loadInstructors()
+    this.loadTAs()
     this.loadUsers()
   },
   methods:{
@@ -144,6 +149,16 @@ export default {
         axios.get(`/api/classes/instructorList/${this.course.id}`, headers)
           .then((res) => {
             this.instructors = res.data
+          })
+      }
+    },
+     loadTAs: function(){
+      if (this.userType == "instructor") {
+        const token = localStorage.getItem("nb.user");
+        const headers = { headers: { Authorization: 'Bearer ' + token }}
+        axios.get(`/api/classes/taList/${this.course.id}`, headers)
+          .then((res) => {
+            this.tas = res.data
           })
       }
     },
@@ -174,6 +189,8 @@ export default {
         .then(() => {
           if (user.role === "instructor") {
             this.loadInstructors()
+          } else if (user.role === "ta") {
+            this.loadTAs()
           } else {
             this.loadStudents()
           }
@@ -188,6 +205,9 @@ export default {
       } else if (role === 'instructor') {
         axios.post(`/api/classes/instructor/${this.course.id}`, user, headers)
           .then(() => this.loadInstructors())
+      } else if (role === 'ta') {
+        axios.post(`/api/classes/ta/${this.course.id}`, user, headers)
+          .then(() => this.loadTAs())
       }
     },
     removeUsers: function(selectedRows) {
@@ -204,12 +224,17 @@ export default {
             axios.delete(`/api/classes/instructor/${this.course.id}/${user.id}`, headers)
             .then(() => resolve("success"))
             .catch(() => resolve())
+          } else if (user.role === 'ta') {
+            axios.delete(`/api/classes/ta/${this.course.id}/${user.id}`, headers)
+            .then(() => resolve("success"))
+            .catch(() => resolve())
           }
         });
       })
       Promise.all(requests).then(() => {
         this.loadStudents();
         this.loadInstructors();
+        this.loadTAs()
         this.$isLoading(false);
       })
     },

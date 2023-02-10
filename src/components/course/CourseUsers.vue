@@ -37,12 +37,12 @@
       </vue-simple-suggest>
       <div>
         as
-        <input type="radio" id="add-student" value="student"
-            v-model="newUser.role">
+        <input type="radio" id="add-student" value="student" v-model="newUser.role">
         <label for="add-student">Student</label>
-        <input type="radio" id="add-instr" value="instructor"
-            v-model="newUser.role">
+        <input type="radio" id="add-instr" value="instructor" v-model="newUser.role">
         <label for="add-instr">Instructor</label>
+        <input type="radio" id="add-ta" value="ta" v-model="newUser.role">
+        <label for="add-instr">TA</label>
       </div>
       <button @click="addUser">Add</button>
     </div>
@@ -70,9 +70,10 @@
     <modal name="add-new-user-modal" height="auto" width="70%" >
       <div class="add-new-user-modal">
         <div class="form">
-          <h1 class="title"> Register & Add a new user to your class</h1>
+          <h3 class=""> Register & Add user</h3>
+          <br />
           <div class="group">
-            <label for="add-new-user-first"> Role Selected: {{this.newUser.role}} </label>
+            <label for="add-new-user-first"> Role Selected: {{this.newUser.role.toUpperCase()}} </label>
           </div>
 
           <div class="group">
@@ -90,7 +91,7 @@
             <input id="add-new-user-email" type="text" v-model="newUser.email">
           </div>
 
-          <div class="group" v-if="this.newUser.role !== 'instructor'">
+          <div class="group" v-if="this.newUser.role !== 'instructor' && this.newUser.role !== 'ta'">
             <label for="add-new-user-section"> Section: </label>
             <input id="add-new-user-section" type="text" v-model="newUser.section">
           </div>
@@ -123,6 +124,10 @@
     props: {
       user: Object,
       instructors: {
+        type: Array,
+        default: () => []
+      },
+      tas: {
         type: Array,
         default: () => []
       },
@@ -190,6 +195,7 @@
               placeholder: "All",
               filterDropdownItems: [
                 { value: 'instructor', text: 'Instructors' },
+                { value: 'ta', text: 'TAs' },
                 { value: 'student', text: 'Students' },
               ],
             }
@@ -209,6 +215,12 @@
         for (let user of this.instructors) {
           merged.push(Object.assign(user, {
             role: 'instructor',
+            name: `${user.first_name} ${user.last_name}`
+          }))
+        }
+        for (let user of this.tas) {
+          merged.push(Object.assign(user, {
+            role: 'ta',
             name: `${user.first_name} ${user.last_name}`
           }))
         }
