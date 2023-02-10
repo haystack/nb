@@ -56,6 +56,11 @@ export default new Router({
             component: () => import('./views/AdminPage.vue'),
         },
         {
+            path: '/unsubscribe',
+            name: 'unsubscribe-page',
+            component: () => import('./views/UnsubscribePage.vue'),
+        },
+        {
             path: '*',
             name: 'not-found-page',
             component: () => import('./views/NotFoundPage.vue'),

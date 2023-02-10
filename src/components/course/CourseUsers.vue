@@ -378,8 +378,8 @@
     padding: 6px 8px;
     margin-left: 5px;
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #38155a;
+    background-color: #38155a;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
@@ -394,8 +394,8 @@
   
   .selectUser button {
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #38155a;
+    background-color: #38155a;
     color: #fff;
     cursor: pointer;
   }
@@ -411,8 +411,8 @@
     padding: 6px 8px;
     margin-left: 5px;
     border-radius: 5px;
-    border: solid 1px #007bff;
-    background-color: #007bff;
+    border: solid 1px #38155a;
+    background-color: #38155a;
     color: #fff;
     font-size: 16px;
     cursor: pointer;

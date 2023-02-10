@@ -153,8 +153,8 @@
     background-color: #5a6268;
   }
   .form-buttons button.save {
-    background-color: #007bff;
-    border: solid 1px #007bff;
+    background-color: #38155a;
+    border: solid 1px #38155a;
   }
   .form-buttons button.save:hover {
     background-color: #0069d9;

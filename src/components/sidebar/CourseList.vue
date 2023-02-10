@@ -25,7 +25,7 @@
     methods: {
       styleItem: function(course) {
         if (this.selectedCourse && this.selectedCourse.id === course.id) {
-          return 'background-color: #875f9a; color: #fff;'
+          return 'background-color: #60348a; color: #fff;'
         }
       }
     },

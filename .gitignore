@@ -32,3 +32,4 @@ yarn-error.log*
 *.sw*
 
 package-lock.json
+scripts/ucd2023.js

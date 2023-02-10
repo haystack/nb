@@ -13,6 +13,16 @@
 import NavBar from "../components/NavBar.vue";
 import UserProfile from "../components/user/UserProfile.vue";
 import VueJwtDecode from "vue-jwt-decode";
+import Vue           from 'vue'
+import Notifications from 'vue-notification'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { far } from '@fortawesome/free-regular-svg-icons'
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+library.add(fas, far)
+Vue.use(Notifications)
 
 export default {
   name: "profile-page",
@@ -78,7 +88,7 @@ export default {
 .app-body {
   display: flex;
   width: 100%;
-  height: calc(100vh - var(--navbar-height));
+  height: calc(100vh - (2 * var(--navbar-height)));
 }
 .sidebar {
   min-width: 300px;
@@ -95,7 +105,7 @@ export default {
   overflow-y: scroll;
   flex-wrap: wrap;
   align-items: flex-start;
-  border: solid 3px #875f9a;
+  border: solid 3px #60348a;
   flex-grow: 1;
 }
 </style>

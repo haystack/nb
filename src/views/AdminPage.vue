@@ -5,6 +5,11 @@
     <div v-else>
       <div class="nb-admin-tabs">
         <span
+          @click="selectTab('online')"
+          v-bind:class="{ active: currentTab === 'online' }"
+          >Online</span
+        >
+        <span
           @click="selectTab('classes')"
           v-bind:class="{ active: currentTab === 'classes' }"
           >Classes</span
@@ -14,6 +19,10 @@
           v-bind:class="{ active: currentTab === 'consents' }"
           >Consents</span
         >
+      </div>
+      <div v-if="currentTab === 'online'" class="tab online">
+        <div><span> {{ this.onlineUsers.instructors }}</span>Instructors sessions</div>
+        <div><span> {{ this.onlineUsers.students }}</span>Students sessions</div>
       </div>
       <div v-if="currentTab === 'classes'" class="tab">
         <div class="nb-side">
@@ -190,8 +199,10 @@ export default {
       controlStudents: [],
       treatmentStudents: [],
       assignedSources: [],
-      currentTab: "classes",
+      currentTab: "online",
       newConsentName: null,
+      onlineUsers: { instructors: 0, students: 0 },
+      intervalonlineUsers: null,
     };
   },
   created: async function () {
@@ -209,9 +220,9 @@ export default {
         this.globalConfigs = configsRes.data.sort((a, b) =>
           a.name > b.name ? 1 : b.name > a.name ? -1 : 0
         );
-        const consentsRes = await axios.get(`/api/admin/consent`, headers);
-        this.consents = consentsRes.data;
-        console.log(this.consents);
+        // const consentsRes = await axios.get(`/api/admin/consent`, headers);
+        // this.consents = consentsRes.data;
+        // console.log(this.consents);
       }
     } else {
       localStorage.removeItem("nb.user");
@@ -219,6 +230,13 @@ export default {
       this.user = null;
       this.redirect("login-page");
     }
+
+    this.fetchOnline()
+    this.intervalonlineUsers = setInterval(() => this.fetchOnline(), 10000);
+    
+  },
+  beforeDestory: function() {
+    clearInterval(this.intervalonlineUsers)
   },
   watch: {
     selectedCourse: async function (newCourse, oldCourse) {
@@ -259,6 +277,12 @@ export default {
     },
   },
   methods: {
+    fetchOnline: async function () {
+      const token = localStorage.getItem("nb.user");
+      const headers = { headers: { Authorization: "Bearer " + token } };
+      const res = await axios.get(`/api/admin/online`, headers);
+      this.onlineUsers = res.data
+    },
     selectTab: function (tab) {
       this.currentTab = tab;
     },
@@ -364,7 +388,7 @@ export default {
 .nb-admin-tabs {
   display: flex;
   height: 40px;
-  background: #60348a;
+  background: #814eb1;
   margin: 0;
   color: white;
   align-content: center;
@@ -383,7 +407,7 @@ export default {
   padding: 0 10px;
 }
 .nb-admin-tabs span.active {
-  background: #4a2270;
+  background: #60348a;
   cursor: not-allowed;
 }
 .tab {
@@ -503,5 +527,30 @@ kbd {
 
 .tab.consents {
   flex-direction: column;
+}
+
+.online {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.online div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: monospace;
+    color: #4a2270;
+    padding: 40px;
+
+}
+
+.online div span {
+  font-size: 100px;
+    color: #000;
 }
 </style>

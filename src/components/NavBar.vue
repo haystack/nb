@@ -1,24 +1,31 @@
 <template>
-  <nav>
-    <div class="menu">
-      <div class="home" @click="redirect('welcome-page')">nb</div>
-      <div class="about" @click="redirect('about-page')">about</div>
-    </div>
-    <div v-if="course" class="title">
-      {{ course.class_name }}
-    </div>
-    <div v-if="user" class="user">
-      <div class="name">{{ user.username }}</div>
-      <div class="dropdown">
-        <font-awesome-icon :icon="downArrow" class="arrow"> </font-awesome-icon>
-        <div class="content">
-          <div @click="redirect('profile-page')">Your Profile</div>
-          <div @click="redirect('followers-page')"> Following </div>
-          <div @click="logout">Log out</div>
+    <nav>
+        <div class="msg" v-if="hasMsg" :style="msg.style">
+            <div v-html="msg.html"></div>
         </div>
-      </div>
-    </div>
-  </nav>
+        <div class="top">
+            <div class="menu">
+                <div class="home" @click="redirect('welcome-page')">nb</div>
+                <div class="about" @click="redirect('about-page')">about</div>
+            </div>
+            <div v-if="user" class="user">
+                <div class="name">{{ user.username }}</div>
+                <div class="dropdown">
+                    <font-awesome-icon :icon="downArrow" class="arrow"> </font-awesome-icon>
+                    <div class="content">
+                        <div @click="redirect('profile-page')">Your Profile</div>
+                        <div @click="redirect('followers-page')"> Following </div>
+                        <div @click="logout">Log out</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bottom">
+            <div v-if="course" class="title">
+                {{ course.class_name }}
+            </div>
+        </div>
+    </nav>
 </template>
 
 <script>
@@ -28,40 +35,71 @@ import axios from "axios";
 import { eventBus } from "../main";
 
 export default {
-  name: "nav-bar",
-  props: {
-    course: Object,
-    user: Object,
-  },
-  data() {
-    return {
-      downArrow: faChevronDown,
-    };
-  },
-  methods: {
-    redirect: function (page) {
-      this.$router.push({ name: page });
+    name: "nav-bar",
+    props: {
+        course: Object,
+        user: Object,
     },
-    logout: function () {
-      localStorage.removeItem("nb.user");
-      localStorage.removeItem("nb.current.course");
-      eventBus.$emit("signout-success", true);
-      this.$router.push({ name: "welcome-page" });
+    data() {
+        return {
+            downArrow: faChevronDown,
+            hasMsg: false,
+            msg: {},
+        };
     },
-  },
-  components: {
-    FontAwesomeIcon,
-  },
+    created: async function () {
+        try {
+            const res = await axios.get('/api/nb/config')
+            const configs = res.data
+            const msg = configs['CONFIG_NB_DASHBOARD_TOP_MSG'] ? JSON.parse(configs['CONFIG_NB_DASHBOARD_TOP_MSG']) : {}
+            const hasMsg = configs['NB_DASHBOARD_TOP_MSG'] === 'true' ? true : false
+            
+            if (msg && msg.html && hasMsg) {
+                this.msg = msg
+                this.hasMsg = hasMsg
+            }
+        } catch (error) {}
+    },
+    methods: {
+        redirect: function (page) {
+            this.$router.push({ name: page });
+        },
+        logout: function () {
+            localStorage.removeItem("nb.user");
+            localStorage.removeItem("nb.current.course");
+            eventBus.$emit("signout-success", true);
+            this.$router.push({ name: "welcome-page" });
+        },
+    },
+    components: {
+        FontAwesomeIcon,
+    },
 };
 </script>
 
 <style scoped>
-nav {
+.msg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--navbar-height);
+    background-color: rgb(215, 215, 40);
+    color: #000;
+}
+.top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: var(--navbar-height);
   background-color: #4a2270;
+  color: #fff;
+}
+.bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--navbar-height);
+  background-color: #60348a;
   color: #fff;
 }
 .home {

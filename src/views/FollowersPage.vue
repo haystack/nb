@@ -87,7 +87,7 @@
   .app-body {
     display: flex;
     width: 100%;
-    height: calc(100vh - var(--navbar-height));
+    height: calc(100vh - (2 * var(--navbar-height)));
   }
  .sidebar {
     min-width: 300px;
@@ -96,14 +96,14 @@
     overflow-y: auto;
     background-color: #eee;
     text-align: left;
-    border: solid 3px #875f9a;
+    border: solid 3px #60348a;
   }
   .dashboard-wrapper {
     padding: 20px;
     overflow-y: scroll;
     flex-wrap: wrap;
     align-items: flex-start;
-    border: solid 3px #875f9a;
+    border: solid 3px #60348a;
     flex-grow: 1;
   }
 </style>

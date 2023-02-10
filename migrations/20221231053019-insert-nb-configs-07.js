@@ -15,7 +15,7 @@ module.exports = {
             },
             {
                 name: 'CONFIG_SPOTLIGHT_FOLLOW_THREAD',
-                value: '{"type":"RIGHT","color":"#334455"}',
+                value: `{"type":"RIGHT","color":"#334455","header":"<span class='spotlight-header'><span class='spotlight-header-icon follow'><i class='fas fa-user-check'></i></span>By author you <b>follow</b></span>","showTime":"true","headerType":"FOLLOW"}`,
                 description: 'Configurations for new spotlight follow thread {type: "TYPE", color: "#FFFFFF", background: "#000000", showTime: true/false}'
 
             },
@@ -26,7 +26,7 @@ module.exports = {
             },
             {
                 name: 'CONFIG_SPOTLIGHT_ENDORS_THREAD',
-                value: '{"type":"RIGHT","color":"#334455"}',
+                value: `{"type":"RIGHT","color":"#334455","header":"<span class='spotlight-header'><span class='spotlight-header-icon endorsed'>i</span><b>Endorsed</b>by instructor</span>","showTime":"true","headerType":"ENDORSED"}`,
                 description: 'Configurations for new spotlight endors thread {type: "TYPE", color: "#FFFFFF", background: "#000000", showTime: true/false}'
 
             },
