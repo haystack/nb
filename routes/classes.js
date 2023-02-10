@@ -48,11 +48,23 @@ router.post('/edit', (req, res) => {
 
 /**
  * Get all classes for which current user is an instructor.
- * @name GET/api/classes/create
+ * @name GET/api/classes/instructor
  */
 router.get('/instructor', (req, res) => {
   User.findByPk(req.user.id).then((user) =>
     user.getInstructorClasses()
+  ).then((classes) => {
+    res.status(200).json(classes);
+  });
+});
+
+/**
+ * Get all classes for which current user is an ta.
+ * @name GET/api/classes/ta
+ */
+router.get('/ta', (req, res) => {
+  User.findByPk(req.user.id).then((user) =>
+    user.getTAClasses()
   ).then((classes) => {
     res.status(200).json(classes);
   });
@@ -78,7 +90,7 @@ router.get('/student', (req, res) => {
 
 /**
  * Get all instructors for a given class
- * @name GET/api/classes/studentList/:id
+ * @name GET/api/classes/instructorList/:id
  * @param id: id of the class
  */
 router.get('/instructorList/:id', (req, res) => {
@@ -91,6 +103,19 @@ router.get('/instructorList/:id', (req, res) => {
       else {
         res.status(200).json(nb_class.Instructors);
       }
+    });
+});
+
+/**
+ * Get all tas for a given class
+ * @name GET/api/classes/taList/:id
+ * @param id: id of the class
+ */
+router.get('/taList/:id', (req, res) => {
+  Class.findByPk(req.params.id,
+    { include: [{ association: 'ClassTAs', attributes: ['id', 'username', 'first_name', 'last_name', 'email'] }] })
+    .then((nb_class) => {
+        res.status(200).json(nb_class.ClassTAs);
     });
 });
 
@@ -114,6 +139,9 @@ router.get('/studentList/:id', (req, res) => {
         association: 'Instructors',
         required: true,
         where: { id: req.user.id }
+      },
+      {
+        association: 'ClassTAs',
       }
     ]
   })
@@ -158,14 +186,13 @@ router.get('/studentList/:id', (req, res) => {
 
 router.get('/usersList/:id', (req, res) => {
   Class.findByPk(req.params.id,
-    { include: [{ association: 'Instructors', attributes: ['id', 'username', 'first_name', 'last_name', 'email']}, {association: 'GlobalSection',
+    { include: [{ association: 'Instructors', attributes: ['id', 'username', 'first_name', 'last_name', 'email']}, { association: 'ClassTAs', attributes: ['id', 'username', 'first_name', 'last_name', 'email']}, {association: 'GlobalSection',
     include: [{
       association: 'MemberStudents',
       attributes: ['id', 'username', 'first_name', 'last_name', 'email']
     }]}]})
     .then((nb_class) => {
-        res.status(200).json({instructors: nb_class.Instructors, students: nb_class.GlobalSection.MemberStudents});
-
+        res.status(200).json({instructors: nb_class.Instructors, tas: nb_class.ClassTAs, students: nb_class.GlobalSection.MemberStudents});
     });
 });
 
@@ -209,6 +236,53 @@ router.delete('/instructor/:courseid/:userid', (req, res) => {
       else {
         User.findByPk(req.params.userid).then(user =>
           nb_class.removeInstructor(user)
+        ).then(() => res.status(200).json(null));
+      }
+    });
+});
+
+/**
+ * Add an ta to a given class
+ * @name POST/api/classes/ta/:id
+ * @param id: id of the class
+ */
+router.post('/ta/:id', (req, res) => {
+  Class.findByPk(req.params.id, {
+    include: [
+      { association: 'Instructors', required: true, where: { id: req.user.id } },
+      { association: 'ClassTAs' }]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
+      }
+      else {
+        User.findByPk(req.body.id).then(user =>
+          nb_class.addClassTAs(user)
+        ).then(() => res.status(200).json(null));
+      }
+    });
+});
+
+/**
+ * Remove an ta from a given class
+ * @name DELETE/api/classes/ta/:courseid/:userid
+ * @param courseid: id of the class
+ * @param userid: id of the user to remove
+ */
+router.delete('/ta/:courseid/:userid', (req, res) => {
+  Class.findByPk(req.params.courseid, {
+    include: [
+      { association: 'Instructors', required: true, where: { id: req.user.id } },
+      { association: 'ClassTAs' }]
+  })
+    .then(nb_class => {
+      if (!nb_class) {
+        res.status(401).json(null);
+      }
+      else {
+        User.findByPk(req.params.userid).then(user =>
+          nb_class.removeClassTAs(user)
         ).then(() => res.status(200).json(null));
       }
     });
@@ -261,6 +335,8 @@ router.post('/user/:id', (req, res) => {
         }).then((user) => {
           if (req.body.role === "instructor") {
             nb_class.addInstructor(user)
+          } else if (req.body.role === "ta") {
+            nb_class.addClassTAs(user)
           } else if (req.body.role === "student") {
             utils.addStudentToSection(nb_class, user, req.body.section)
           }

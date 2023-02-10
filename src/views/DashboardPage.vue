@@ -6,18 +6,10 @@
             <button class="bookmarklet-button mt-3" @click="openBookmarkletModal">NB Bookmarklet Instructions</button>
             <hr/>
             <h3 class="title">My Classes</h3>
-            <br/>
-            <h5 class="subtitle">Enrolled as Student</h5>
             <course-list
-                :courses="courses.student"
-                :selectedCourse="selectedCourse"
-                @select-course="onSelectCourse"
-            >
-            </course-list>
-            <br/><br/>
-            <h5 class="subtitle">Enrolled as Instructor</h5>
-            <course-list
-                :courses="courses.instructor"
+                :instructor="courses.instructor"
+                :ta="courses.ta"
+                :student="courses.student"
                 :selectedCourse="selectedCourse"
                 @select-course="onSelectCourse"
             >
@@ -89,6 +81,7 @@ export default {
       courses: {
         instructor: [],
         student: [],
+        ta: []
       },
       selectedCourse: null,
     };
@@ -99,6 +92,11 @@ export default {
         this.courses.instructor.find((x) => x.id === this.selectedCourse.id)
       ) {
         return "instructor";
+      }
+      if (
+        this.courses.ta.find((x) => x.id === this.selectedCourse.id)
+      ) {
+        return "ta";
       }
       if (this.courses.student.find((x) => x.id === this.selectedCourse.id)) {
         return "student";
@@ -125,6 +123,9 @@ export default {
 
       axios.get(`/api/classes/instructor`, headers).then((res) => {
         this.courses.instructor = res.data;
+      });
+      axios.get(`/api/classes/ta`, headers).then((res) => {
+        this.courses.ta = res.data;
       });
       axios.get(`/api/classes/student`, headers).then((res) => {
         this.courses.student = res.data;

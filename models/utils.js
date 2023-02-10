@@ -149,7 +149,7 @@ module.exports = function (models) {
           )
         );
     },
-    createAnnotation: function (location, head, instructors, sessionUserId, follows) {
+    createAnnotation: function (location, head, instructors, tas, sessionUserId, follows) {
       let annotation = {}
       let range = location.HtmlLocation;
 
@@ -166,6 +166,7 @@ module.exports = function (models) {
         annotation.author = head.Author.id;
         annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
         annotation.instructor = instructors.has(head.Author.id);
+        annotation.ta = tas.has(head.Author.id);
         annotation.html = head.content;
         annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
         annotation.people = head.TaggedUsers.map(userTag => userTag.id);
@@ -175,6 +176,7 @@ module.exports = function (models) {
         annotation.spotlight = head.Spotlight
         annotation.media = head.Media
         annotation.replyRequestedByMe = head.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false);
+        annotation.replyRequestedByTA = head.ReplyRequesters.reduce((bool, user) => bool || tas.has(user.id), false);
         annotation.replyRequestCount = head.ReplyRequesters.length;
         annotation.starredByMe = head.Starrers.reduce((bool, user) => bool || user.id == sessionUserId, false);
         annotation.starCount = head.Starrers.length;
@@ -191,7 +193,7 @@ module.exports = function (models) {
 
       return annotation
     },
-    createAnnotationFromThread: function (htmlLocation, head, seenUsers, instructors, sessionUserId, follows) {
+    createAnnotationFromThread: function (htmlLocation, head, seenUsers, instructors, tas, sessionUserId, follows) {
       let annotation = {}
       let range = htmlLocation;
 
@@ -208,6 +210,7 @@ module.exports = function (models) {
         annotation.author = head.Author.id;
         annotation.authorName = head.Author.first_name + " " + head.Author.last_name;
         annotation.instructor = instructors.has(head.Author.id);
+        annotation.ta = tas.has(head.Author.id);
         annotation.html = head.content;
         annotation.hashtags = head.Tags.map(tag => tag.tag_type_id);
         annotation.people = head.TaggedUsers.map(userTag => userTag.id);
@@ -217,6 +220,7 @@ module.exports = function (models) {
         annotation.spotlight = head.Spotlight
         annotation.media = head.Media;
         annotation.replyRequestedByMe = sessionUserId ? head.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false) : undefined;
+        annotation.replyRequestedByTA = sessionUserId ? head.ReplyRequesters.reduce((bool, user) => bool || tas.has(user.id), false) : undefined;
         annotation.replyRequestCount = head.ReplyRequesters.length;
         annotation.starredByMe = sessionUserId ? head.Starrers.reduce((bool, user) => bool || user.id == sessionUserId, false) : undefined;
         annotation.starCount = head.Starrers.length;

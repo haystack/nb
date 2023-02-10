@@ -37,7 +37,8 @@ router.get('/myClasses', async (req, res) => {
         return myClassesIDsAsStudent.indexOf(value["id"]) === index
     });
     const myClassesAsInstructor = await user.getInstructorClasses()
-    const myClasses = [...uniqueMyClassesAsStudent, ...myClassesAsInstructor]
+    const myClassesAsTA = await user.getTAClasses()
+    const myClasses = [...uniqueMyClassesAsStudent, ...myClassesAsInstructor, ...myClassesAsTA]
     const myClassesBySource = myClasses.filter(myClass => allSourcesByFilepath.find(source => source.class_id == myClass.id))
     res.status(200).send(myClassesBySource)
 });
@@ -67,7 +68,8 @@ router.get('/allUsers', (req, res) => {
             association: 'Class',
             include: [
                 { association: 'GlobalSection', include: [{ association: 'MemberStudents', attributes: ['id', 'username', 'first_name', 'last_name'] }] },
-                { association: 'Instructors', attributes: ['id', 'username', 'first_name', 'last_name'] }]
+                { association: 'Instructors', attributes: ['id', 'username', 'first_name', 'last_name'] },
+                { association: 'ClassTAs', attributes: ['id', 'username', 'first_name', 'last_name'] }]
         }]
     })
         .then((source) => {
@@ -77,7 +79,10 @@ router.get('/allUsers', (req, res) => {
             const instructors = source.Class.Instructors
                 .map((user) => simplifyUser(user, 'instructor'))
                 .reduce((obj, user) => { obj[user.id] = user; return obj; }, {});
-            res.status(200).json(Object.assign(students, instructors));
+            const tas = source.Class.ClassTAs
+                .map((user) => simplifyUser(user, 'ta'))
+                .reduce((obj, user) => { obj[user.id] = user; return obj; }, {});
+            res.status(200).json(Object.assign(students, instructors, tas));
         }
         );
 });
@@ -128,6 +133,7 @@ router.get('/annotation', (req, res) => {
                 association: 'Class',
                 include: [
                     { association: 'Instructors', attributes: ['id'] },
+                    { association: 'ClassTAs', attributes: ['id'] },
                     {
                         association: 'GlobalSection', include: [{
                             association: 'MemberStudents', attributes: ['id']
@@ -142,11 +148,13 @@ router.get('/annotation', (req, res) => {
             }]
         }).then(source => {
             let instructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+            let tas = new Set(source.Class.ClassTAs.map(user => user.id)) // convert to set so faster to check if a user is in this set
             let globalSectionStudents = new Set(source.Class.GlobalSection.MemberStudents.map(user => user.id)) // convert to set so faster to check if a user is in this set
             let isUserInstructor = instructors.has(req.user.id);
+            let isUserTA = tas.has(req.user.id);
             let isUserStudent = globalSectionStudents.has(req.user.id);
 
-            if (!isUserInstructor && !isUserStudent) {
+            if (!isUserInstructor && !isUserStudent && !isUserTA) {
                 res.status(200).json([]);
                 return;
             }
@@ -156,7 +164,7 @@ router.get('/annotation', (req, res) => {
 
             for (const section of source.Class.Sections) {
                 let memberIds = section.MemberStudents.map(user => user.id)
-                if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
+                if ((isUserInstructor && section.is_global) || (isUserTA && section.is_global) || (isSingleSectionClass)) {
                     usersICanSee = new Set(memberIds)
                     break;
                 } else {
@@ -219,7 +227,7 @@ router.get('/annotation', (req, res) => {
                         }
                         if (head.visibility === 'INSTRUCTORS' && !isUserInstructor && head.Author.id !== req.user.id) {
                             return false;
-                        } if (req.query.sectioned === 'true' && isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id)) {
+                        } if (req.query.sectioned === 'true' && isUserStudent && head.Author.id !== req.user.id && !usersICanSee.has(head.Author.id) && !instructors.has(head.Author.id) && !tas.has(head.Author.id)) {
                             return false;
                         }
                         return true;
@@ -236,7 +244,7 @@ router.get('/annotation', (req, res) => {
 
                 goodLocations.forEach((location) => {
                     // store all head annotaitons
-                    headAnnotations.push(utils.createAnnotation(location, location.Thread.HeadAnnotation, instructors, req.user.id, follows))
+                    headAnnotations.push(utils.createAnnotation(location, location.Thread.HeadAnnotation, instructors, tas, req.user.id, follows))
 
                     // store all associated annotations in {parent_id : annotation} annotations object
                     location.Thread.AllAnnotations.forEach((annotation) => {
@@ -244,7 +252,7 @@ router.get('/annotation', (req, res) => {
                             if (!(annotation.Parent.id in annotations)) {
                                 annotations[annotation.Parent.id] = []
                             }
-                            annotations[annotation.Parent.id].push(utils.createAnnotation(location, annotation, instructors, req.user.id, follows))
+                            annotations[annotation.Parent.id].push(utils.createAnnotation(location, annotation, instructors, tas, req.user.id, follows))
                         }
                     })
                 });
@@ -279,7 +287,7 @@ router.post('/annotation', async (req, res) => {
         where: { [Op.and]: [{ filepath: req.body.url }, { class_id: req.body.class }] },
         include: [{
             association: 'Class',
-            include: [{ association: 'Instructors', attributes: ['id'] },
+            include: [{ association: 'Instructors', attributes: ['id'] }, { association: 'ClassTAs', attributes: ['id'] },
             { association: 'GlobalSection', include: [{ association: 'MemberStudents', attributes: ['id'] }] },
             // with the hasMany Sections association, add a "separate: true" to make this join happen separately so that there are no duplicate joins
             { association: 'Sections', separate: true, include: [{ association: 'MemberStudents', attributes: ['id'] }] }
@@ -288,11 +296,13 @@ router.post('/annotation', async (req, res) => {
     })
 
     let instructors = new Set(source.Class.Instructors.map(user => user.id))
+    let tas = new Set(source.Class.ClassTAs.map(user => user.id))
     let globalSectionStudents = new Set(source.Class.GlobalSection.MemberStudents.map(user => user.id))
     let isUserInstructor = instructors.has(req.user.id);
+    let isUserTA = tas.has(req.user.id);
     let isUserStudent = globalSectionStudents.has(req.user.id);
 
-    if (!isUserInstructor && !isUserStudent) {
+    if (!isUserInstructor && !isUserStudent && !isUserTA) {
         res.status(200).json([]);
         return;
     }
@@ -303,7 +313,7 @@ router.post('/annotation', async (req, res) => {
     for (const section of source.Class.Sections) {
         let memberIds = section.MemberStudents.map(user => user.id)
 
-        if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
+        if ((isUserInstructor && section.is_global) || (isUserTA && section.is_global) || (isSingleSectionClass)) {
             usersICanSee = memberIds
             break;
         } else {
@@ -352,8 +362,8 @@ router.post('/annotation', async (req, res) => {
             // Since instructors are only part of the global section, only emit to the global room
             io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors], taggedUsers: [...req.body.userTags] })
         } else if (annotation.visibility === 'EVERYONE') {
-            io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] })
-            classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] }))
+            io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...tas, ...usersICanSee], taggedUsers: [...req.body.userTags] })
+            classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...tas, ...usersICanSee], taggedUsers: [...req.body.userTags] }))
         }
     }
 
@@ -385,7 +395,7 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
             where: { [Op.and]: [{ filepath: body.url }, { class_id: body.class }] },
             include: [{
                 association: 'Class',
-                include: [{ association: 'Instructors', attributes: ['id'] },
+                include: [{ association: 'Instructors', attributes: ['id'] }, { association: 'ClassTAs', attributes: ['id'] },
                 { association: 'GlobalSection', include: [{ association: 'MemberStudents', attributes: ['id'] }] },
                 // with the hasMany Sections association, add a "separate: true" to make this join happen separately so that there are no duplicate joins
                 { association: 'Sections', separate: true, include: [{ association: 'MemberStudents', attributes: ['id'] }] }
@@ -394,11 +404,13 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
         })
 
         let instructors = new Set(source.Class.Instructors.map(user => user.id))
+        let tas = new Set(source.Class.ClassTAs.map(user => user.id))
         let globalSectionStudents = new Set(source.Class.GlobalSection.MemberStudents.map(user => user.id))
         let isUserInstructor = instructors.has(req.user.id);
+        let isUserTA = tas.has(req.user.id);
         let isUserStudent = globalSectionStudents.has(req.user.id);
 
-        if (!isUserInstructor && !isUserStudent) {
+        if (!isUserInstructor && !isUserStudent && !isUserTA) {
             res.status(200).json([]);
             return;
         }
@@ -409,7 +421,7 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
         for (const section of source.Class.Sections) {
             let memberIds = section.MemberStudents.map(user => user.id)
 
-            if ((isUserInstructor && section.is_global) || (isSingleSectionClass)) {
+            if ((isUserInstructor && section.is_global) || (isUserTA && section.is_global) || (isSingleSectionClass)) {
                 usersICanSee = memberIds
                 break;
             } else {
@@ -458,8 +470,8 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
                 // Since instructors are only part of the global section, only emit to the global room
                 io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors], taggedUsers: [...req.body.userTags] })
             } else if (annotation.visibility === 'EVERYONE') {
-                io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] })
-                classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...usersICanSee], taggedUsers: [...req.body.userTags] }))
+                io.to(globalRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...tas, ...usersICanSee], taggedUsers: [...req.body.userTags] })
+                classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_thread', { thread: t, authorId: req.user.id, userIds: [...instructors, ...tas, ...usersICanSee], taggedUsers: [...req.body.userTags] }))
             }
         }
     } catch (error) {
@@ -472,6 +484,8 @@ router.post('/media/annotation', upload.single("file"), async (req, res) => {
 
 async function fetchSpecificThread(classId, sourceUrl, threadId) {
     let classInstructors = new Set([])
+    let classTAs = new Set([])
+
     try {
         const source = await Source.findOne({
             where: { [Op.and]: [{ filepath: sourceUrl }, { class_id: classId }] },
@@ -479,11 +493,13 @@ async function fetchSpecificThread(classId, sourceUrl, threadId) {
                 association: 'Class',
                 include: [
                     { association: 'Instructors', attributes: ['id'] },
+                    { association: 'ClassTAs', attributes: ['id'] },
                 ]
             }]
         })
 
         classInstructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+        classTAs = new Set(source.Class.ClassTAs.map(user => user.id)) // convert to set so faster to check if a user is in this set
         
         const thread = await Thread.findOne({
             where: { id: threadId },
@@ -523,14 +539,14 @@ async function fetchSpecificThread(classId, sourceUrl, threadId) {
         })
 
         let annotations = {}
-        let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors)
+        let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, classTAs)
 
         thread.AllAnnotations.forEach((annotation) => {
             if (annotation.Parent) {
                 if (!(annotation.Parent.id in annotations)) {
                     annotations[annotation.Parent.id] = []
                 }
-                annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors))
+                annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, classTAs))
             }
         })
                             
@@ -550,6 +566,8 @@ async function fetchSpecificThread(classId, sourceUrl, threadId) {
 */
 router.get('/specific_thread', async (req, res) => {
     let classInstructors = new Set([])
+    let classTAs = new Set([])
+
     try {
         const follows = await Followers.findAll({ where: { user_id: req.user.id}})
         const source = await Source.findOne({
@@ -558,11 +576,13 @@ router.get('/specific_thread', async (req, res) => {
                 association: 'Class',
                 include: [
                     { association: 'Instructors', attributes: ['id'] },
+                    { association: 'ClassTAs', attributes: ['id'] },
                 ]
             }]
         })
 
         classInstructors = new Set(source.Class.Instructors.map(user => user.id)) // convert to set so faster to check if a user is in this set
+        classTAs = new Set(source.Class.ClassTAs.map(user => user.id)) // convert to set so faster to check if a user is in this set
         
         const thread = await Thread.findOne({
             where: { id: req.query.thread_id },
@@ -602,14 +622,14 @@ router.get('/specific_thread', async (req, res) => {
         })
 
         let annotations = {}
-        let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, req.user.id, follows)
+        let headAnnotation = utils.createAnnotationFromThread(thread.Location.HtmlLocation, thread.HeadAnnotation, thread.SeenUsers, classInstructors, classTAs, req.user.id, follows)
 
         thread.AllAnnotations.forEach((annotation) => {
             if (annotation.Parent) {
                 if (!(annotation.Parent.id in annotations)) {
                     annotations[annotation.Parent.id] = []
                 }
-                annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, req.user.id, follows))
+                annotations[annotation.Parent.id].push(utils.createAnnotationFromThread(thread.Location.HtmlLocation, annotation, thread.SeenUsers, classInstructors, classTAs, req.user.id, follows))
             }
         })
                             
