@@ -61,6 +61,8 @@
     margin-top: 10px;
     padding: 10px;
     cursor: pointer;
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
   }
   .list .item:hover {
     background-color: #ddd;
