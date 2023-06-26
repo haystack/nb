@@ -127,7 +127,7 @@
                     <h2 class="mb-5">Research Team</h2>
                     <div class="col mb-4">
                         <a href="https://www.jumana.info/" target="_blank">
-                            <img property="image" src="https://static1.squarespace.com/static/530a5d6be4b0a1097b351015/t/59da034b9f7456baacd575aa/1507459928907/IMG_1943.JPG?format=750w" aria-label="Image">
+                            <img property="image" src="/res/img/001.jfif" aria-label="Image">
                         </a>    
                         <h3>Jumana Almahmoud</h3>
                         <span>PhD Candidate <strong>@</strong> MIT</span>
@@ -136,7 +136,7 @@
                     </div>
                     <div class="col mb-4">
                         <a href="https://people.csail.mit.edu/karger/" target="_blank">
-                            <img property="image" src="https://haystack.csail.mit.edu/images/people/david-karger.jpg" aria-label="Image">
+                            <img property="image" src="/res/img/002.jpg" aria-label="Image">
                         </a>
                         <h3>David Karger</h3>
                         <span>PI <strong>@</strong> MIT</span>
@@ -151,7 +151,7 @@
                     <h2 class="mb-5">Research Collaborators</h2>
                     <div class="col mb-4">
                         <a href="https://bme.ucdavis.edu/people/marc-facciotti" target="_blank">
-                            <img property="image" src=" https://bme.ucdavis.edu/sites/g/files/dgvnsk5766/files/styles/sf_profile/public/images/person/uc-davis-biomedical-engineering-assistant-professor-marc-facciotti.jpg?h=09f64210&itok=6h76tTfb" aria-label="Image">
+                            <img property="image" src="/res/img/003.jpg" aria-label="Image">
                         </a>
                         <h3>Marc T. Facciotti</h3>
                         <span>Professor <strong>@</strong> UCDavis</span>
@@ -160,7 +160,7 @@
                     </div>
                     <div class="col mb-4">
                         <a href="https://biology.ucdavis.edu/people/michele-igo" target="_blank">
-                            <img property="image" src="https://biology.ucdavis.edu/sites/g/files/dgvnsk12066/files/styles/sf_profile/public/media/images/Michele-Igo-College-of-Biological-Sciences-UC-Davis-1-2_PROFILE.jpg?h=10236ef4&itok=fvBzkO6r" aria-label="Image">
+                            <img property="image" src="/res/img/004.jpg" aria-label="Image">
                         </a>
                         <h3>Michele M. Igo</h3>
                         <span>Professor <strong>@</strong> UCDavis</span>
@@ -168,14 +168,14 @@
                         <a href="mailto:mmigo@ucdavis.edu" target="_blank">mmigo@ucdavis.edu</a>
                     </div>
                     <div class="col mb-4">
-                        <img property="image" src="https://media-exp1.licdn.com/dms/image/C5103AQHuVyGeXRa9zw/profile-displayphoto-shrink_800_800/0/1516832347931?e=2147483647&v=beta&t=GQZLzlbkr1cYdFPVDnTajWGBoDXEX6frz95hHVoeCXY" aria-label="Image">
+                        <img property="image" src="/res/img/005.jfif" aria-label="Image">
                         <h3>Kamali Sripathi</h3>
                         <span>Assistant Project Scientist <strong>@</strong> UCDavis</span>
                         <a href="mailto:ksripathi@ucdavis.edu" target="_blank">ksripathi@ucdavis.edu</a>
                     </div>
                     <div class="col mb-4">
                         <a href="https://homepages.inf.ed.ac.uk/kgal/index.html" target="_blank">
-                            <img property="image" src="https://scholar.googleusercontent.com/citations?view_op=medium_photo&user=lNHuLiQAAAAJ&citpid=1" aria-label="Image">
+                            <img property="image" src="/res/img/006.jfif" aria-label="Image">
                         </a>
                         <h3>Kobi Gal</h3>
                         <span>AI Researcher <strong>@</strong> Ben-Gurion University and University of Edinburgh</span>

@@ -16,6 +16,7 @@ let socketapi = require("../socketapi")
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
+const { url } = require('inspector');
 const upload = multer({ dest: 'public/media/' });
 
 /**
@@ -871,16 +872,22 @@ router.put('/annotation/:id', async (req, res) => {
         await annotation.removeReplyRequester(user);
     }
 
-    const t = await fetchSpecificThread(req.body.class, req.body.url, parent.Thread.id)
+    await emitThreadUpdate(req.body.class, req.body.url, parent.Thread.id, req.user.id, parent)
+
+    res.sendStatus(200)
+});
+
+async function emitThreadUpdate(classId, url, threadId, userId, parent) {
+    const t = await fetchSpecificThread(classId, url, threadId)
     const io = socketapi.io
-    const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
-    const globalRoomId = `${urlHash}:${req.body.class}`
+    const urlHash = crypto.createHash('md5').update(url).digest('hex')
+    const globalRoomId = `${urlHash}:${classId}`
     const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
 
-    io.to(globalRoomId).emit('update_thread', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id})
-    classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('update_thread', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id}))
-res.sendStatus(200)
-});
+    io.to(globalRoomId).emit('update_thread', { thread: t, authorId: userId, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id})
+    classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('update_thread', { thread: t, authorId: userId, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id}))
+
+}
 
 /**
 * Deletes a given annotation
@@ -908,7 +915,7 @@ router.delete('/annotation/:id', (req, res) => {
 
 /**
 * Sets seen for a given annotation and user
-* @name POST/api/annotations/star/:id
+* @name POST/api/annotations/seen/:id
 * @param id: id of annotation
 */
 router.post('/seen/:id', async (req, res) => {
@@ -931,20 +938,31 @@ router.post('/seen/:id', async (req, res) => {
 * @name POST/api/annotations/star/:id
 * @param id: id of annotation
 */
-router.post('/star/:id', (req, res) => {
-    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] }).then(annotation =>
-        User.findByPk(req.user.id).then(user => {
-            if (req.body.star) { annotation.addStarrer(user); }
-            else { annotation.removeStarrer(user); }
-            annotation.Thread.removeSeenUser(user).then(() => {
-                annotation.Thread.addSeenUser(user)
-            })
-            annotation.Thread.removeRepliedUser(user).then(() => {
-                annotation.Thread.addRepliedUser(user)
-            })
-        }).then(() => res.sendStatus(200))
-            .catch((err) => res.sendStatus(400))
-    );
+router.post('/star/:id', async (req, res) => {
+    try {
+        const annotation = await Annotation.findByPk(req.params.id, { include: [{ association: 'Thread' }] })
+        const user = await User.findByPk(req.user.id)
+        
+        if (req.body.star) {
+            await annotation.addStarrer(user); 
+        } else { 
+            await annotation.removeStarrer(user);
+        }
+        
+        await annotation.Thread.removeSeenUser(user)
+        await annotation.Thread.addSeenUser(user)
+        await annotation.Thread.removeRepliedUser(user)
+        await annotation.Thread.addRepliedUser(user)
+
+        console.log(req.body);
+        const parent = await Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }] }] })
+        await emitThreadUpdate(req.body.class, req.body.url, parent.Thread.id, req.user.id, parent)
+
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(400)
+    }
 });
 
 /**
