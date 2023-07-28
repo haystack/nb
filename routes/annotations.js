@@ -253,7 +253,14 @@ router.get('/annotation', (req, res) => {
                             if (!(annotation.Parent.id in annotations)) {
                                 annotations[annotation.Parent.id] = []
                             }
-                            annotations[annotation.Parent.id].push(utils.createAnnotation(location, annotation, instructors, tas, req.user.id, follows))
+                            if (
+                                (annotation.visibility === 'MYSELF' && annotation.Author.id === req.user.id)
+                                || (annotation.visibility === 'INSTRUCTORS' && (isUserInstructor || annotation.Author.id === req.user.id))
+                                || (annotation.visibility === 'EVERYONE')
+                            ) {
+                                annotations[annotation.Parent.id].push(utils.createAnnotation(location, annotation, instructors, tas, req.user.id, follows))
+                            }
+            
                         }
                     })
                 });
