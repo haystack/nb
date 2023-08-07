@@ -81,7 +81,7 @@
     <div v-if="files.length" class="files">
       <div class="header"> Files </div>
       <div class="listing">
-        <vue-good-table :columns="fileColumns" :rows="files" :default-sort-by="{ 'Name': 'asc' }">
+        <vue-good-table :columns="fileColumns" :rows="files" :default-sort-by="{ 'filename': 'asc' }">
           <template slot="table-row" slot-scope="props">
             <span
                 v-if="props.column.field === 'filename'"
