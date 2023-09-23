@@ -33,3 +33,4 @@ yarn-error.log*
 
 package-lock.json
 scripts/ucd2023.js
+/public/.well-known/acme-challenge

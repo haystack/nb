@@ -173,6 +173,7 @@ module.exports = function (models) {
         annotation.visibility = head.visibility;
         annotation.anonymity = head.anonymity;
         annotation.endorsed = head.endorsed;
+        annotation.taEndorsed = head.Starrers.reduce((bool, user) => bool || tas.has(user.id), false);
         annotation.spotlight = head.Spotlight
         annotation.media = head.Media
         annotation.replyRequestedByMe = head.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false);
@@ -217,6 +218,7 @@ module.exports = function (models) {
         annotation.visibility = head.visibility;
         annotation.anonymity = head.anonymity;
         annotation.endorsed = head.endorsed;
+        annotation.taEndorsed = sessionUserId ? head.Starrers.reduce((bool, user) => bool || tas.has(user.id), false) : undefined;
         annotation.spotlight = head.Spotlight
         annotation.media = head.Media;
         annotation.replyRequestedByMe = sessionUserId ? head.ReplyRequesters.reduce((bool, user) => bool || user.id == sessionUserId, false) : undefined;
