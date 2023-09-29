@@ -1,5 +1,5 @@
 const EmailUtil = require('../utils/emailUtil')
-const Class = require('../models').Class;
+const Class = require('../models');
 
 
 const CLASS_ID = '91416f40-8bcb-11ed-9f95-a74688ce4250'
@@ -109,6 +109,7 @@ async function run() {
     for (const u of users) {
         ++counter
 
+        // to skip, in case the script stopped
         if (counter < 253) {
             continue
         }
