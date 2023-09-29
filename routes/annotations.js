@@ -879,8 +879,13 @@ router.put('/annotation/:id', async (req, res) => {
         await annotation.removeReplyRequester(user);
     }
 
-    await emitThreadUpdate(req.body.class, req.body.url, parent.Thread.id, req.user.id, parent)
+    if (req.body.upvotedByMe && req.body.upvotedByMe === true) {
+        await annotation.addStarrer(user);
+    } else if (req.body.upvotedByMe && req.body.upvotedByMe === false) {
+        await annotation.removeStarrer(user);
+    }
 
+    await emitThreadUpdate(req.body.class, req.body.url, parent.Thread.id, req.user.id, parent)
     res.sendStatus(200)
 });
 
@@ -893,7 +898,6 @@ async function emitThreadUpdate(classId, url, threadId, userId, parent) {
 
     io.to(globalRoomId).emit('update_thread', { thread: t, authorId: userId, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id})
     classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('update_thread', { thread: t, authorId: userId, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id}))
-
 }
 
 /**
