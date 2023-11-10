@@ -81,7 +81,7 @@
     <div v-if="files.length" class="files">
       <div class="header"> Files </div>
       <div class="listing">
-        <vue-good-table :columns="fileColumns" :rows="files">
+        <vue-good-table :columns="fileColumns" :rows="files" :sort-options="sortOptions">
           <template slot="table-row" slot-scope="props">
             <span
                 v-if="props.column.field === 'filename'"
@@ -247,6 +247,14 @@
           }    
           
         ],
+        sortOptions: {
+          enabled: true,
+          multipleColumns: true,
+          initialSortBy: [
+            {field: 'Source.Assignment.deadlineString', type: 'asc'},
+            {field: 'filename', type: 'asc'}
+          ],
+        },
         contents: [],
         newFolder: {
           name: "",
