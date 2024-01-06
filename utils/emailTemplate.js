@@ -15,7 +15,7 @@ function buildThreadNewReplyEmail(userId, emailType, replyAuthor, replyUrl, repl
             <tr>
                 <td style="text-align: center; height: 70px; background: #4a2270; align-items: center; margin: 0 0 20px 0;">
                     <a href="https://nb.mit.edu/" target="_blank">
-                        <img  style="height: 70px" src="https://nb.mit.edu/res/nb-logo.png"/>
+                        <img  style="height: 70px" src="https://nb.mit.edu/res/nb-logo-small.png"/>
                     </a>
                 </td>
             </tr>
