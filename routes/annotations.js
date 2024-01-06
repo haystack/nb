@@ -817,16 +817,15 @@ router.post('/reply/:id', async (req, res) => {
             .map(a => a.author_id) 
         ))
 
-        usersToNotify.forEach(async u => {
+        for (const u of usersToNotify) {
             const email = new EmailUtil().to(emails[u]).subject(`[NB] New reply from ${replyAuthor}`).userId(u).emailType(emailType).html(EmailTemplate.buildThreadNewReplyEmail(u, emailType, replyAuthor, replyUrl, replyText))
 
             try {
                 await email.send()
             } catch (error) {
-                console.error(error.message);
+               console.error(error.message);
             }
-    
-        })
+        }
        
     }
 });
