@@ -18,6 +18,9 @@ const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const { url } = require('inspector');
 const upload = multer({ dest: 'public/media/' });
+const EmailUtil = require('../utils/emailUtil')
+const EmailTemplate = require('../utils/emailTemplate')
+ 
 
 /**
 * Get my classes for a given source
@@ -758,9 +761,13 @@ router.get('/reply/:id', (req, res) => {
 * @param star: boolean
 */
 router.post('/reply/:id', async (req, res) => {
-    let username = ""
-    Annotation.findByPk(req.params.id, { include: [{ association: 'Thread', include: [{ association: 'HeadAnnotation', attributes: ['id'] }] }] }).then((parent) =>
-        Annotation.create({
+    const parent = await Annotation.findByPk(req.params.id, { 
+        include: [{ association: 'Thread', 
+            include: [{ association: 'HeadAnnotation', attributes: ['id'] }, { association: 'AllAnnotations', include: [{association: 'Author'}]
+        }] 
+    }] })
+
+    const child = await Annotation.create({
             content: req.body.content,
             visibility: req.body.visibility,
             anonymity: req.body.anonymity,
@@ -769,28 +776,58 @@ router.post('/reply/:id', async (req, res) => {
             Tags: req.body.tags.map(tag_type => { return { tag_type_id: tag_type }; }),
         }, {
             include: [{ association: 'Tags' }]
-        }).then((child) => {
-            req.body.userTags.forEach(user_id => User.findByPk(user_id).then(user => child.addTaggedUser(user)));
-            User.findByPk(req.user.id).then(async user => {
-                if (req.body.replyRequest) child.addReplyRequester(user);
-                if (req.body.star) child.addStarrer(user);
-                if (req.body.bookmark) child.addBookmarker(user);
-                parent.Thread.setSeenUsers([user]);
-                parent.Thread.setRepliedUsers([user]);
-                username = user.username;
-                const t = await fetchSpecificThread(req.body.class, req.body.url, parent.Thread.id)
-                const io = socketapi.io
-                const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
-                const globalRoomId = `${urlHash}:${req.body.class}`
-                const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
-
-                io.to(globalRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id })
-                classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id }))
-            });
-            parent.addChild(child);
-            res.status(200).json(child);
         })
-    );
+        
+    req.body.userTags.forEach(user_id => User.findByPk(user_id).then(user => child.addTaggedUser(user)));
+    
+    const user = await User.findByPk(req.user.id)
+
+    if (req.body.replyRequest) child.addReplyRequester(user);
+    if (req.body.star) child.addStarrer(user);
+    if (req.body.bookmark) child.addBookmarker(user);
+    parent.Thread.setSeenUsers([user]);
+    parent.Thread.setRepliedUsers([user]);
+    const t = await fetchSpecificThread(req.body.class, req.body.url, parent.Thread.id)
+    const io = socketapi.io
+    const urlHash = crypto.createHash('md5').update(req.body.url).digest('hex')
+    const globalRoomId = `${urlHash}:${req.body.class}`
+    const classSectionRooms = Array.from(io.sockets.adapter.rooms.keys()).filter(c => c.startsWith(`${globalRoomId}:`))
+
+    io.to(globalRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id })
+    classSectionRooms.forEach(sectionRoomId => io.to(sectionRoomId).emit('new_reply', { thread: t, authorId: req.user.id, threadId: parent.Thread.id, headAnnotationId: parent.Thread.HeadAnnotation.id, taggedUsers: [...req.body.userTags], newAnnotationId: child.id }))
+ 
+    parent.addChild(child);
+    res.status(200).json(child);
+
+    if (child.visibility === 'EVERYONE') {
+        const MAX_TEXT_LENGTH = 160
+        const threadText = parent.content
+        const replyAuthor = child.anonymity === 'ANONYMOUS' ? 'Anonymous' : user.username
+        const replyTextClean = child.content.replace(/<\/?[^>]+(>|$)/g, "")
+        const replyText = replyTextClean.length > MAX_TEXT_LENGTH ? replyTextClean.substring(0, MAX_TEXT_LENGTH - 3) + "..." : replyTextClean
+        const replyUrl = `${req.body.url}#nb-comment-${parent.Thread.HeadAnnotation.id}`
+        const emailType = 'NEWREPLY'
+
+        const emails = {}
+        parent.Thread.AllAnnotations.forEach(a => emails[a.author_id] = a.Author.email)
+
+        const usersToNotify = Array.from( new Set(
+            parent.Thread.AllAnnotations
+            .filter(a => a.visibility !== 'MYSELF' && a.author_id !== child.author_id )
+            .map(a => a.author_id) 
+        ))
+
+        for (const u of usersToNotify) {
+            const email = new EmailUtil().to(emails[u]).subject(`[NB] New reply from ${replyAuthor}`).userId(u).emailType(emailType).html(EmailTemplate.buildThreadNewReplyEmail(u, emailType, replyAuthor, replyUrl, replyText))
+
+            try {
+                await email.send()
+            } catch (error) {
+               console.error(error.message);
+            }
+        }
+       
+    }
 });
 
 /**

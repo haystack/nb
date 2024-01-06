@@ -81,7 +81,7 @@
     <div v-if="files.length" class="files">
       <div class="header"> Files </div>
       <div class="listing">
-        <vue-good-table :columns="fileColumns" :rows="files" :sort-options="sortOptions">
+        <vue-good-table v-if="files && files.length" :columns="fileColumns" :rows="files" :sort-options="sortOptions">
           <template slot="table-row" slot-scope="props">
             <span
                 v-if="props.column.field === 'filename'"
@@ -93,7 +93,7 @@
             <span v-else-if="props.column.field === 'Source.Assignment.deadlineString'">
               <span>
                 {{ props.row.Source.Assignment ?
-                  props.formattedRow[props.column.field] : "N/A" }}
+                  props.formattedRow[props.column.field] : "---" }}
               </span>
            
             </span>
@@ -137,7 +137,7 @@
           <div class="label"> Assignment Due: </div>
           <div class="field">
             <Datetime
-                v-model="edittingFile.newDeadline"
+                v-model="edittingFileNewDeadline"
                 type="datetime"
                 :inline="true"
                 minute-step="1"
@@ -145,6 +145,7 @@
                 :bootstrap-styling="true">
             </Datetime>
           </div>
+          <span @click="clearAssignmentDue" style="display: flex; align-items: center; margin: 0 5px; cursor: pointer;">Clear</span>
         </div>
         <div class="group form-buttons">
         <button class="delete" @click="deleteEdit"> {{deleteText}} </button>
@@ -216,6 +217,7 @@
         fileIcon: faFile,
         editIcon: faEdit,
         restoreIcon: faTrashRestore,
+        edittingFileNewDeadline: null,
         fileColumns: [
         {
             label: 'Edit',
@@ -225,6 +227,8 @@
             label: 'Name',
             field: 'filename',
             sortable: true,
+            firstSortType: 'asc',
+            type:'string',
             // filterOptions: {
             //   enabled: true,
             // },
@@ -252,7 +256,7 @@
           multipleColumns: true,
           initialSortBy: [
             {field: 'Source.Assignment.deadlineString', type: 'asc'},
-            {field: 'filename', type: 'asc'}
+            {field: 'filename', type: 'asc'},
           ],
         },
         contents: [],
@@ -385,16 +389,21 @@
         this.showDeleted = false
         this.$emit('switch-directory', directory)
       },
+      clearAssignmentDue: function() {
+        console.log('clear');
+        this.edittingFileNewDeadline = null
+      },
       editFolder: function(directory) {
         this.edittingFolder.folder = directory
         this.edittingFolder.newFoldername = directory.filename
         this.$modal.show('edit-folder-modal')
       },
       editAssignment: function(file) {
+        this.edittingFileNewDeadline = null
         this.edittingFile.file = file
         this.deleteText = "Delete"
         if (file.Source.Assignment) {
-          this.edittingFile.newDeadline = file.Source.Assignment.deadline
+          this.edittingFileNewDeadline = file.Source.Assignment.deadline
         }
         this.edittingFile.newFilename = file.filename
         this.edittingFile.newFilepath = file.Source.filepath
@@ -419,7 +428,7 @@
           })
       },
       saveEdit: function() {
-        const body = { deadline: this.edittingFile.newDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
+        const body = { deadline: this.edittingFileNewDeadline, filename: this.edittingFile.newFilename, filepath: this.edittingFile.newFilepath }
         const token = localStorage.getItem("nb.user");
         const headers = { headers: { Authorization: 'Bearer ' + token }}
         axios.post(`/api/files/file/update/${this.edittingFile.file.id}`, body, headers)

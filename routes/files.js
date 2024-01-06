@@ -142,6 +142,11 @@ router.post('/file/update/:id', (req, res) => {
     include: [{ association:'Assignment', required: false }],
   }]})
   .then((file) => {
+    let deleteDeadline = ()=>{
+      file.Source.Assignment.destroy().then(()=>{
+        res.status(200).json(file);
+      });
+    }
     let updateDeadline = ()=>{
       if (file.Source.Assignment) {
           file.Source.Assignment.update({
@@ -173,12 +178,14 @@ router.post('/file/update/:id', (req, res) => {
         }).then(()=> {
    
           if(req.body.deadline) updateDeadline()
+          else if (file.Source.Assignment) deleteDeadline()
           else res.status(200).json(file);
         })
       }
       else {
      
         if(req.body.deadline) updateDeadline()
+        else if (file.Source.Assignment) deleteDeadline()
         else res.status(200).json(file);
       }
     })
