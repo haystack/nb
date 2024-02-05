@@ -1,6 +1,6 @@
 <template>
     <div class="form">
-        <h1 class="title">Rest Password</h1>
+        <h1 class="title">Reset Password</h1>
         <div class="profile-row">
         <div class="group">
             <label for="new-user-email"> Email: </label>
