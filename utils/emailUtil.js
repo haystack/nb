@@ -80,7 +80,7 @@ class EmailUtil {
             throw Error('User id and email type are required!')
         }
 
-        if (await this.isUserSubscribed()) {
+        if (this._emailType === 'SYSTEM' || await this.isUserSubscribed()) {
             const unsubscribeLink = EmailUtil.generateUnsubscribeLink(this._userId, this._emailType)
 
             const options = {

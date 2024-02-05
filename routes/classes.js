@@ -11,6 +11,8 @@ const stripBomStream = require('strip-bom-stream');
 var randomstring = require("randomstring");
 var upload = multer({ dest: 'uploads/' });
 const { Op } = require("sequelize");
+const EmailUtil = require('../utils/emailUtil')
+const { v4: uuidv4 } = require('uuid');
 
 const router = express.Router();
 
@@ -361,6 +363,9 @@ router.post('/user/:id', (req, res) => {
  */
 
 router.post('/upload/:id', upload.single("file"), function (req, res) {
+  var addedToClass = []
+  var accountCreated = []
+
   Class.findByPk(req.params.id, {
     include:
       [
@@ -384,22 +389,29 @@ router.post('/upload/:id', upload.single("file"), function (req, res) {
                 let section = student_entry['Section']
                 let email = student_entry['Email']
                 if (email) {
+                  var reset_password_id = uuidv4();
+                  
+                
                   User.create({
                     username: email,
                     first_name: student_entry["First"],
                     last_name: student_entry["Last"],
                     email: email.toLowerCase(),
                     password: randomstring.generate(),
+                    reset_password_id: reset_password_id,
                   })
-                    .then((user) => {
-                      resolve() // resolve so that we can send a signal back to the frontend
+                    .then( (user) => {
                       utils.addStudentToSection(nb_class, user, section)
+                      const link = req.headers.origin + "/reset?id=" + user.reset_password_id;
+                       accountCreated.push({user, link})
+                       resolve()
                     }).catch((err) => {
-                      resolve()
                       User.findOne({ where: { email: { [Op.iLike]: email } } })
-                        .then(function (user) {
+                        .then( function (user) {
                           if (user) {
                             utils.addStudentToSection(nb_class, user, section)
+                             addedToClass.push({ user})
+                             resolve()
                           }
                         })
                     })
@@ -409,7 +421,17 @@ router.post('/upload/:id', upload.single("file"), function (req, res) {
               });
             })
             Promise.all(requests)
-              .then(() => { res.status(200).json(null); })
+              .then(async () => { 
+                for (const r of accountCreated) {
+                  await sendEmailAccountCreatedForClass(nb_class, r.user, r.link)
+                }
+
+                for (const r of addedToClass) {
+                  await sendEmailAddedToClass(nb_class, r.user)
+                }
+
+                res.status(200).json(null);
+              })
               .catch((err) => {
                 res.status(200).json(null);
               });
@@ -417,6 +439,26 @@ router.post('/upload/:id', upload.single("file"), function (req, res) {
       }
     });
 });
+
+async function sendEmailAddedToClass(nb_class, user) {
+  const body = `Hi,<br><br>Your instructor added to ${nb_class.class_name}.<br><br><a href="https://nb.mit.edu">https://nb.mit.edu</a>`
+  const email = new EmailUtil().to(user.email).subject(`[NB] You've been added to  ${nb_class.class_name}`).userId(user.id).emailType('SYSTEM').html(body)
+  try {
+    await email.send()
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+async function sendEmailAccountCreatedForClass(nb_class, user, resetLink) {
+  const body = `Hi,<br><br>Welcome to NB, your instructor created your account for ${nb_class.class_name}. Please use the following link to set your password: <a href="${resetLink}">${resetLink}</a>`
+  const email = new EmailUtil().to(user.email).subject(`[NB] Your account created by instructor for ${nb_class.class_name}`).userId(user.id).emailType('SYSTEM').html(body)
+  try {
+    await email.send()
+  } catch (error) {
+    console.error(error.message);
+  }
+}
 
 /**
  * Remove a student from a given class
