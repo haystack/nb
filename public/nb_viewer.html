@@ -77,7 +77,7 @@
 <script type="text/javascript">
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const DEFAULT_URL = `uploads/${urlParams.get('id')}.pdf`
+    const DEFAULT_URL = `uploads/${urlParams.get('id')}`
     document.getElementById("download").setAttribute("href", DEFAULT_URL)
     run()
 
